@@ -245,14 +245,29 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
-            <a
-              href={`https://wa.me/917006923317?text=${encodeURIComponent("Hi, I'd like to enquire about hosting a private event at Villa Cottages. Please share details on packages and availability.")}`}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-block py-3.5 px-8 border border-[var(--amber)]/35 text-[0.65rem] tracking-[0.22em] uppercase text-[var(--amber)] hover:bg-[var(--amber)] hover:text-[#080705] transition-colors"
-            >
-              Enquire on WhatsApp
-            </a>
+            <div className="flex flex-wrap gap-3">
+              <a
+                href={`https://wa.me/917006923317?text=${encodeURIComponent("Hi, I'd like to enquire about hosting a private event at Villa Cottages. Please share details on packages and availability.")}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-block py-3.5 px-8 border border-[var(--amber)]/35 text-[0.65rem] tracking-[0.22em] uppercase text-[var(--amber)] hover:bg-[var(--amber)] hover:text-[#080705] transition-colors"
+              >
+                Enquire on WhatsApp
+              </a>
+              <a
+                href="https://www.instagram.com/moodboardbyhsm/"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 py-3.5 px-8 border border-white/10 text-[0.65rem] tracking-[0.22em] uppercase text-cream/50 hover:text-cream hover:border-white/25 transition-colors"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-3.5 h-3.5">
+                  <rect x="3" y="3" width="18" height="18" rx="5" />
+                  <circle cx="12" cy="12" r="4" />
+                  <circle cx="17.5" cy="6.5" r="1" fill="currentColor" />
+                </svg>
+                @moodboardbyhsm
+              </a>
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-2">
             <div className="relative aspect-[3/4] overflow-hidden">
