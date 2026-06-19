@@ -5,9 +5,9 @@ import { createBlock, deleteBlock, updateBlock } from "@/lib/calendar";
 export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  const { hutId, start, end, notes } = await req.json();
+  const { hutId, start, end, source, notes, guestName, guestPhone, guestEmail, guests, checkInTime, checkOutTime, totalAmountInr, advancePaidInr } = await req.json();
   if (!hutId || !start || !end || start >= end) return NextResponse.json({ error: "invalid" }, { status: 400 });
-  const block = await createBlock(hutId, { start, end, source: "manual", notes });
+  const block = await createBlock(hutId, { start, end, source: source ?? "manual", notes, guestName, guestPhone, guestEmail, guests, checkInTime, checkOutTime, totalAmountInr, advancePaidInr });
   return NextResponse.json(block);
 }
 

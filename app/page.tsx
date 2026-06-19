@@ -9,13 +9,13 @@ import { getAllPrices } from "@/lib/price-store";
 
 const AMENITIES = [
   { title: "Two A-Frame Cottages", body: "Two glass A-frame cottages spread across a working apple orchard." },
-  { title: "Private Mosaic Pool", body: "Open May–October, surrounded by apple trees. Loungers and stone deck included." },
+  { title: "Private Mosaic Pool", body: "A small splash pool perfect for kids, open May–October. Surrounded by apple trees, with loungers and a stone deck." },
   { title: "Fire Circle", body: "Stone fire pit with seating. Available on request." },
-  { title: "Kitchenette", body: "Each cottage has its own kitchenette. Chef and food available on the property." },
+  { title: "Kitchenette", body: "Each cottage has its own kitchenette. We accept pre-orders for meals — just let us know in advance." },
   { title: "WiFi", body: "Available at the property." },
   { title: "Concierge", body: "24/7 host support. Staff on property to assist with anything you need." },
-  { title: "Orchard Access", body: "Full run of a working orchard. Pick fruit in season." },
-  { title: "Luxury Linens", body: "Hand-loomed Kashmiri linens, towels, robes, and slippers provided." },
+  { title: "Orchard Access", body: "Full run of a working apple orchard. A rare setting you can stroll, breathe in, and call your own." },
+  { title: "Fresh Linens & Towels", body: "Soft towels and quality bedding provided for your stay." },
 ];
 
 
