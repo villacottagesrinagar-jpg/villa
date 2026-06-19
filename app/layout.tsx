@@ -24,9 +24,9 @@ const lora = Lora({
 });
 
 export const metadata: Metadata = {
-  title: "Villa Cottages — A-Frame Stays in the Kashmir Valley",
+  title: "Villa Cottages, Srinagar — Private Orchard Stay in Kashmir",
   description:
-    "Three private glass A-frame cottages in a working apple orchard at 3,200 ft in the Kashmir Valley. 4.9 stars on Google.",
+    "Two private cottages on a working apple orchard in Srinagar. Pool, mountain views, and total peace. 4.9 stars on Google.",
 };
 
 export default function RootLayout({
