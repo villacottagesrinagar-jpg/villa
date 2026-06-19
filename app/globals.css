@@ -277,6 +277,159 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   padding: 0.75rem 1rem;
 }
 
+/* ─── Booking widget: availability suggestion ─── */
+.bw__suggestion {
+  margin-top: 1rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  background: rgba(212, 175, 55, 0.04);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.bw__suggestion-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.bw__suggestion-label {
+  font-size: 0.55rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(242, 234, 216, 0.45);
+}
+.bw__suggestion-dates {
+  font-family: var(--font-serif), serif;
+  font-size: 1.05rem;
+  color: var(--cream);
+}
+.bw__suggestion-nights {
+  font-size: 0.7rem;
+  color: rgba(242, 234, 216, 0.5);
+}
+.bw__suggestion-cta {
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--amber);
+  background: none;
+  border: 1px solid var(--amber-dim);
+  padding: 0.6rem 1.2rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s, color 0.2s;
+}
+.bw__suggestion-cta:hover { background: var(--amber); color: var(--dark); }
+
+/* ─── Lightbox ─── */
+.lb__close {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.6rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  backdrop-filter: blur(8px);
+}
+.lb__close:hover { background: rgba(255, 255, 255, 0.2); color: white; }
+.lb__counter {
+  position: absolute;
+  top: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.6rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(242, 234, 216, 0.35);
+}
+.lb__nav {
+  position: absolute;
+  color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 1rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  backdrop-filter: blur(8px);
+}
+.lb__nav:hover { background: rgba(255, 255, 255, 0.15); color: white; }
+.lb__nav--prev { left: 1rem; }
+.lb__nav--next { right: 1rem; }
+@media (min-width: 768px) {
+  .lb__nav--prev { left: 2rem; }
+  .lb__nav--next { right: 2rem; }
+}
+
+/* ─── Testimonials ─── */
+.testimonials { padding: 6rem 1.5rem; }
+.testimonials__header { margin-bottom: 3.5rem; }
+.testimonials__title {
+  font-family: var(--font-serif), serif;
+  font-size: 2.5rem;
+  font-weight: 300;
+  margin-bottom: 1.25rem;
+}
+.testimonials__rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: rgba(242, 234, 216, 0.5);
+}
+.testimonials__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  max-width: 72rem;
+  margin: 0 auto;
+}
+.testimonial {
+  padding: 2rem;
+  border-top: 1px solid rgba(212, 175, 55, 0.2);
+  text-align: center;
+}
+.testimonial__stars { display: flex; gap: 0.25rem; justify-content: center; margin-bottom: 1.25rem; }
+.testimonial__quote {
+  font-family: var(--font-serif), serif;
+  font-style: italic;
+  font-size: 1.125rem;
+  line-height: 1.5;
+  color: var(--cream);
+  margin-bottom: 1.25rem;
+}
+.testimonial__author {
+  font-size: 0.65rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: rgba(242, 234, 216, 0.7);
+  display: block;
+  margin-bottom: 0.25rem;
+}
+.testimonial__meta {
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(242, 234, 216, 0.4);
+}
+@media (min-width: 768px) {
+  .testimonials { padding: 6rem 2.5rem; }
+  .testimonials__title { font-size: 3rem; }
+  .testimonials__grid { grid-template-columns: repeat(3, 1fr); }
+}
+
 /* ─── Modal (guest details) ─── */
 .modal {
   position: fixed;

@@ -54,6 +54,7 @@ const TESTIMONIALS = [
 ];
 
 const GALLERY = [
+  "/photos/lavender-night.jpg",
   "/photos/exterior-night.jpg",
   "/photos/orchard.jpg",
   "/photos/interior-living.jpg",
@@ -320,7 +321,7 @@ export default function HomePage() {
 
       {/* FINAL BOOKING */}
       <section className="relative py-20 md:py-28 px-4 md:px-10 overflow-hidden">
-        <Image src="/photos/evening.jpg" alt="" fill className="object-cover" sizes="100vw" />
+        <Image src="/photos/lavender-night.jpg" alt="" fill className="object-cover object-center" sizes="100vw" />
         <div className="absolute inset-0 bg-[#080705]/80" />
         <div className="relative max-w-3xl mx-auto text-center">
           <h2 className="font-serif text-4xl md:text-6xl font-light leading-[1.1] mb-6 md:mb-8">

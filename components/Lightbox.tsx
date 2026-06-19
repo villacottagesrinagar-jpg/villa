@@ -39,33 +39,29 @@ export function Lightbox({
       className="fixed inset-0 z-[100] bg-black/92 flex items-center justify-center"
       onClick={onClose}
     >
-      {/* Close */}
-      <button
-        onClick={onClose}
-        className="absolute top-5 right-6 text-white/50 hover:text-white text-[0.6rem] tracking-[0.25em] uppercase transition-colors"
-      >
+      <button onClick={onClose} className="lb__close">
+        <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-none stroke-current stroke-[1.5]">
+          <path d="M18 6 6 18M6 6l12 12" strokeLinecap="round" />
+        </svg>
         Close
       </button>
 
-      {/* Counter */}
-      <div className="absolute top-5 left-1/2 -translate-x-1/2 text-[0.6rem] tracking-[0.25em] uppercase text-white/35">
+      <div className="lb__counter">
         {index + 1} / {photos.length}
       </div>
 
-      {/* Prev */}
       {index > 0 && (
         <button
           onClick={(e) => { e.stopPropagation(); onPrev(); }}
-          className="absolute left-4 md:left-8 text-white/40 hover:text-white transition-colors p-4"
+          className="lb__nav lb__nav--prev"
           aria-label="Previous"
         >
-          <svg viewBox="0 0 24 24" className="w-7 h-7 fill-none stroke-current stroke-[1.5]">
+          <svg viewBox="0 0 24 24" className="w-5 h-5 fill-none stroke-current stroke-[1.5]">
             <path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
       )}
 
-      {/* Image */}
       <div
         className="relative w-full h-full max-w-5xl max-h-[85vh] mx-16 md:mx-24"
         onClick={(e) => e.stopPropagation()}
@@ -80,14 +76,13 @@ export function Lightbox({
         />
       </div>
 
-      {/* Next */}
       {index < photos.length - 1 && (
         <button
           onClick={(e) => { e.stopPropagation(); onNext(); }}
-          className="absolute right-4 md:right-8 text-white/40 hover:text-white transition-colors p-4"
+          className="lb__nav lb__nav--next"
           aria-label="Next"
         >
-          <svg viewBox="0 0 24 24" className="w-7 h-7 fill-none stroke-current stroke-[1.5]">
+          <svg viewBox="0 0 24 24" className="w-5 h-5 fill-none stroke-current stroke-[1.5]">
             <path d="M9 18l6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>

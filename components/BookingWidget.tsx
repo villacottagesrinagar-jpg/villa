@@ -13,6 +13,7 @@ type Availability = {
   blocked: { start: string; end: string; source: string }[];
   nights: number;
   totalInr?: number;
+  nextAvailable?: { from: string; to: string } | null;
   breakdown?: { nightlyInr: number; subtotalInr: number; cleaningFeeInr: number; taxInr: number };
 };
 
@@ -33,6 +34,10 @@ function nightsBetween(checkIn: string, checkOut: string) {
   return Math.max(0, Math.round((b - a) / (1000 * 60 * 60 * 24)));
 }
 
+function fmtDate(iso: string) {
+  return new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+}
+
 export function BookingWidget({ defaultHutId }: { defaultHutId?: string }) {
   const [hutId, setHutId] = useState(defaultHutId ?? VISIBLE_HUTS[0].id);
   const [checkIn, setCheckIn] = useState(todayISO(7));
@@ -41,6 +46,7 @@ export function BookingWidget({ defaultHutId }: { defaultHutId?: string }) {
   const [loading, setLoading] = useState(false);
   const [availability, setAvailability] = useState<Availability | null>(null);
   const [bothTotal, setBothTotal] = useState<number | null>(null);
+  const [nextAvailable, setNextAvailable] = useState<{ from: string; to: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showGuestForm, setShowGuestForm] = useState(false);
   const [guestName, setGuestName] = useState("");
@@ -49,7 +55,7 @@ export function BookingWidget({ defaultHutId }: { defaultHutId?: string }) {
 
   const isBoth = hutId === BOTH_ID;
   const hut = useMemo(() => VISIBLE_HUTS.find((h) => h.id === hutId), [hutId]);
-  const maxGuests = isBoth ? BOTH_MAX_GUESTS : (hut?.maxGuests ?? 4);
+  const maxGuests = isBoth ? BOTH_MAX_GUESTS / VISIBLE_HUTS.length : (hut?.maxGuests ?? 4);
   const nights = nightsBetween(checkIn, checkOut);
 
   async function check() {
@@ -57,6 +63,7 @@ export function BookingWidget({ defaultHutId }: { defaultHutId?: string }) {
     setError(null);
     setAvailability(null);
     setBothTotal(null);
+    setNextAvailable(null);
     try {
       if (isBoth) {
         const results = await Promise.all(
@@ -67,12 +74,26 @@ export function BookingWidget({ defaultHutId }: { defaultHutId?: string }) {
         const allAvailable = results.every((r) => r.available);
         const total = results.reduce((sum, r) => sum + (r.totalInr ?? 0), 0);
         setBothTotal(total);
+
+        if (!allAvailable) {
+          // Find the latest nextAvailable across both huts so both are free
+          const suggestions = results.map((r) => r.nextAvailable).filter(Boolean);
+          if (suggestions.length > 0) {
+            const latest = suggestions.reduce((a: { from: string; to: string }, b: { from: string; to: string }) =>
+              b.from > a.from ? b : a
+            );
+            setNextAvailable(latest);
+          }
+        }
+
         setAvailability({ available: allAvailable, blocked: [], nights: results[0]?.nights ?? nights });
       } else {
         const url = `/api/availability?hut=${hutId}&from=${checkIn}&to=${checkOut}&guests=${guests}`;
         const r = await fetch(url);
         if (!r.ok) throw new Error("Couldn't check availability. Try again.");
-        setAvailability(await r.json());
+        const data = await r.json();
+        setAvailability(data);
+        if (!data.available && data.nextAvailable) setNextAvailable(data.nextAvailable);
       }
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Something went wrong.");
@@ -81,10 +102,18 @@ export function BookingWidget({ defaultHutId }: { defaultHutId?: string }) {
     }
   }
 
+  function applyNextAvailable() {
+    if (!nextAvailable) return;
+    setCheckIn(nextAvailable.from);
+    setCheckOut(nextAvailable.to);
+    setAvailability(null);
+    setNextAvailable(null);
+  }
+
   async function startCheckout() {
     if (isBoth) {
       const msg = encodeURIComponent(
-        `Hi, I'd like to book Both Cottages from ${checkIn} to ${checkOut} for ${guests} guests. Please confirm availability and total.`
+        `Hi, I'd like to book Both Cottages from ${checkIn} to ${checkOut} for ${guests} guests per cottage. Please confirm availability and total.`
       );
       window.open(`https://wa.me/918715008939?text=${msg}`, "_blank");
       return;
@@ -112,6 +141,7 @@ export function BookingWidget({ defaultHutId }: { defaultHutId?: string }) {
   useEffect(() => {
     setAvailability(null);
     setBothTotal(null);
+    setNextAvailable(null);
     setError(null);
   }, [hutId, checkIn, checkOut, guests]);
 
@@ -140,10 +170,10 @@ export function BookingWidget({ defaultHutId }: { defaultHutId?: string }) {
           <input type="date" value={checkOut} min={checkIn} onChange={(e) => setCheckOut(e.target.value)} />
         </div>
         <div className="bw__cell">
-          <label>Guests</label>
+          <label>{isBoth ? "Guests / cottage" : "Guests"}</label>
           <select value={guests} onChange={(e) => setGuests(Number(e.target.value))}>
             {Array.from({ length: maxGuests }, (_, i) => i + 1).map((n) => (
-              <option key={n} value={n}>{n} guest{n === 1 ? "" : "s"}</option>
+              <option key={n} value={n}>{n} guest{n === 1 ? "" : "s"}{isBoth ? " / cottage" : ""}</option>
             ))}
           </select>
         </div>
@@ -166,6 +196,28 @@ export function BookingWidget({ defaultHutId }: { defaultHutId?: string }) {
       </div>
 
       {error && <p className="mt-4 text-[0.72rem] text-red-400/80">{error}</p>}
+
+      {/* Not available — suggest next open window */}
+      {availability && !availability.available && (
+        <div className="bw__suggestion">
+          {nextAvailable ? (
+            <>
+              <div className="bw__suggestion-text">
+                <span className="bw__suggestion-label">Next available</span>
+                <span className="bw__suggestion-dates">
+                  {fmtDate(nextAvailable.from)} – {fmtDate(nextAvailable.to)}
+                  <span className="bw__suggestion-nights"> · {nightsBetween(nextAvailable.from, nextAvailable.to)} nights</span>
+                </span>
+              </div>
+              <button className="bw__suggestion-cta" onClick={applyNextAvailable}>
+                Book these dates →
+              </button>
+            </>
+          ) : (
+            <p className="bw__suggestion-label">No availability in the next 4 months. Please contact us.</p>
+          )}
+        </div>
+      )}
 
       {availability?.available && !isBoth && availability.breakdown && (
         <div className="bw__breakdown">
