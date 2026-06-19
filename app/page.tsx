@@ -8,7 +8,7 @@ import { HUTS, SITE, PULL_QUOTES } from "@/lib/huts";
 import { getAllPrices } from "@/lib/price-store";
 
 const AMENITIES = [
-  { title: "Two A-Frame Cottages", body: "Two glass A-frame cottages spread across a working apple orchard." },
+  { title: "Two A-Frame Cottages", body: "Two A-frame cottages spread across an apple orchard." },
   { title: "Private Mosaic Pool", body: "A small splash pool perfect for kids, open May–October. Surrounded by apple trees, with loungers and a stone deck." },
   { title: "Fire Circle", body: "Stone fire pit with seating. Available on request." },
   { title: "Kitchenette", body: "Each cottage has its own kitchenette. We accept pre-orders for meals — just let us know in advance." },

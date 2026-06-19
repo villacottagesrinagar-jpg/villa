@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { forwardRef, useImperativeHandle, useMemo, useState } from "react";
 import type { Block } from "@/lib/calendar";
 
 function todayISO() { return new Date().toISOString().slice(0, 10); }
@@ -35,7 +35,6 @@ const STATE_LABEL: Record<CellState, string> = {
   booked: "Site booking",
 };
 
-// Bar colors — used for the bottom strip, not full-cell fills
 const BAR_COLOR: Record<CellState, string> = {
   open:   "",
   hold:   "bg-amber-400/80",
@@ -44,7 +43,14 @@ const BAR_COLOR: Record<CellState, string> = {
   booked: "bg-red-500/80",
 };
 
-export function AdminCalendar({ hutId, initialBlocks }: { hutId: string; initialBlocks: Block[] }) {
+export type AdminCalendarHandle = {
+  addBlock: (block: Block) => void;
+};
+
+export const AdminCalendar = forwardRef<
+  AdminCalendarHandle,
+  { hutId: string; initialBlocks: Block[] }
+>(function AdminCalendar({ hutId, initialBlocks }, ref) {
   const [blocks, setBlocks] = useState(initialBlocks);
   const [busy, setBusy] = useState<string | null>(null);
   const [selected, setSelected] = useState<Block | null>(null);
@@ -55,64 +61,9 @@ export function AdminCalendar({ hutId, initialBlocks }: { hutId: string; initial
   const months = useMemo(() => nextMonths(6), []);
   const m = months[monthOffset];
 
-  const [rangeStart, setRangeStart] = useState("");
-  const [rangeEnd, setRangeEnd] = useState("");
-  const [rangeGuest, setRangeGuest] = useState("");
-  const [rangePhone, setRangePhone] = useState("");
-  const [rangeEmail, setRangeEmail] = useState("");
-  const [rangeGuests, setRangeGuests] = useState("");
-  const [rangeCheckIn, setRangeCheckIn] = useState("");
-  const [rangeCheckOut, setRangeCheckOut] = useState("");
-  const [rangeTotal, setRangeTotal] = useState("");
-  const [rangeAdvance, setRangeAdvance] = useState("");
-  const [rangeNote, setRangeNote] = useState("");
-  const [rangeBusy, setRangeBusy] = useState(false);
-  const [rangeMsg, setRangeMsg] = useState<string | null>(null);
-
-  function resetRangeForm() {
-    setRangeStart(""); setRangeEnd("");
-    setRangeGuest(""); setRangePhone(""); setRangeEmail(""); setRangeGuests("");
-    setRangeCheckIn(""); setRangeCheckOut("");
-    setRangeTotal(""); setRangeAdvance(""); setRangeNote("");
-  }
-
-  async function blockRange() {
-    if (!rangeStart || !rangeEnd || rangeStart >= rangeEnd) return;
-    setRangeBusy(true);
-    setRangeMsg(null);
-    try {
-      const r = await fetch("/api/admin/block", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          hutId,
-          start: rangeStart,
-          end: rangeEnd,
-          source: rangeGuest ? "site" : "manual",
-          guestName: rangeGuest || undefined,
-          guestPhone: rangePhone || undefined,
-          guestEmail: rangeEmail || undefined,
-          guests: rangeGuests || undefined,
-          checkInTime: rangeCheckIn || undefined,
-          checkOutTime: rangeCheckOut || undefined,
-          totalAmountInr: rangeTotal ? Number(rangeTotal) : undefined,
-          advancePaidInr: rangeAdvance ? Number(rangeAdvance) : undefined,
-          notes: rangeNote || (rangeGuest ? undefined : "Blocked by manager"),
-        }),
-      });
-      if (r.ok) {
-        const added = await r.json();
-        setBlocks((bs) => [...bs, added]);
-        setRangeMsg("✓ Saved");
-        resetRangeForm();
-        setTimeout(() => setRangeMsg(null), 3000);
-      } else {
-        setRangeMsg("Failed — dates may overlap");
-      }
-    } finally {
-      setRangeBusy(false);
-    }
-  }
+  useImperativeHandle(ref, () => ({
+    addBlock: (block: Block) => setBlocks((bs) => [...bs, block]),
+  }));
 
   async function deleteBlock(block: Block) {
     if (!block.eventId) return;
@@ -183,65 +134,6 @@ export function AdminCalendar({ hutId, initialBlocks }: { hutId: string; initial
   return (
     <div className="space-y-6">
 
-      {/* Range block panel */}
-      <div className="p-4 border border-[var(--amber)]/15 bg-[var(--amber)]/4 space-y-3">
-        <div className="text-[0.6rem] tracking-[0.18em] uppercase text-cream/45">Block a date range</div>
-
-        {/* Dates */}
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <label className="block text-[0.55rem] tracking-widest uppercase text-amber-400/70 mb-1">From</label>
-            <input type="date" min={today} value={rangeStart} onChange={(e) => setRangeStart(e.target.value)}
-              className="w-full bg-transparent border border-white/10 px-2 py-1.5 text-[0.75rem] text-cream outline-none focus:border-[var(--amber)]/50" />
-          </div>
-          <div>
-            <label className="block text-[0.55rem] tracking-widest uppercase text-amber-400/70 mb-1">To</label>
-            <input type="date" min={rangeStart || today} value={rangeEnd} onChange={(e) => setRangeEnd(e.target.value)}
-              className="w-full bg-transparent border border-white/10 px-2 py-1.5 text-[0.75rem] text-cream outline-none focus:border-[var(--amber)]/50" />
-          </div>
-        </div>
-
-        {/* Guest details */}
-        <div className="text-[0.5rem] tracking-[0.18em] uppercase text-cream/30 pt-1">Guest details (optional)</div>
-        <div className="grid grid-cols-2 gap-2">
-          {[
-            { label: "Guest name",    value: rangeGuest,    set: setRangeGuest,    type: "text"   },
-            { label: "Phone",         value: rangePhone,    set: setRangePhone,    type: "tel"    },
-            { label: "Email",         value: rangeEmail,    set: setRangeEmail,    type: "email"  },
-            { label: "Guests",        value: rangeGuests,   set: setRangeGuests,   type: "text",  placeholder: "e.g. 2 adults, 1 child" },
-            { label: "Check-in time", value: rangeCheckIn,  set: setRangeCheckIn,  type: "time"   },
-            { label: "Check-out time",value: rangeCheckOut, set: setRangeCheckOut, type: "time"   },
-            { label: "Total (₹)",     value: rangeTotal,    set: setRangeTotal,    type: "number" },
-            { label: "Advance (₹)",   value: rangeAdvance,  set: setRangeAdvance,  type: "number" },
-          ].map(({ label, value, set, type, placeholder }) => (
-            <div key={label}>
-              <label className="block text-[0.5rem] tracking-widest uppercase text-amber-400/60 mb-1">{label}</label>
-              <input type={type} placeholder={placeholder} value={value}
-                onChange={(e) => set(e.target.value)}
-                className="w-full bg-transparent border border-white/10 px-2 py-1.5 text-[0.75rem] text-cream outline-none focus:border-[var(--amber)]/50 placeholder:text-cream/20" />
-            </div>
-          ))}
-        </div>
-
-        <div>
-          <label className="block text-[0.5rem] tracking-widest uppercase text-amber-400/60 mb-1">Notes</label>
-          <textarea placeholder="Owner stay, Maintenance, etc." value={rangeNote} onChange={(e) => setRangeNote(e.target.value)}
-            rows={2}
-            className="w-full bg-transparent border border-white/10 px-2 py-1.5 text-[0.75rem] text-cream outline-none focus:border-[var(--amber)]/50 placeholder:text-cream/25 resize-y" />
-        </div>
-
-        <div className="flex items-center gap-3">
-          <button
-            onClick={blockRange}
-            disabled={!rangeStart || !rangeEnd || rangeStart >= rangeEnd || rangeBusy}
-            className="px-4 py-1.5 bg-red-500/30 border border-red-500/40 text-[0.6rem] tracking-[0.18em] uppercase text-cream hover:bg-red-500/50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-          >
-            {rangeBusy ? "Saving…" : "Save"}
-          </button>
-          {rangeMsg && <span className="text-[0.65rem] text-cream/50">{rangeMsg}</span>}
-        </div>
-      </div>
-
       {/* Month navigation */}
       <div className="flex items-center justify-between">
         <button
@@ -265,7 +157,7 @@ export function AdminCalendar({ hutId, initialBlocks }: { hutId: string; initial
         </button>
       </div>
 
-      {/* Calendar grid — one month */}
+      {/* Calendar grid */}
       <div className="grid grid-cols-7">
         {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((d) => (
           <div key={d} className="text-center text-[0.5rem] text-cream/30 pb-2">{d}</div>
@@ -295,10 +187,8 @@ export function AdminCalendar({ hutId, initialBlocks }: { hutId: string; initial
                 isBusy ? "opacity-40" : "",
               ].join(" ")}
             >
-              {/* Day number */}
               <span className="relative z-10 leading-none">{day}</span>
 
-              {/* Check-in / check-out micro labels */}
               {!isOpen && pos === "first" && (
                 <span className="relative z-10 text-[0.37rem] tracking-[0.08em] uppercase text-cream/50 leading-none mt-[3px]">in</span>
               )}
@@ -306,7 +196,6 @@ export function AdminCalendar({ hutId, initialBlocks }: { hutId: string; initial
                 <span className="relative z-10 text-[0.37rem] tracking-[0.08em] uppercase text-cream/50 leading-none mt-[3px]">out</span>
               )}
 
-              {/* Google-Calendar-style bar at bottom of cell */}
               {!isOpen && pos && (
                 <div
                   className={[
@@ -370,18 +259,17 @@ export function AdminCalendar({ hutId, initialBlocks }: { hutId: string; initial
             </div>
 
             {editMode && editDraft ? (
-              /* ── Edit form ── */
               <div className="space-y-3">
                 {[
-                  { label: "Guest name",    key: "guestName",    type: "text" },
-                  { label: "Email",         key: "guestEmail",   type: "email" },
-                  { label: "Phone",         key: "guestPhone",   type: "tel" },
-                  { label: "Guests",        key: "guests",       type: "text", placeholder: "e.g. 2 adults, 1 child" },
-                  { label: "Check-in time", key: "checkInTime",  type: "time" },
-                  { label: "Check-out time",key: "checkOutTime", type: "time" },
-                  { label: "Total (₹)",     key: "totalAmountInr",   type: "number" },
-                  { label: "Advance paid (₹)", key: "advancePaidInr", type: "number" },
-                ] .map(({ label, key, type, placeholder }) => (
+                  { label: "Guest name",       key: "guestName",      type: "text" },
+                  { label: "Email",             key: "guestEmail",     type: "email" },
+                  { label: "Phone",             key: "guestPhone",     type: "tel" },
+                  { label: "Guests",            key: "guests",         type: "text", placeholder: "e.g. 2 adults, 1 child" },
+                  { label: "Check-in time",     key: "checkInTime",    type: "time" },
+                  { label: "Check-out time",    key: "checkOutTime",   type: "time" },
+                  { label: "Total (₹)",         key: "totalAmountInr", type: "number" },
+                  { label: "Advance paid (₹)",  key: "advancePaidInr", type: "number" },
+                ].map(({ label, key, type, placeholder }) => (
                   <div key={key}>
                     <label className="block text-[0.5rem] tracking-widest uppercase text-amber-400/60 mb-1">{label}</label>
                     <input
@@ -422,7 +310,6 @@ export function AdminCalendar({ hutId, initialBlocks }: { hutId: string; initial
                 </div>
               </div>
             ) : (
-              /* ── View mode ── */
               <>
                 <div className="space-y-1.5">
                   {selected.guestName && (
@@ -489,7 +376,7 @@ export function AdminCalendar({ hutId, initialBlocks }: { hutId: string; initial
       )}
     </div>
   );
-}
+});
 
 function nextMonths(count: number) {
   const today = new Date();
