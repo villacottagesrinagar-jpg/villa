@@ -1136,43 +1136,76 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .admin-light .text-cream { color: #1c1814 !important; }
 
 /* Border overrides */
-.admin-light .admin-header-border { border-color: rgba(28, 24, 20, 0.12) !important; }
-.admin-light .border-white\/10 { border-color: rgba(28, 24, 20, 0.1) !important; }
-.admin-light .border-white\/8  { border-color: rgba(28, 24, 20, 0.08) !important; }
-.admin-light .border-white\/6  { border-color: rgba(28, 24, 20, 0.06) !important; }
-.admin-light .border-white\/5  { border-color: rgba(28, 24, 20, 0.05) !important; }
+.admin-light .admin-header-border { border-color: rgba(28, 24, 20, 0.15) !important; }
+.admin-light .border-white\/10 { border-color: rgba(28, 24, 20, 0.15) !important; }
+.admin-light .border-white\/8  { border-color: rgba(28, 24, 20, 0.12) !important; }
+.admin-light .border-white\/6  { border-color: rgba(28, 24, 20, 0.08) !important; }
+.admin-light .border-white\/5  { border-color: rgba(28, 24, 20, 0.06) !important; }
 
 /* Hardcoded dark backgrounds */
 .admin-light .bg-\[\#080705\]\/60,
-.admin-light .bg-\[\#080705\] { background-color: #ffffff !important; }
+.admin-light .bg-\[\#080705\] {
+  background-color: #ffffff !important;
+  box-shadow: 0 1px 6px rgba(28, 24, 20, 0.1);
+}
+
+/* Block range + amber panels */
+.admin-light .border-\[var\(--amber\)\]\/15 { border-color: rgba(212, 175, 55, 0.4) !important; }
+.admin-light .bg-\[var\(--amber\)\]\/4  { background-color: rgba(212, 175, 55, 0.07) !important; }
+.admin-light .bg-\[var\(--amber\)\]\/5  { background-color: rgba(212, 175, 55, 0.09) !important; }
+
+/* Drop shadows on every bordered panel in admin */
+.admin-light .border { box-shadow: 0 1px 5px rgba(28, 24, 20, 0.07); }
 
 /* Info box */
 .admin-light .admin-info-box {
   background-color: rgba(212, 175, 55, 0.08) !important;
   color: rgba(28, 24, 20, 0.7) !important;
-  border-color: rgba(212, 175, 55, 0.25) !important;
+  border-color: rgba(212, 175, 55, 0.35) !important;
 }
 
-/* Calendar grid cells */
+/* Calendar grid */
 .admin-light button[title="Click to block"]:hover { background-color: rgba(34, 197, 94, 0.1) !important; }
 .admin-light .text-cream\/20 { color: rgba(28, 24, 20, 0.2) !important; }
+/* Month navigation arrows + label */
+.admin-light .text-cream\/50 { color: rgba(28, 24, 20, 0.5) !important; }
+.admin-light .text-cream\/60 { color: rgba(28, 24, 20, 0.6) !important; }
+.admin-light .select-none { color: rgba(28, 24, 20, 0.65) !important; }
 
 /* Block detail modal */
 .admin-light .bg-black\/60 { background-color: rgba(28, 24, 20, 0.45) !important; }
-.admin-light .bg-\[\#0e0d0b\] { background-color: #faf8f4 !important; color: #1c1814 !important; }
+.admin-light .bg-\[\#0e0d0b\] {
+  background-color: #faf8f4 !important;
+  color: #1c1814 !important;
+  box-shadow: 0 8px 32px rgba(28, 24, 20, 0.18);
+}
 
 /* Inputs and textareas */
 .admin-light input,
 .admin-light textarea,
 .admin-light select {
-  background-color: rgba(28, 24, 20, 0.04) !important;
+  background-color: #ffffff !important;
   color: #1c1814 !important;
-  border-color: rgba(28, 24, 20, 0.15) !important;
+  border-color: rgba(28, 24, 20, 0.2) !important;
+  box-shadow: 0 1px 3px rgba(28, 24, 20, 0.06);
 }
 .admin-light input::placeholder,
 .admin-light textarea::placeholder { color: rgba(28, 24, 20, 0.3) !important; }
 .admin-light input:focus,
-.admin-light textarea:focus { border-color: rgba(212, 175, 55, 0.5) !important; }
+.admin-light textarea:focus {
+  border-color: rgba(212, 175, 55, 0.6) !important;
+  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.12) !important;
+}
+
+/* Buttons */
+.admin-light .bg-red-500\/30 { background-color: rgba(239, 68, 68, 0.15) !important; }
+.admin-light .border-red-500\/40 { border-color: rgba(239, 68, 68, 0.5) !important; }
+.admin-light .text-red-400 { color: rgb(185, 28, 28) !important; }
+.admin-light .bg-amber-400\/15 { background-color: rgba(212, 175, 55, 0.18) !important; }
+.admin-light .border-amber-400\/40 { border-color: rgba(212, 175, 55, 0.6) !important; }
+.admin-light .text-amber-400 { color: rgb(161, 128, 0) !important; }
 
 /* Eyebrow/small labels */
-.admin-light .eyebrow { color: rgba(28, 24, 20, 0.4) !important; }
+.admin-light .eyebrow { color: rgba(28, 24, 20, 0.45) !important; }
+.admin-light .text-amber-400\/70 { color: rgba(161, 128, 0, 0.85) !important; }
+.admin-light .text-amber-400\/60 { color: rgba(161, 128, 0, 0.75) !important; }
