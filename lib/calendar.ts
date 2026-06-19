@@ -105,7 +105,8 @@ export function priceBreakdown(hutId: string, nights: number) {
 }
 
 // ─── Mapping ───
-type GEvent = NonNullable<Awaited<ReturnType<ReturnType<typeof googleCalendar>["events"]["list"]>>["data"]["items"]>[number];
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type GEvent = any;
 
 function blockToGEvent(b: Block, hut: Hut): GEvent {
   const prefix = `[${hut.calendarPrefix}]`;

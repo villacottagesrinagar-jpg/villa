@@ -8,11 +8,11 @@ export default async function ReturnPage({
 }) {
   const sp = await searchParams;
   const orderId = sp.order_id;
-  let status: "PAID" | "ACTIVE" | "EXPIRED" | "UNKNOWN" = "UNKNOWN";
+  let status = "UNKNOWN";
   if (orderId && hasCashfree()) {
     try {
       const o = await fetchOrder(orderId);
-      status = o.status as typeof status;
+      status = o.status as string;
     } catch { /* show pending state */ }
   }
 

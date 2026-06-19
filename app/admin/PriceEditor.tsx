@@ -45,7 +45,6 @@ export function PriceEditor({ initialPrices }: { initialPrices: PriceMap }) {
       <div className="eyebrow mb-4">Nightly Rates</div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {HUTS.map((hut) => {
-          const isEditing = hutId => editing[hutId] !== undefined;
           return (
             <div key={hut.id} className="border border-white/8 p-4 bg-[#080705]/60">
               <div className="text-[0.6rem] tracking-[0.18em] uppercase text-cream/45 mb-1">{hut.name}</div>

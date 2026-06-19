@@ -192,7 +192,7 @@ export default function HomePage() {
           className="object-cover"
           sizes="100vw"
         />
-        <div className="absolute inset-0 bg-[#080705]/82" />
+        <div className="absolute inset-0 bg-[#080705]/55" />
         <div className="relative py-24 px-6 lg:px-10 max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <div className="eyebrow mb-3">What&apos;s Included</div>

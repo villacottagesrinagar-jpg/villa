@@ -3,10 +3,43 @@
 import { useMemo, useState } from "react";
 import type { Block } from "@/lib/calendar";
 
+function todayISO() { return new Date().toISOString().slice(0, 10); }
+
 export function AdminCalendar({ hutId, initialBlocks }: { hutId: string; initialBlocks: Block[] }) {
   const [blocks, setBlocks] = useState(initialBlocks);
   const [busy, setBusy] = useState<string | null>(null);
   const months = useMemo(() => nextMonths(3), []);
+
+  // Range block form
+  const [rangeStart, setRangeStart] = useState("");
+  const [rangeEnd, setRangeEnd] = useState("");
+  const [rangeNote, setRangeNote] = useState("");
+  const [rangeBusy, setRangeBusy] = useState(false);
+  const [rangeMsg, setRangeMsg] = useState<string | null>(null);
+
+  async function blockRange() {
+    if (!rangeStart || !rangeEnd || rangeStart >= rangeEnd) return;
+    setRangeBusy(true);
+    setRangeMsg(null);
+    try {
+      const r = await fetch("/api/admin/block", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ hutId, start: rangeStart, end: rangeEnd, notes: rangeNote || "Blocked by manager" }),
+      });
+      if (r.ok) {
+        const added = await r.json();
+        setBlocks((bs) => [...bs, added]);
+        setRangeMsg("✓ Blocked");
+        setRangeStart(""); setRangeEnd(""); setRangeNote("");
+        setTimeout(() => setRangeMsg(null), 3000);
+      } else {
+        setRangeMsg("Failed — dates may overlap");
+      }
+    } finally {
+      setRangeBusy(false);
+    }
+  }
 
   function classify(iso: string): { state: "open" | "hold" | "booked" | "manual" | "airbnb"; block?: Block } {
     for (const b of blocks) {
@@ -26,7 +59,7 @@ export function AdminCalendar({ hutId, initialBlocks }: { hutId: string; initial
         if (r.ok) setBlocks((bs) => bs.filter((b) => b.eventId !== existing.block!.eventId));
       } else if (existing.state === "open") {
         const next = addDays(iso, 1);
-        const r = await fetch(`/api/admin/block`, {
+        const r = await fetch("/api/admin/block", {
           method: "POST",
           headers: { "content-type": "application/json" },
           body: JSON.stringify({ hutId, start: iso, end: next, notes: "Blocked by manager" }),
@@ -43,6 +76,52 @@ export function AdminCalendar({ hutId, initialBlocks }: { hutId: string; initial
 
   return (
     <div className="space-y-6">
+
+      {/* Range block panel */}
+      <div className="p-4 border border-[var(--amber)]/15 bg-[var(--amber)]/4 space-y-3">
+        <div className="text-[0.6rem] tracking-[0.18em] uppercase text-cream/45">Block a date range</div>
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label className="block text-[0.55rem] tracking-widest uppercase text-amber-400/70 mb-1">From</label>
+            <input
+              type="date"
+              min={todayISO()}
+              value={rangeStart}
+              onChange={(e) => setRangeStart(e.target.value)}
+              className="w-full bg-transparent border border-white/10 px-2 py-1.5 text-[0.75rem] text-cream outline-none focus:border-[var(--amber)]/50"
+            />
+          </div>
+          <div>
+            <label className="block text-[0.55rem] tracking-widest uppercase text-amber-400/70 mb-1">To</label>
+            <input
+              type="date"
+              min={rangeStart || todayISO()}
+              value={rangeEnd}
+              onChange={(e) => setRangeEnd(e.target.value)}
+              className="w-full bg-transparent border border-white/10 px-2 py-1.5 text-[0.75rem] text-cream outline-none focus:border-[var(--amber)]/50"
+            />
+          </div>
+        </div>
+        <input
+          type="text"
+          placeholder="Note (e.g. Owner stay, Maintenance…)"
+          value={rangeNote}
+          onChange={(e) => setRangeNote(e.target.value)}
+          className="w-full bg-transparent border border-white/10 px-2 py-1.5 text-[0.75rem] text-cream outline-none focus:border-[var(--amber)]/50 placeholder:text-cream/25"
+        />
+        <div className="flex items-center gap-3">
+          <button
+            onClick={blockRange}
+            disabled={!rangeStart || !rangeEnd || rangeStart >= rangeEnd || rangeBusy}
+            className="px-4 py-1.5 bg-red-500/30 border border-red-500/40 text-[0.6rem] tracking-[0.18em] uppercase text-cream hover:bg-red-500/50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            {rangeBusy ? "Blocking…" : "Block range"}
+          </button>
+          {rangeMsg && <span className="text-[0.65rem] text-cream/50">{rangeMsg}</span>}
+        </div>
+      </div>
+
+      {/* Calendar grid */}
       {months.map((m) => (
         <div key={`${m.year}-${m.month}`}>
           <div className="text-[0.7rem] tracking-[0.18em] uppercase text-cream/45 mb-3">
