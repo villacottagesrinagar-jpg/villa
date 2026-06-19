@@ -9,11 +9,11 @@ import { getAllPrices } from "@/lib/price-store";
 const AMENITIES = [
   { title: "Two A-Frame Cottages", body: "Two glass A-frame cottages spread across a working apple orchard." },
   { title: "Private Mosaic Pool", body: "Open May–October, surrounded by apple trees. Loungers and stone deck included." },
-  { title: "Fire Circle", body: "Stone fire pit with Adirondack seating for 6. Firewood provided year-round." },
-  { title: "Full Kitchens", body: "Espresso machine and dining for 6. Optional Kashmiri chef on request." },
-  { title: "Satellite WiFi", body: "50+ Mbps across the property. Work from paradise if you must." },
+  { title: "Fire Circle", body: "Stone fire pit with seating. Available on request." },
+  { title: "Kitchenette", body: "Each cottage has its own kitchenette. Chef and food available on the property." },
+  { title: "WiFi", body: "Available at the property." },
   { title: "Concierge", body: "24/7 host support, local guides, shikara bookings on Dal Lake." },
-  { title: "Orchard Access", body: "Full run of 1.2 acres of working orchard. Pick fruit in season." },
+  { title: "Orchard Access", body: "Full run of a working orchard. Pick fruit in season." },
   { title: "Luxury Linens", body: "Hand-loomed Kashmiri linens, towels, robes, and slippers provided." },
 ];
 
@@ -55,6 +55,12 @@ const TESTIMONIALS = [
 
 const GALLERY = [
   "/photos/lavender-night.jpg",
+  "/photos/gallery-new-1.avif",
+  "/photos/gallery-new-2.avif",
+  "/photos/gallery-new-3.avif",
+  "/photos/gallery-new-4.webp",
+  "/photos/gallery-new-5.webp",
+  "/photos/gallery-new-6.webp",
   "/photos/exterior-night.jpg",
   "/photos/orchard.jpg",
   "/photos/interior-living.jpg",
@@ -124,10 +130,6 @@ export default function HomePage() {
           Villa Cottages sits in Srinagar surrounded by apple trees and the Kashmir mountain ranges.
           Every window frames a painting. Every morning begins with birdsong.
         </p>
-        <p className="mt-8 font-serif italic text-base text-cream/50">
-          &ldquo;{PULL_QUOTES.warmthIntention.quote}&rdquo;
-        </p>
-        <span className="block mt-2 text-[0.55rem] tracking-[0.25em] uppercase text-cream/30">— {PULL_QUOTES.warmthIntention.author} · Google review</span>
       </section>
 
       {/* STAYS */}
@@ -164,23 +166,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* QUOTE BAND 1 */}
-      <section className="quote-band">
-        <div className="quote-band__bg" />
-        <div className="quote-band__overlay" />
-        <div className="quote-band__inner">
-          <p className="quote">&ldquo;{PULL_QUOTES.warmthIntention.quote}&rdquo;</p>
-          <p className="author">— {PULL_QUOTES.warmthIntention.author} · Google</p>
-        </div>
-      </section>
-
       {/* GALLERY */}
-      <section id="gallery" className="py-24 px-6 lg:px-10 max-w-7xl mx-auto">
-        <div className="text-center mb-12">
+      <section id="gallery" className="py-24">
+        <div className="text-center mb-12 px-6 lg:px-10 max-w-7xl mx-auto">
           <div className="eyebrow mb-3">Gallery</div>
           <h2 className="font-serif text-4xl md:text-5xl font-light">Inside the property.</h2>
           <p className="mt-4 font-serif italic text-lg text-cream/55 max-w-xl mx-auto">
-            &ldquo;{PULL_QUOTES.appleTrees.quote}&rdquo; <span className="text-cream/30 text-[0.65rem] not-italic tracking-wider">— {PULL_QUOTES.appleTrees.author}</span>
+            &ldquo;{PULL_QUOTES.appleTrees.quote}&rdquo; <span className="text-cream/30 text-[0.65rem] not-italic tracking-wider">— {PULL_QUOTES.appleTrees.author} · Google review</span>
           </p>
         </div>
         <GalleryGrid photos={GALLERY} />
@@ -280,12 +272,12 @@ export default function HomePage() {
       {/* TESTIMONIALS */}
       <section id="testimonials" className="relative py-24 px-6 lg:px-10 text-center overflow-hidden">
         <Image src="/photos/lavender-wide.jpg" alt="" fill className="object-cover object-center" sizes="100vw" />
-        <div className="absolute inset-0 bg-[#080705]/80" />
+        <div className="absolute inset-0 bg-[#080705]/65" />
         <div className="relative max-w-7xl mx-auto">
-        <div className="mb-14">
+        <div className="testimonials__header">
           <div className="eyebrow mb-3">Testimonials</div>
-          <h2 className="font-serif text-4xl md:text-5xl font-light mb-5">What guests say.</h2>
-          <div className="inline-flex items-center gap-2 text-[0.7rem] tracking-wider text-cream/50">
+          <h2 className="testimonials__title">What guests say.</h2>
+          <div className="testimonials__rating">
             <span className="flex gap-0.5">
               {Array.from({ length: 5 }).map((_, i) => (
                 <svg key={i} viewBox="0 0 24 24" className="w-3 h-3 fill-[var(--amber)]">
@@ -296,20 +288,20 @@ export default function HomePage() {
             <span className="text-cream"><strong className="font-medium">4.9</strong> · 124 reviews on Google</span>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div className="testimonials__grid">
           {TESTIMONIALS.map((t) => (
-            <div key={t.author} className="p-8 border-t border-[rgba(212,175,55,0.2)] text-center">
-              <div className="flex gap-1 mb-5 justify-center">
+            <div key={t.author} className="testimonial">
+              <div className="testimonial__stars">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <svg key={i} viewBox="0 0 24 24" className="w-3 h-3 fill-[var(--amber)]">
                     <path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1 3-6z" />
                   </svg>
                 ))}
               </div>
-              <p className="font-serif italic text-lg leading-snug text-cream mb-5">&ldquo;{t.quote}&rdquo;</p>
-              <div className="text-[0.6rem] tracking-[0.18em] uppercase">
-                <strong className="block font-medium text-cream/70 mb-0.5 text-[0.65rem]">{t.author}</strong>
-                <span className="text-cream/40">{t.meta}</span>
+              <p className="testimonial__quote">&ldquo;{t.quote}&rdquo;</p>
+              <div>
+                <strong className="testimonial__author">{t.author}</strong>
+                <span className="testimonial__meta">{t.meta}</span>
               </div>
             </div>
           ))}
@@ -317,29 +309,31 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* QUOTE BAND 2 */}
+      {/* QUOTE BAND */}
       <section className="quote-band">
-        <div className="quote-band__bg" />
-        <div className="quote-band__overlay" />
         <div className="quote-band__inner">
-          <p className="quote">&ldquo;{PULL_QUOTES.fallInLove.quote}&rdquo;</p>
-          <p className="author">— {PULL_QUOTES.fallInLove.author} · Google</p>
+          <p className="quote">&ldquo;{PULL_QUOTES.warmthIntention.quote}&rdquo;</p>
+          <p className="author">— {PULL_QUOTES.warmthIntention.author} · Google</p>
         </div>
       </section>
 
       {/* FINAL BOOKING */}
-      <section className="relative py-20 md:py-28 px-4 md:px-10 overflow-hidden">
-        <Image src="/photos/lavender-night.jpg" alt="" fill className="object-cover object-center" sizes="100vw" />
-        <div className="absolute inset-0 bg-[#080705]/80" />
-        <div className="relative max-w-3xl mx-auto text-center">
-          <h2 className="font-serif text-4xl md:text-6xl font-light leading-[1.1] mb-6 md:mb-8">
+      <section className="final-booking">
+        <Image src="/photos/quote-bg.avif" alt="" fill className="object-cover object-center" sizes="100vw" />
+        <div className="final-booking__overlay" />
+        <div className="final-booking__inner">
+          <p className="final-booking__pull-quote">
+            &ldquo;{PULL_QUOTES.fallInLove.quote}&rdquo;
+            <span className="final-booking__pull-author">— {PULL_QUOTES.fallInLove.author} · Google</span>
+          </p>
+          <h2 className="final-booking__heading">
             Your Kashmir
             <br />
             <em className="text-[var(--amber)]">awaits.</em>
           </h2>
-          <p className="font-serif italic text-base md:text-lg text-cream/70 mb-10">
+          <p className="final-booking__sub-quote">
             &ldquo;{PULL_QUOTES.theEscape.quote}&rdquo;
-            <span className="block mt-1 text-[0.55rem] not-italic tracking-[0.3em] uppercase text-cream/40">— {PULL_QUOTES.theEscape.author}</span>
+            <span className="final-booking__sub-author">— {PULL_QUOTES.theEscape.author}</span>
           </p>
           <BookingWidget />
         </div>
