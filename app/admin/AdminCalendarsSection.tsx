@@ -17,15 +17,13 @@ export function AdminCalendarsSection({
 }) {
   const calRefs = useRef<Record<string, AdminCalendarHandle | null>>({});
 
-  const [selectedHuts, setSelectedHuts] = useState<Set<string>>(new Set(huts.map((h) => h.id)));
+  const [selectedHuts, setSelectedHuts] = useState<Set<string>>(new Set());
   const [rangeStart, setRangeStart] = useState("");
   const [rangeEnd, setRangeEnd] = useState("");
   const [rangeGuest, setRangeGuest] = useState("");
   const [rangePhone, setRangePhone] = useState("");
   const [rangeEmail, setRangeEmail] = useState("");
   const [rangeGuests, setRangeGuests] = useState("");
-  const [rangeCheckIn, setRangeCheckIn] = useState("");
-  const [rangeCheckOut, setRangeCheckOut] = useState("");
   const [rangeTotal, setRangeTotal] = useState("");
   const [rangeAdvance, setRangeAdvance] = useState("");
   const [rangeNote, setRangeNote] = useState("");
@@ -45,7 +43,6 @@ export function AdminCalendarsSection({
   function resetForm() {
     setRangeStart(""); setRangeEnd("");
     setRangeGuest(""); setRangePhone(""); setRangeEmail(""); setRangeGuests("");
-    setRangeCheckIn(""); setRangeCheckOut("");
     setRangeTotal(""); setRangeAdvance(""); setRangeNote("");
   }
 
@@ -67,8 +64,6 @@ export function AdminCalendarsSection({
             guestPhone: rangePhone || undefined,
             guestEmail: rangeEmail || undefined,
             guests: rangeGuests || undefined,
-            checkInTime: rangeCheckIn || undefined,
-            checkOutTime: rangeCheckOut || undefined,
             totalAmountInr: rangeTotal ? Number(rangeTotal) : undefined,
             advancePaidInr: rangeAdvance ? Number(rangeAdvance) : undefined,
             notes: rangeNote || (rangeGuest ? undefined : "Blocked by manager"),
@@ -151,14 +146,12 @@ export function AdminCalendarsSection({
         <div className="text-[0.5rem] tracking-[0.18em] uppercase text-cream/30 pt-1">Guest details (optional)</div>
         <div className="grid grid-cols-2 gap-2">
           {[
-            { label: "Guest name",     value: rangeGuest,    set: setRangeGuest,    type: "text"   },
-            { label: "Phone",          value: rangePhone,    set: setRangePhone,    type: "tel"    },
-            { label: "Email",          value: rangeEmail,    set: setRangeEmail,    type: "email"  },
-            { label: "Guests",         value: rangeGuests,   set: setRangeGuests,   type: "text",  placeholder: "e.g. 2 adults, 1 child" },
-            { label: "Check-in time",  value: rangeCheckIn,  set: setRangeCheckIn,  type: "time"   },
-            { label: "Check-out time", value: rangeCheckOut, set: setRangeCheckOut, type: "time"   },
-            { label: "Total (₹)",      value: rangeTotal,    set: setRangeTotal,    type: "number" },
-            { label: "Advance (₹)",    value: rangeAdvance,  set: setRangeAdvance,  type: "number" },
+            { label: "Guest name",  value: rangeGuest,   set: setRangeGuest,   type: "text"   },
+            { label: "Phone",       value: rangePhone,   set: setRangePhone,   type: "tel"    },
+            { label: "Email",       value: rangeEmail,   set: setRangeEmail,   type: "email"  },
+            { label: "Guests",      value: rangeGuests,  set: setRangeGuests,  type: "text",  placeholder: "e.g. 2 adults, 1 child" },
+            { label: "Total (₹)",   value: rangeTotal,   set: setRangeTotal,   type: "number" },
+            { label: "Advance (₹)", value: rangeAdvance, set: setRangeAdvance, type: "number" },
           ].map(({ label, value, set, type, placeholder }) => (
             <div key={label}>
               <label className="block text-[0.5rem] tracking-widest uppercase text-amber-400/60 mb-1">{label}</label>
