@@ -71,7 +71,7 @@ export default function HomePage() {
       <Nav />
 
       {/* HERO */}
-      <section className="relative h-[100svh] min-h-[640px] overflow-hidden flex items-end">
+      <section id="book" className="relative h-[100svh] min-h-[640px] overflow-hidden flex items-end">
         <Image
           src="/photos/hero-aerial.png"
           alt="Villa Cottages — aerial view of the orchard and cottages"
@@ -108,7 +108,7 @@ export default function HomePage() {
       </section>
 
       {/* BOOKING WIDGET (sticky-ish floats over hero base) */}
-      <section id="book" className="relative -mt-16 z-10 px-6 lg:px-10 pb-20">
+      <section className="relative -mt-16 z-10 px-6 lg:px-10 pb-20">
         <BookingWidget />
       </section>
 
