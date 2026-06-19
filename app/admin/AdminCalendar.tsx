@@ -102,12 +102,12 @@ export function AdminCalendar({ hutId, initialBlocks }: { hutId: string; initial
             />
           </div>
         </div>
-        <input
-          type="text"
+        <textarea
           placeholder="Note (e.g. Owner stay, Maintenance…)"
           value={rangeNote}
           onChange={(e) => setRangeNote(e.target.value)}
-          className="w-full bg-transparent border border-white/10 px-2 py-1.5 text-[0.75rem] text-cream outline-none focus:border-[var(--amber)]/50 placeholder:text-cream/25"
+          rows={2}
+          className="w-full bg-transparent border border-white/10 px-2 py-1.5 text-[0.75rem] text-cream outline-none focus:border-[var(--amber)]/50 placeholder:text-cream/25 resize-y"
         />
         <div className="flex items-center gap-3">
           <button

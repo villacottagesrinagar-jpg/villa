@@ -166,6 +166,8 @@ export default function HomePage() {
 
       {/* QUOTE BAND 1 */}
       <section className="quote-band">
+        <div className="quote-band__bg" />
+        <div className="quote-band__overlay" />
         <div className="quote-band__inner">
           <p className="quote">&ldquo;{PULL_QUOTES.warmthIntention.quote}&rdquo;</p>
           <p className="author">— {PULL_QUOTES.warmthIntention.author} · Google</p>
@@ -317,6 +319,8 @@ export default function HomePage() {
 
       {/* QUOTE BAND 2 */}
       <section className="quote-band">
+        <div className="quote-band__bg" />
+        <div className="quote-band__overlay" />
         <div className="quote-band__inner">
           <p className="quote">&ldquo;{PULL_QUOTES.fallInLove.quote}&rdquo;</p>
           <p className="author">— {PULL_QUOTES.fallInLove.author} · Google</p>

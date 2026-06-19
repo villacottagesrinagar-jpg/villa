@@ -161,11 +161,24 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 /* ─── Quote band ─── */
 .quote-band {
+  position: relative;
   padding: 4rem 1.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+.quote-band__bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-image: url('/photos/quote-bg.avif');
+}
+.quote-band__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 7, 5, 0.78);
 }
 .quote-band__inner {
+  position: relative;
   max-width: 56rem;
   margin: 0 auto;
   text-align: center;
