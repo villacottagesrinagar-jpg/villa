@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Villa Medan — A-Frame Cottage, Kashmir Valley</title>
+
+  <script type="importmap">
+  {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    :root {
+      --amber: #D4AF37;
+      --dark: #080705;
+      --cream: #f2ead8;
+      --cream-dim: rgba(242,234,216,0.7);
+    }
+
+    body {
+      background: var(--dark);
+      color: var(--cream);
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ─── ACT 1: 3D WALK-THROUGH ───
+       400vh of scroll drives a fixed Three.js canvas — camera flies through
+       the orchard while trees rush past on either side toward the cabin. */
+
+    #act1 {
+      position: relative;
+      height: 500vh; /* 500vh = ~5 screens of scroll; last 100vh = transition out */
+    }
+
+    #webgl {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      display: block;
+    }
+
+    #vignette {
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      background:
+        linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, transparent 25%, transparent 65%, rgba(0,0,0,0.7) 100%),
+        radial-gradient(ellipse 90% 90% at 50% 50%, transparent 50%, rgba(0,0,0,0.55) 100%);
+      opacity: 1;
+      transition: opacity 0.6s;
+    }
+
+    /* Fixed UI overlay — sits above WebGL during Act 1 */
+    #hero-ui {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      pointer-events: none;
+      transition: opacity 0.6s;
+    }
+
+    nav {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      padding: 1.6rem 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      pointer-events: all;
+    }
+    .nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.3rem;
+      font-weight: 400;
+      letter-spacing: 0.08em;
+      color: white;
+      text-decoration: none;
+    }
+    .nav-logo em { font-style: italic; color: var(--amber); }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a {
+      font-size: 0.6rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.55);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--amber); }
+    .nav-book {
+      font-size: 0.6rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--amber);
+      text-decoration: none;
+      border: 1px solid rgba(212,175,55,0.45);
+      padding: 0.55rem 1.4rem;
+      transition: all 0.3s;
+      pointer-events: all;
+    }
+    .nav-book:hover { background: var(--amber); color: var(--dark); }
+
+    /* Hero text — fades as you walk forward */
+    #hero-text {
+      position: absolute;
+      bottom: 18%;
+      left: 7%;
+      will-change: opacity, transform;
+    }
+    .eyebrow {
+      font-size: 0.58rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+    .eyebrow::before {
+      content: '';
+      display: block;
+      width: 2rem;
+      height: 1px;
+      background: var(--amber);
+    }
+    #hero-text h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3rem, 6vw, 5.5rem);
+      font-weight: 300;
+      line-height: 1.05;
+      letter-spacing: -0.01em;
+      margin-bottom: 1.5rem;
+      color: var(--cream);
+    }
+    #hero-text h1 em { font-style: italic; color: var(--cream-dim); }
+    #hero-text .sub {
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      color: rgba(255,255,255,0.55);
+    }
+
+    /* Depth label HUD — changes as you scroll */
+    #depth-hud {
+      position: absolute;
+      bottom: 12%;
+      right: 7%;
+      text-align: right;
+      will-change: opacity;
+    }
+    #depth-hud .label {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem;
+      font-weight: 300;
+      color: white;
+      margin-bottom: 0.2rem;
+      transition: opacity 0.5s, transform 0.5s;
+    }
+    #depth-hud .meta {
+      font-size: 0.55rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--amber);
+    }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      transition: opacity 0.5s;
+    }
+    .scroll-hint span {
+      font-size: 0.5rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+    }
+    .scroll-line {
+      width: 1px;
+      height: 3rem;
+      background: rgba(255,255,255,0.2);
+      position: relative;
+      overflow: hidden;
+    }
+    .scroll-line::after {
+      content: '';
+      position: absolute;
+      top: -100%;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--amber);
+      animation: scrollDown 2s ease-in-out infinite;
+    }
+    @keyframes scrollDown {
+      0% { top: -100%; }
+      100% { top: 200%; }
+    }
+
+    /* ─── ACT 2 onwards: PHOTO SCENES ─── */
+    #act2 {
+      position: relative;
+      z-index: 5;
+      background: var(--dark);
+    }
+
+    /* Sticky nav for Act 2 */
+    nav.act2-nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: rgba(8,7,5,0.85);
+      backdrop-filter: blur(14px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s;
+    }
+    nav.act2-nav.visible {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    /* Intro */
+    .intro {
+      padding: 9rem 6rem 8rem;
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .intro p.lead {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.5rem, 2.5vw, 2.2rem);
+      font-weight: 300;
+      line-height: 1.6;
+      color: var(--cream);
+      margin-bottom: 2rem;
+    }
+    .intro p.body {
+      font-size: 0.78rem;
+      line-height: 1.9;
+      color: rgba(242,234,216,0.5);
+      letter-spacing: 0.03em;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Scene sections */
+    .scene {
+      position: relative;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+    }
+    .scene.align-right { justify-content: flex-end; }
+    .scene.align-left  { justify-content: flex-start; }
+    .scene.align-center { justify-content: center; text-align: center; }
+
+    .scene-bg {
+      position: absolute;
+      inset: -8%;
+      background-size: cover;
+      background-position: center;
+      will-change: transform;
+    }
+
+    .scene-interior-1 .scene-bg { background-image: url('.context/attachments/FntzuA/image.jpg'); }
+    .scene-interior-2 .scene-bg { background-image: url('.context/attachments/nPfKT2/image.jpg'); background-position: center 30%; }
+    .scene-loft .scene-bg { background-image: url('.context/attachments/sydrX3/image.jpg'); background-position: center 20%; }
+    .scene-kitchen .scene-bg { background-image: url('.context/attachments/L61qzZ/image.jpg'); }
+    .scene-garden .scene-bg { background-image: url('.context/attachments/8em9qR/image.jpg'); background-position: center 60%; }
+    .scene-evening .scene-bg { background-image: url('.context/attachments/HjqSTO/image.jpg'); }
+    .scene-firepit .scene-bg { background-image: url('.context/attachments/Dp1vJL/image.png'); }
+    .scene-pool .scene-bg { background-image: url('.context/attachments/qAPqXJ/image.jpg'); background-position: center 40%; }
+
+    .scene-gradient { position: absolute; inset: 0; }
+    .scene.align-right .scene-gradient { background: linear-gradient(to left, transparent 30%, rgba(8,7,5,0.85) 100%); }
+    .scene.align-left  .scene-gradient { background: linear-gradient(to right, transparent 30%, rgba(8,7,5,0.85) 100%); }
+    .scene.align-center .scene-gradient { background: radial-gradient(ellipse 90% 80% at 50% 50%, transparent 30%, rgba(8,7,5,0.75) 100%); }
+
+    .scene-content {
+      position: relative;
+      z-index: 2;
+      padding: 3rem 6rem;
+      max-width: 480px;
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.9s ease, transform 0.9s ease;
+    }
+    .scene-content.visible { opacity: 1; transform: translateY(0); }
+
+    .scene-label {
+      font-size: 0.55rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+    }
+    .scene-label::before {
+      content: '';
+      display: block;
+      width: 1.5rem;
+      height: 1px;
+      background: var(--amber);
+    }
+
+    .scene h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 3.5vw, 3.2rem);
+      font-weight: 300;
+      line-height: 1.15;
+      margin-bottom: 1.2rem;
+    }
+    .scene h2 em { font-style: italic; }
+
+    .scene p {
+      font-size: 0.72rem;
+      line-height: 1.85;
+      color: rgba(242,234,216,0.6);
+      letter-spacing: 0.025em;
+    }
+
+    /* Amenities */
+    .amenities { padding: 8rem 6rem; }
+    .amenities-header { text-align: center; margin-bottom: 5rem; }
+    .amenities-header .eyebrow { justify-content: center; }
+    .amenities-header .eyebrow::before { display: none; }
+    .amenities-header h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.2rem, 4vw, 3.8rem);
+      font-weight: 300;
+      margin-top: 0.8rem;
+    }
+    .amenities-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2.5rem; }
+    .amenity-card {
+      padding: 2.5rem 2rem;
+      border: 1px solid rgba(212,175,55,0.12);
+      transition: border-color 0.3s, background 0.3s;
+    }
+    .amenity-card:hover {
+      border-color: rgba(212,175,55,0.35);
+      background: rgba(212,175,55,0.04);
+    }
+    .amenity-icon { width: 2.2rem; height: 2.2rem; margin-bottom: 1.4rem; color: var(--amber); }
+    .amenity-card h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.15rem;
+      font-weight: 400;
+      margin-bottom: 0.6rem;
+    }
+    .amenity-card p {
+      font-size: 0.68rem;
+      line-height: 1.75;
+      color: rgba(242,234,216,0.45);
+    }
+
+    /* Stats */
+    .stats {
+      padding: 6rem;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid rgba(255,255,255,0.07);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .stat { text-align: center; padding: 2rem; border-right: 1px solid rgba(255,255,255,0.07); }
+    .stat:last-child { border-right: none; }
+    .stat-number {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 3.5rem;
+      font-weight: 300;
+      color: var(--amber);
+      line-height: 1;
+      margin-bottom: 0.4rem;
+    }
+    .stat-label {
+      font-size: 0.58rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(242,234,216,0.4);
+    }
+
+    /* Testimonials */
+    .testimonials { padding: 9rem 6rem; text-align: center; }
+    .testimonials-header { margin-bottom: 5rem; }
+    .testimonials-header h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 3.5vw, 3.2rem);
+      font-weight: 300;
+      margin-top: 0.8rem;
+    }
+    .testimonials-track {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .testimonial {
+      padding: 2.5rem;
+      border-top: 1px solid rgba(212,175,55,0.2);
+      text-align: left;
+    }
+    .testimonial-stars { display: flex; gap: 0.3rem; margin-bottom: 1.4rem; }
+    .testimonial-stars svg { width: 12px; height: 12px; fill: var(--amber); }
+    .testimonial-quote {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.05rem;
+      font-weight: 300;
+      line-height: 1.65;
+      color: var(--cream);
+      margin-bottom: 1.5rem;
+      font-style: italic;
+    }
+    .testimonial-author {
+      font-size: 0.6rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(242,234,216,0.4);
+    }
+    .testimonial-author strong {
+      color: rgba(242,234,216,0.7);
+      font-weight: 500;
+      display: block;
+      margin-bottom: 0.2rem;
+      font-size: 0.65rem;
+    }
+
+    /* Booking */
+    .booking {
+      position: relative;
+      height: 80vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .booking-bg {
+      position: absolute;
+      inset: -5%;
+      background-image: url('.context/attachments/zfnzLn/image.jpg');
+      background-size: cover;
+      background-position: center 35%;
+      will-change: transform;
+    }
+    .booking-overlay { position: absolute; inset: 0; background: rgba(8,7,5,0.6); }
+    .booking-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      max-width: 700px;
+      padding: 0 2rem;
+    }
+    .booking-content h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.4rem, 5vw, 4.5rem);
+      font-weight: 300;
+      line-height: 1.1;
+      margin-bottom: 1rem;
+    }
+    .booking-content h2 em { font-style: italic; color: var(--amber); }
+    .booking-content p {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.07em;
+      margin-bottom: 2.5rem;
+    }
+
+    .booking-widget {
+      display: inline-flex;
+      background: rgba(8,7,5,0.85);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(212,175,55,0.2);
+      overflow: hidden;
+    }
+    .booking-field {
+      padding: 1.2rem 2rem;
+      border-right: 1px solid rgba(255,255,255,0.08);
+      text-align: left;
+    }
+    .booking-field:last-of-type { border-right: none; }
+    .booking-field label {
+      display: block;
+      font-size: 0.5rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 0.3rem;
+    }
+    .booking-field input {
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--cream);
+      font-size: 0.8rem;
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      width: 120px;
+      cursor: pointer;
+    }
+    .booking-field input::placeholder { color: rgba(242,234,216,0.4); }
+
+    .booking-btn {
+      padding: 1.2rem 2.5rem;
+      background: var(--amber);
+      color: var(--dark);
+      font-size: 0.58rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s;
+      font-family: 'Inter', sans-serif;
+    }
+    .booking-btn:hover { background: #c9a42e; }
+
+    footer {
+      padding: 4rem 6rem;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+    }
+    .footer-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.2rem;
+      font-weight: 300;
+      color: var(--cream);
+    }
+    .footer-logo em { color: var(--amber); font-style: italic; }
+    .footer-copy {
+      font-size: 0.58rem;
+      letter-spacing: 0.12em;
+      color: rgba(242,234,216,0.25);
+      text-align: center;
+    }
+    .footer-links { display: flex; justify-content: flex-end; gap: 2rem; }
+    .footer-links a {
+      font-size: 0.58rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(242,234,216,0.35);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--amber); }
+
+    .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.8s ease, transform 0.8s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: 0.15s; }
+    .reveal-delay-2 { transition-delay: 0.3s; }
+    .reveal-delay-3 { transition-delay: 0.45s; }
+
+    #progress-bar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 2px;
+      background: var(--amber);
+      z-index: 200;
+      width: 0%;
+    }
+
+    /* Loading screen */
+    #loading {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: var(--dark);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.8s;
+    }
+    #loading.gone { opacity: 0; pointer-events: none; }
+    #loading .brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.8rem;
+      color: var(--cream);
+      letter-spacing: 0.1em;
+      margin-bottom: 2rem;
+    }
+    #loading .brand em { color: var(--amber); font-style: italic; }
+    #loading .bar {
+      width: 200px;
+      height: 1px;
+      background: rgba(255,255,255,0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    #loading .bar::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--amber);
+      transform: translateX(-100%);
+      animation: load 1.4s ease-in-out infinite;
+    }
+    @keyframes load {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+  </style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<div id="loading">
+  <div class="brand">Villa <em>Medan</em></div>
+  <div class="bar"></div>
+</div>
+
+<!-- WebGL canvas — fixed, behind everything -->
+<canvas id="webgl"></canvas>
+<div id="vignette"></div>
+
+<!-- Hero UI — fixed during Act 1 -->
+<div id="hero-ui">
+  <nav>
+    <a href="#" class="nav-logo">Villa <em>Medan</em></a>
+    <ul class="nav-links">
+      <li><a href="#interiors">Interiors</a></li>
+      <li><a href="#amenities">Amenities</a></li>
+      <li><a href="#testimonials">Guests</a></li>
+    </ul>
+    <a href="#booking" class="nav-book">Check Availability</a>
+  </nav>
+
+  <div id="hero-text">
+    <div class="eyebrow">Kashmir Valley · 3,200 ft</div>
+    <h1>A walk through<br>the <em>orchard.</em></h1>
+    <p class="sub">Scroll to enter Villa Medan</p>
+  </div>
+
+  <div id="depth-hud">
+    <div class="label" id="depthLabel">The Orchard</div>
+    <div class="meta" id="depthMeta">50m ahead</div>
+  </div>
+
+  <div class="scroll-hint" id="scrollHint">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</div>
+
+<!-- Act 1: 500vh scroll space drives the 3D camera fly-through -->
+<section id="act1"></section>
+
+<!-- Act 2: photo scenes continue from where the 3D walk ends -->
+<section id="act2">
+
+  <!-- Sticky nav appears once Act 1 is past -->
+  <nav class="act2-nav" id="act2Nav">
+    <a href="#" class="nav-logo">Villa <em>Medan</em></a>
+    <ul class="nav-links">
+      <li><a href="#interiors">Interiors</a></li>
+      <li><a href="#amenities">Amenities</a></li>
+      <li><a href="#testimonials">Guests</a></li>
+    </ul>
+    <a href="#booking" class="nav-book">Check Availability</a>
+  </nav>
+
+  <div class="intro">
+    <p class="lead reveal">You're standing at the door. Behind you, the orchard. In front of you — eleven hundred square feet of glass, wood, and mountain light.</p>
+    <p class="body reveal reveal-delay-1">Villa Medan is a private A-frame cottage at 3,200 feet in the Kashmir Valley, surrounded by 1.2 acres of working apple orchard. Step inside.</p>
+  </div>
+
+  <section class="scene scene-interior-1 align-left" id="interiors">
+    <div class="scene-bg" data-parallax="0.2"></div>
+    <div class="scene-gradient"></div>
+    <div class="scene-content">
+      <div class="scene-label">The Living Room</div>
+      <h2>Cathedral ceilings,<br><em>floor-to-roof glass.</em></h2>
+      <p>The A-frame opens into a double-height living space — exposed beams, warm timber, and a glass wall that frames the orchard like a painting that changes every hour.</p>
+    </div>
+  </section>
+
+  <section class="scene scene-interior-2 align-right">
+    <div class="scene-bg" data-parallax="0.18"></div>
+    <div class="scene-gradient"></div>
+    <div class="scene-content">
+      <div class="scene-label">The Master Bedroom</div>
+      <h2>Sleep with the<br><em>orchard outside.</em></h2>
+      <p>The ground-floor master opens directly onto the garden. Wake at first light to apple trees in the window and birdsong as your alarm clock.</p>
+    </div>
+  </section>
+
+  <section class="scene scene-loft align-left">
+    <div class="scene-bg" data-parallax="0.2"></div>
+    <div class="scene-gradient"></div>
+    <div class="scene-content">
+      <div class="scene-label">The Loft</div>
+      <h2>An upstairs<br><em>perch.</em></h2>
+      <p>A spiral stair leads to the loft bedroom — a triangular window perfectly framing the valley. The most-photographed corner of the property.</p>
+    </div>
+  </section>
+
+  <section class="scene scene-kitchen align-right">
+    <div class="scene-bg" data-parallax="0.15"></div>
+    <div class="scene-gradient"></div>
+    <div class="scene-content">
+      <div class="scene-label">Kitchen & Dining</div>
+      <h2>Gather around<br><em>the table.</em></h2>
+      <p>Exposed brick, warm wood, a table long enough for everyone you love. Optional Kashmiri chef on request — wazwan dinners are a guest favourite.</p>
+    </div>
+  </section>
+
+  <section class="scene scene-garden align-center">
+    <div class="scene-bg" data-parallax="0.12"></div>
+    <div class="scene-gradient"></div>
+    <div class="scene-content" style="max-width: 560px;">
+      <div class="scene-label">The Garden</div>
+      <h2>Afternoons are<br><em>yours.</em></h2>
+      <p>Noon chai under the apple trees. Picnic spreads on local rugs. The garden is a stage — the orchard, your audience.</p>
+    </div>
+  </section>
+
+  <section class="scene scene-evening align-right">
+    <div class="scene-bg" data-parallax="0.18"></div>
+    <div class="scene-gradient"></div>
+    <div class="scene-content">
+      <div class="scene-label">Evenings</div>
+      <h2>Amber light,<br><em>open skies.</em></h2>
+      <p>As the sun dips behind the Pir Panjal, the A-frame glows from within. Stars emerge without competition — no city light reaches this altitude.</p>
+    </div>
+  </section>
+
+  <section class="scene scene-firepit align-left">
+    <div class="scene-bg" data-parallax="0.2"></div>
+    <div class="scene-gradient"></div>
+    <div class="scene-content">
+      <div class="scene-label">The Fire Circle</div>
+      <h2>Stories around<br><em>the fire.</em></h2>
+      <p>Stone fire pit, Adirondack chairs for six, firewood provided year-round. Above you, the kind of sky most people only see in postcards.</p>
+    </div>
+  </section>
+
+  <section class="scene scene-pool align-center">
+    <div class="scene-bg" data-parallax="0.12"></div>
+    <div class="scene-gradient"></div>
+    <div class="scene-content" style="max-width: 520px;">
+      <div class="scene-label">The Pool</div>
+      <h2>Sun, water,<br><em>and blue sky.</em></h2>
+      <p>A private mosaic pool in the heart of the orchard — a rare luxury at altitude. May through October, the warmest spot on the property.</p>
+    </div>
+  </section>
+
+  <section class="amenities" id="amenities">
+    <div class="amenities-header">
+      <div class="eyebrow reveal" style="justify-content:center;">What's included</div>
+      <h2 class="reveal reveal-delay-1">Every detail, considered.</h2>
+    </div>
+
+    <div class="amenities-grid">
+      <div class="amenity-card reveal">
+        <svg class="amenity-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M3 12l2-2 7-7 7 7 2 2M5 10v10a1 1 0 001 1h12a1 1 0 001-1V10"/></svg>
+        <h3>The A-Frame</h3>
+        <p>1,100 sq ft glass A-frame with cathedral ceilings and panoramic orchard views. Sleeps 4 adults.</p>
+      </div>
+      <div class="amenity-card reveal reveal-delay-1">
+        <svg class="amenity-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M20 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+        <h3>Two Bedrooms</h3>
+        <p>Glass-walled master plus an upper loft with valley window. Luxury Kashmiri linens throughout.</p>
+      </div>
+      <div class="amenity-card reveal reveal-delay-2">
+        <svg class="amenity-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="12" cy="12" r="5"/><path d="M12 3v1m0 16v1M4 4l1 1m14 14l1 1M1 12h2m18 0h2M4 20l1-1m14-14l1-1"/></svg>
+        <h3>Private Pool</h3>
+        <p>Mosaic-tiled pool surrounded by apple trees. Open May–October. Loungers and stone deck included.</p>
+      </div>
+      <div class="amenity-card reveal reveal-delay-3">
+        <svg class="amenity-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M17 18A8 8 0 016 7s1 2 3 3c0-2 .5-5 3-7 2 2 4 3 5 4a8 8 0 010 11z"/></svg>
+        <h3>Fire Circle</h3>
+        <p>Stone fire pit with Adirondack seating for 6. Firewood provided. Unbeatable night-sky setting.</p>
+      </div>
+      <div class="amenity-card reveal">
+        <svg class="amenity-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 2c-.6.6-.2 1.7.7 1.7H17m-8 2a2 2 0 11-4 0 2 2 0 014 0zm12 0a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+        <h3>Full Kitchen</h3>
+        <p>Open kitchen, espresso machine, dining for 6. Optional Kashmiri chef at ₹2,500/day.</p>
+      </div>
+      <div class="amenity-card reveal reveal-delay-1">
+        <svg class="amenity-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M8 16a5.5 5.5 0 018 0M12 20h.01M5 13c4-4 10-4 14 0M1.4 9.4c5.9-5.9 15.4-5.9 21.2 0"/></svg>
+        <h3>High-Speed WiFi</h3>
+        <p>Satellite internet across the property at 50+ Mbps. Work from paradise.</p>
+      </div>
+      <div class="amenity-card reveal reveal-delay-2">
+        <svg class="amenity-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16M9 7h6M9 11h6M9 15h3"/></svg>
+        <h3>Orchard Access</h3>
+        <p>Full access to 1.2 acres of working apple orchard. Pick fruit in season. Total privacy.</p>
+      </div>
+      <div class="amenity-card reveal reveal-delay-3">
+        <svg class="amenity-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        <h3>Concierge</h3>
+        <p>24/7 host support, local guides, shikara bookings on Dal Lake, curated Pahalgam experiences.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="stats">
+    <div class="stat reveal"><div class="stat-number">1,100</div><div class="stat-label">sq ft of glass &amp; wood</div></div>
+    <div class="stat reveal reveal-delay-1"><div class="stat-number">3,200</div><div class="stat-label">feet above sea level</div></div>
+    <div class="stat reveal reveal-delay-2"><div class="stat-number">1.2</div><div class="stat-label">acres private orchard</div></div>
+    <div class="stat reveal reveal-delay-3"><div class="stat-number">∞</div><div class="stat-label">stars on clear nights</div></div>
+  </div>
+
+  <section class="testimonials" id="testimonials">
+    <div class="testimonials-header">
+      <div class="eyebrow reveal" style="justify-content:center;">Guest Stories</div>
+      <h2 class="reveal reveal-delay-1">What guests say.</h2>
+    </div>
+    <div class="testimonials-track">
+      <div class="testimonial reveal">
+        <div class="testimonial-stars">
+          <svg viewBox="0 0 24 24"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1 3-6z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1 3-6z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1 3-6z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1 3-6z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1 3-6z"/></svg>
+        </div>
+        <p class="testimonial-quote">"We came for 3 nights and stayed a week. The orchard in the morning mist, the firepit at night — most at peace I've felt in years. Villa Medan isn't a place you visit; it's a place you return to."</p>
+        <div class="testimonial-author"><strong>Priya &amp; Arjun S.</strong>Delhi · October 2024</div>
+      </div>
+      <div class="testimonial reveal reveal-delay-1">
+        <div class="testimonial-stars">
+          <svg viewBox="0 0 24 24"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1 3-6z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1 3-6z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1 3-6z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1 3-6z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1 3-6z"/></svg>
+        </div>
+        <p class="testimonial-quote">"The glass wall in the main bedroom felt like sleeping inside the orchard. I've stayed at Soho House, Aman, Six Senses — nothing compares to this level of rawness. Absolute must."</p>
+        <div class="testimonial-author"><strong>Sarah M.</strong>Mumbai · July 2024</div>
+      </div>
+      <div class="testimonial reveal reveal-delay-2">
+        <div class="testimonial-stars">
+          <svg viewBox="0 0 24 24"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1 3-6z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1 3-6z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1 3-6z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1 3-6z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1 3-6z"/></svg>
+        </div>
+        <p class="testimonial-quote">"Brought my family of 4 for Eid. Kids in the pool morning to evening, parents in the orchard. The host arranged a wazwan dinner for us. Completely magical."</p>
+        <div class="testimonial-author"><strong>Farhan K.</strong>Bengaluru · April 2024</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="booking" id="booking">
+    <div class="booking-bg" data-parallax="0.2"></div>
+    <div class="booking-overlay"></div>
+    <div class="booking-content">
+      <h2>Your Kashmir<br><em>awaits.</em></h2>
+      <p>2 nights minimum · Entire property · Private &amp; exclusive</p>
+      <div class="booking-widget">
+        <div class="booking-field">
+          <label>Check In</label>
+          <input type="text" placeholder="dd / mm / yy" />
+        </div>
+        <div class="booking-field">
+          <label>Check Out</label>
+          <input type="text" placeholder="dd / mm / yy" />
+        </div>
+        <div class="booking-field">
+          <label>Guests</label>
+          <input type="text" placeholder="2 guests" style="width: 90px;" />
+        </div>
+        <button class="booking-btn" onclick="window.open('https://www.airbnb.co.in/rooms/1196823291856037309', '_blank')">Check Availability</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-logo">Villa <em>Medan</em></div>
+    <div class="footer-copy">© 2025 Villa Medan · Kashmir Valley, India</div>
+    <div class="footer-links">
+      <a href="https://www.airbnb.co.in/rooms/1196823291856037309" target="_blank">Airbnb</a>
+      <a href="mailto:hello@villamedan.com">Contact</a>
+      <a href="#">Instagram</a>
+    </div>
+  </footer>
+
+</section>
+
+
+<!-- ─── THREE.JS 3D ORCHARD WALK ─── -->
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+
+const canvas = document.getElementById('webgl');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x080705);
+scene.fog = new THREE.FogExp2(0x080705, 0.024);
+
+const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.set(0, 0, 90);
+
+// ─── PROCEDURAL DEPTH MAP ───
+// Trees on sides → closest (rush past camera)
+// Cabin in center-middle → mid-depth (destination)
+// Sky → far back
+function buildDepthMap() {
+  const W = 1024, H = 1024;
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const ctx = c.getContext('2d');
+
+  // Sky base (far)
+  ctx.fillStyle = 'rgb(5,5,5)';
+  ctx.fillRect(0, 0, W, H);
+
+  // Ground gradient (path) — gets closer toward bottom
+  const groundGrad = ctx.createLinearGradient(0, H * 0.55, 0, H);
+  groundGrad.addColorStop(0, 'rgb(60,60,60)');
+  groundGrad.addColorStop(1, 'rgb(140,140,140)');
+  ctx.fillStyle = groundGrad;
+  ctx.fillRect(0, H * 0.55, W, H * 0.45);
+
+  // Cabin in center (mid depth) — A-frame silhouette
+  ctx.fillStyle = 'rgb(155,155,155)';
+  ctx.beginPath();
+  ctx.moveTo(W * 0.5, H * 0.30);
+  ctx.lineTo(W * 0.40, H * 0.60);
+  ctx.lineTo(W * 0.60, H * 0.60);
+  ctx.closePath();
+  ctx.fill();
+
+  // Left tree column — VERY close (rushes past on left)
+  const leftGrad = ctx.createRadialGradient(W * 0.12, H * 0.55, 10, W * 0.12, H * 0.55, W * 0.35);
+  leftGrad.addColorStop(0, 'rgb(255,255,255)');
+  leftGrad.addColorStop(0.5, 'rgb(220,220,220)');
+  leftGrad.addColorStop(1, 'rgb(5,5,5)');
+  ctx.fillStyle = leftGrad;
+  ctx.fillRect(0, H * 0.20, W * 0.32, H * 0.70);
+
+  // Right tree column — VERY close
+  const rightGrad = ctx.createRadialGradient(W * 0.88, H * 0.55, 10, W * 0.88, H * 0.55, W * 0.35);
+  rightGrad.addColorStop(0, 'rgb(245,245,245)');
+  rightGrad.addColorStop(0.5, 'rgb(210,210,210)');
+  rightGrad.addColorStop(1, 'rgb(5,5,5)');
+  ctx.fillStyle = rightGrad;
+  ctx.fillRect(W * 0.68, H * 0.20, W * 0.32, H * 0.70);
+
+  // Mid-distance trees (additional depth between cabin and edges)
+  ctx.fillStyle = 'rgba(180,180,180,0.7)';
+  ctx.beginPath();
+  ctx.ellipse(W * 0.28, H * 0.48, W * 0.06, H * 0.18, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(W * 0.72, H * 0.48, W * 0.06, H * 0.18, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  const tex = new THREE.CanvasTexture(c);
+  tex.needsUpdate = true;
+  return tex;
+}
+
+const depthTex = buildDepthMap();
+
+// ─── LOAD ORCHARD WALK IMAGE ───
+const loader = new THREE.TextureLoader();
+loader.load('.context/attachments/Ou1aIH/walk.jpg', (tex) => {
+  tex.colorSpace = THREE.SRGBColorSpace;
+  buildScene(tex);
+  document.getElementById('loading').classList.add('gone');
+}, undefined, () => {
+  // fallback to orchard image if walk doesn't load
+  loader.load('.context/attachments/F3aheu/image.jpg', (tex) => {
+    tex.colorSpace = THREE.SRGBColorSpace;
+    buildScene(tex);
+    document.getElementById('loading').classList.add('gone');
+  });
+});
+
+let mesh = null;
+
+function buildScene(tex) {
+  const PW = 80, PH = 50;
+  const mat = new THREE.ShaderMaterial({
+    uniforms: {
+      uMap:      { value: tex },
+      uDepth:    { value: depthTex },
+      uDisplace: { value: 14.0 },
+      uBias:     { value: -5.0 },
+      uFogColor: { value: new THREE.Color(0x080705) },
+      uFogDensity: { value: 0.024 },
+    },
+    vertexShader: `
+      uniform sampler2D uDepth;
+      uniform float uDisplace;
+      uniform float uBias;
+      varying vec2 vUv;
+      varying float vFogDepth;
+      void main() {
+        vUv = uv;
+        float d = texture2D(uDepth, uv).r;
+        vec3 pos = position;
+        pos.z += d * uDisplace + uBias;
+        vec4 mv = modelViewMatrix * vec4(pos, 1.0);
+        vFogDepth = -mv.z;
+        gl_Position = projectionMatrix * mv;
+      }
+    `,
+    fragmentShader: `
+      uniform sampler2D uMap;
+      uniform vec3 uFogColor;
+      uniform float uFogDensity;
+      varying vec2 vUv;
+      varying float vFogDepth;
+      void main() {
+        vec4 c = texture2D(uMap, vUv);
+        float fogF = 1.0 - exp(-uFogDensity * uFogDensity * vFogDepth * vFogDepth);
+        c.rgb = mix(c.rgb, uFogColor, fogF);
+        gl_FragColor = c;
+      }
+    `,
+  });
+
+  const geo = new THREE.PlaneGeometry(PW, PH, 300, 200);
+  mesh = new THREE.Mesh(geo, mat);
+  scene.add(mesh);
+}
+
+// ─── POST: bloom + vignette ───
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const bloom = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.65, 0.85, 0.2);
+composer.addPass(bloom);
+
+// ─── SCROLL STATE ───
+let targetZ = 90;
+let currentZ = 90;
+const lerp = (a, b, t) => a + (b - a) * t;
+const ease = (t) => t * t * (3 - 2 * t);
+const range = (t, a, b) => Math.max(0, Math.min(1, (t - a) / (b - a)));
+
+const heroText = document.getElementById('hero-text');
+const depthLabel = document.getElementById('depthLabel');
+const depthMeta = document.getElementById('depthMeta');
+const scrollHint = document.getElementById('scrollHint');
+const heroUI = document.getElementById('hero-ui');
+const act2Nav = document.getElementById('act2Nav');
+const vignette = document.getElementById('vignette');
+const progressBar = document.getElementById('progress-bar');
+
+const depthLabels = [
+  [0.00, 'The Orchard',  '50m ahead'],
+  [0.25, 'Apple Trees',  '35m ahead'],
+  [0.50, 'The Garden',   '20m ahead'],
+  [0.75, 'The Cottage',  '10m ahead'],
+  [0.92, 'Villa Medan',  "you're here"],
+];
+
+function updateHud(p) {
+  for (let i = depthLabels.length - 1; i >= 0; i--) {
+    if (p >= depthLabels[i][0]) {
+      if (depthLabel.textContent !== depthLabels[i][1]) {
+        depthLabel.textContent = depthLabels[i][1];
+        depthMeta.textContent = depthLabels[i][2];
+      }
+      return;
+    }
+  }
+}
+
+function onScroll() {
+  const act1 = document.getElementById('act1');
+  const act1Height = act1.offsetHeight;
+  const act1Top = act1.offsetTop;
+  const scrollY = window.scrollY;
+
+  // Progress through Act 1 only (the 3D walk)
+  // Reserve last 20% for fade-out into Act 2
+  const walkRange = act1Height - window.innerHeight;
+  const rawP = Math.max(0, Math.min(1, (scrollY - act1Top) / walkRange));
+  const p = ease(rawP);
+
+  // Camera flies from z=90 to z=8
+  targetZ = lerp(90, 8, p);
+
+  // Fog density drops as we approach
+  if (mesh) {
+    mesh.material.uniforms.uFogDensity.value = lerp(0.024, 0.003, p);
+    scene.fog.density = lerp(0.024, 0.003, p);
+  }
+
+  // Bloom ramps up near destination
+  bloom.strength = lerp(0.65, 2.0, range(rawP, 0.6, 1.0));
+
+  // Hero text fades out as we walk forward
+  const heroFade = 1 - ease(range(rawP, 0.05, 0.35));
+  heroText.style.opacity = heroFade;
+  heroText.style.transform = `translateY(${(1 - heroFade) * -40}px)`;
+
+  // Scroll hint disappears quickly
+  scrollHint.style.opacity = 1 - ease(range(rawP, 0.0, 0.15));
+
+  // Update HUD
+  updateHud(rawP);
+
+  // HUD fades at the end
+  const depthHud = document.getElementById('depth-hud');
+  depthHud.style.opacity = 1 - ease(range(rawP, 0.85, 1.0));
+
+  // Hero UI (entire fixed overlay) fades out as Act 2 begins
+  const act2Fade = ease(range(rawP, 0.90, 1.0));
+  heroUI.style.opacity = 1 - act2Fade;
+  heroUI.style.pointerEvents = act2Fade > 0.5 ? 'none' : 'auto';
+
+  // Vignette fades out for cleaner Act 2 photos
+  vignette.style.opacity = 1 - act2Fade;
+
+  // WebGL canvas — once Act 2 is fully on screen, hide it
+  if (scrollY > act1Top + walkRange) {
+    canvas.style.opacity = Math.max(0, 1 - (scrollY - act1Top - walkRange) / window.innerHeight);
+  } else {
+    canvas.style.opacity = 1;
+  }
+
+  // Act 2 sticky nav appears
+  act2Nav.classList.toggle('visible', scrollY > act1Top + walkRange * 0.9);
+
+  // Overall progress bar
+  const total = document.body.scrollHeight - window.innerHeight;
+  progressBar.style.width = (scrollY / total * 100) + '%';
+}
+
+window.addEventListener('scroll', onScroll, { passive: true });
+onScroll();
+
+// ─── RENDER LOOP ───
+function tick() {
+  requestAnimationFrame(tick);
+  currentZ = lerp(currentZ, targetZ, 0.08);
+  camera.position.z = currentZ;
+  composer.render();
+}
+tick();
+
+window.addEventListener('resize', () => {
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  composer.setSize(window.innerWidth, window.innerHeight);
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+});
+
+// ─── PHOTO SCENE PARALLAX + REVEAL ───
+const parallaxEls = document.querySelectorAll('[data-parallax]');
+function doParallax() {
+  parallaxEls.forEach(el => {
+    const speed = parseFloat(el.dataset.parallax);
+    const rect = el.closest('section').getBoundingClientRect();
+    const offset = rect.top / window.innerHeight;
+    el.style.transform = `translateY(${offset * speed * 100}px)`;
+  });
+}
+window.addEventListener('scroll', doParallax, { passive: true });
+doParallax();
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) entry.target.classList.add('visible');
+  });
+}, { threshold: 0.18 });
+document.querySelectorAll('.scene-content, .reveal').forEach(el => observer.observe(el));
+
+// Smooth anchor scrolls
+document.querySelectorAll('a[href^="#"]').forEach(link => {
+  link.addEventListener('click', e => {
+    const t = document.querySelector(link.getAttribute('href'));
+    if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth' }); }
+  });
+});
+</script>
+
+</body>
+</html>
