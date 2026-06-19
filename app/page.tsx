@@ -218,6 +218,67 @@ export default function HomePage() {
         ))}
       </section>
 
+      {/* EVENTS */}
+      <section id="events" className="py-24 px-6 lg:px-10 max-w-7xl mx-auto">
+        <div className="grid lg:grid-cols-2 gap-16 items-center mb-16">
+          <div>
+            <div className="eyebrow mb-4">Private Events</div>
+            <h2 className="font-serif text-4xl md:text-5xl font-light leading-[1.1] mb-6">
+              Make it a<br />
+              <em className="text-[var(--amber)]">moment to remember.</em>
+            </h2>
+            <p className="text-sm leading-relaxed text-cream/55 mb-8 max-w-md">
+              The orchard transforms for your occasion. Low tables, lanterns, flowers, and candlelight — all set up before you arrive. We handle everything so you just show up and celebrate.
+            </p>
+            <div className="grid grid-cols-2 gap-3 mb-10">
+              {[
+                "Birthday Parties",
+                "Anniversaries",
+                "Retirement Celebrations",
+                "Bridal Showers",
+                "Bachelorette Parties",
+                "Family Gatherings",
+              ].map((e) => (
+                <div key={e} className="flex items-center gap-2 text-[0.7rem] tracking-wider text-cream/60">
+                  <span className="w-1 h-1 rounded-full bg-[var(--amber)] shrink-0" />
+                  {e}
+                </div>
+              ))}
+            </div>
+            <a
+              href={`https://wa.me/918715008939?text=${encodeURIComponent("Hi, I'd like to enquire about hosting a private event at Villa Cottages. Please share details on packages and availability.")}`}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-block py-3.5 px-8 border border-[var(--amber)]/35 text-[0.65rem] tracking-[0.22em] uppercase text-[var(--amber)] hover:bg-[var(--amber)] hover:text-[#080705] transition-colors"
+            >
+              Enquire on WhatsApp
+            </a>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="relative aspect-[3/4] overflow-hidden">
+              <Image src="/photos/events-1.jpg" alt="Outdoor garden party setup" fill className="object-cover hover:scale-105 transition-transform duration-700" sizes="25vw" />
+            </div>
+            <div className="grid gap-2">
+              <div className="relative aspect-square overflow-hidden">
+                <Image src="/photos/events-4.jpg" alt="Candlelit dinner" fill className="object-cover hover:scale-105 transition-transform duration-700" sizes="25vw" />
+              </div>
+              <div className="relative aspect-square overflow-hidden">
+                <Image src="/photos/events-6.jpg" alt="Purple orchard event" fill className="object-cover hover:scale-105 transition-transform duration-700" sizes="25vw" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom photo strip */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+          {["/photos/events-2.jpg", "/photos/events-3.jpg", "/photos/events-5.jpg", "/photos/events-7.jpg"].map((src, i) => (
+            <div key={i} className="relative aspect-[4/3] overflow-hidden">
+              <Image src={src} alt="" fill className="object-cover hover:scale-105 transition-transform duration-700" sizes="25vw" />
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* TESTIMONIALS */}
       <section id="testimonials" className="py-24 px-6 lg:px-10 max-w-7xl mx-auto text-center">
         <div className="mb-14">

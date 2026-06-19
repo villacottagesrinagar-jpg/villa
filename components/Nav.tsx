@@ -6,9 +6,9 @@ import { SITE } from "@/lib/huts";
 
 const LINKS: [string, string][] = [
   ["Stays", "#stays"],
+  ["Events", "#events"],
   ["Gallery", "#gallery"],
   ["Amenities", "#amenities"],
-  ["Testimonials", "#testimonials"],
 ];
 
 export function Nav() {
