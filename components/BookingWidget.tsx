@@ -48,10 +48,6 @@ export function BookingWidget({ defaultHutId }: { defaultHutId?: string }) {
   const [bothTotal, setBothTotal] = useState<number | null>(null);
   const [nextAvailable, setNextAvailable] = useState<{ from: string; to: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [showGuestForm, setShowGuestForm] = useState(false);
-  const [guestName, setGuestName] = useState("");
-  const [guestEmail, setGuestEmail] = useState("");
-  const [guestPhone, setGuestPhone] = useState("");
 
   const isBoth = hutId === BOTH_ID;
   const hut = useMemo(() => VISIBLE_HUTS.find((h) => h.id === hutId), [hutId]);
@@ -110,32 +106,13 @@ export function BookingWidget({ defaultHutId }: { defaultHutId?: string }) {
     setNextAvailable(null);
   }
 
-  async function startCheckout() {
-    if (isBoth) {
-      const msg = encodeURIComponent(
-        `Hi, I'd like to book Both Cottages from ${checkIn} to ${checkOut} for ${guests} guests per cottage. Please confirm availability and total.`
-      );
-      window.open(`https://wa.me/918715008939?text=${msg}`, "_blank");
-      return;
-    }
-    setLoading(true);
-    try {
-      const r = await fetch("/api/booking/init", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ hutId, checkIn, checkOut, guests, guestName, guestEmail, guestPhone }),
-      });
-      const data = await r.json();
-      if (data.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
-      } else {
-        setError(data.error || "Couldn't start checkout.");
-      }
-    } catch {
-      setError("Couldn't start checkout.");
-    } finally {
-      setLoading(false);
-    }
+  function startCheckout() {
+    const cottageName = isBoth ? "Both Cottages" : (hut?.name ?? "a cottage");
+    const total = isBoth ? (bothTotal ?? 0) : (availability?.totalInr ?? 0);
+    const msg = encodeURIComponent(
+      `Hi, I'd like to book ${cottageName} from ${fmtDate(checkIn)} to ${fmtDate(checkOut)} (${nights} night${nights === 1 ? "" : "s"}) for ${guests} guest${guests === 1 ? "" : "s"}. Total: ${fmtINR(total)}. Please confirm and share payment details.`
+    );
+    window.open(`https://wa.me/918715008939?text=${msg}`, "_blank");
   }
 
   useEffect(() => {
@@ -183,8 +160,8 @@ export function BookingWidget({ defaultHutId }: { defaultHutId?: string }) {
               {loading ? "Checking…" : "Check Availability"}
             </button>
           ) : availability.available ? (
-            <button className="bw__cta w-full" onClick={() => isBoth ? startCheckout() : setShowGuestForm(true)} disabled={loading}>
-              {isBoth ? `Enquire · ${fmtINR(displayTotal)}` : `Reserve · ${fmtINR(displayTotal)}`}
+            <button className="bw__cta w-full" onClick={startCheckout}>
+              {`Reserve · ${fmtINR(displayTotal)}`}
             </button>
           ) : (
             <span className="text-[0.7rem] text-red-400/80">Not available</span>
@@ -237,25 +214,7 @@ export function BookingWidget({ defaultHutId }: { defaultHutId?: string }) {
         </div>
       )}
 
-      {showGuestForm && (
-        <div className="modal" onClick={() => setShowGuestForm(false)}>
-          <div className="modal__panel" onClick={(e) => e.stopPropagation()}>
-            <div className="eyebrow mb-3">Guest Details</div>
-            <h3 className="font-serif text-2xl font-light mb-6">Almost there.</h3>
-            <input className="modal__field" value={guestName} onChange={(e) => setGuestName(e.target.value)} placeholder="Full name" />
-            <input className="modal__field" value={guestEmail} onChange={(e) => setGuestEmail(e.target.value)} type="email" placeholder="Email" />
-            <input className="modal__field" value={guestPhone} onChange={(e) => setGuestPhone(e.target.value)} type="tel" placeholder="Phone (with country code)" />
-            <button
-              disabled={loading || !guestName || !guestEmail || !guestPhone}
-              onClick={startCheckout}
-              className="bw__cta w-full mt-3"
-            >
-              {loading ? "Redirecting…" : `Pay ${fmtINR(availability?.totalInr ?? 0)}`}
-            </button>
-            <p className="text-[0.62rem] text-cream/35 text-center mt-4">Secured by Cashfree. No payment taken until confirmed.</p>
-          </div>
-        </div>
-      )}
+
     </div>
   );
 }
