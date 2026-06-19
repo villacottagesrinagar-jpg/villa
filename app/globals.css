@@ -522,7 +522,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .amenities-section__inner {
   position: relative;
   z-index: 1;
-  padding: 6rem 1.5rem;
+  padding: 3.5rem 1rem;
   max-width: 80rem;
   margin: 0 auto;
 }
@@ -903,23 +903,39 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   text-align: center;
   overflow: hidden;
 }
-.testimonials-section__overlay {
+/* bg image — positioned toward top on mobile to show lavender field */
+.testimonials-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("/photos/lavender-wide.jpg") center 20%/cover no-repeat;
+  opacity: 0.55;
+  z-index: 0;
+}
+/* gradient overlay */
+.testimonials-section::after {
+  content: "";
   position: absolute;
   inset: 0;
   background: linear-gradient(
     to bottom,
-    #080705 0%,
-    rgba(8,7,5,0.7) 15%,
-    rgba(8,7,5,0.45) 40%,
-    rgba(8,7,5,0.45) 60%,
-    rgba(8,7,5,0.7) 85%,
-    #080705 100%
+    rgba(8,7,5,0.75) 0%,
+    rgba(8,7,5,0.35) 25%,
+    rgba(8,7,5,0.25) 50%,
+    rgba(8,7,5,0.35) 75%,
+    rgba(8,7,5,0.75) 100%
   );
-  z-index: 1;
+  z-index: 0;
+}
+@media (min-width: 768px) {
+  .testimonials-section::before {
+    background-position: center center;
+    opacity: 0.6;
+  }
 }
 .testimonials-section__inner {
   position: relative;
-  z-index: 2;
+  z-index: 1;
   max-width: 80rem;
   margin: 0 auto;
 }

@@ -110,7 +110,7 @@ export default function HomePage() {
             <h1 className="font-serif font-light text-5xl md:text-7xl leading-[1.05] tracking-tight max-w-3xl">
               Stepping into a
               <br />
-              peaceful little <em className="text-cream/70">dream.</em>
+              peaceful little <em className="text-[var(--amber)]">dream.</em>
             </h1>
             <div className="hero__review-attr eyebrow">— Zainab Shafat · Google review</div>
           </div>
@@ -200,15 +200,15 @@ export default function HomePage() {
       {/* AMENITIES */}
       <section id="amenities" className="amenities-section">
         <div className="amenities-section__inner">
-          <div className="text-center mb-16">
+          <div className="text-center mb-8 md:mb-16">
             <div className="eyebrow mb-3">What&apos;s Included</div>
-            <h2 className="font-serif text-4xl md:text-5xl font-light">Every detail, considered.</h2>
+            <h2 className="font-serif text-3xl md:text-5xl font-light">Every detail, considered.</h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
             {AMENITIES.map((a) => (
-              <div key={a.title} className="p-6 border border-[rgba(212,175,55,0.18)] bg-[#080705]/55 backdrop-blur-sm hover:border-[rgba(212,175,55,0.4)] hover:bg-[#080705]/75 transition-colors">
-                <h3 className="font-serif text-lg mb-2">{a.title}</h3>
-                <p className="text-[0.7rem] leading-relaxed text-cream/60">{a.body}</p>
+              <div key={a.title} className="p-4 md:p-6 border border-[rgba(212,175,55,0.18)] bg-[#080705]/55 backdrop-blur-sm hover:border-[rgba(212,175,55,0.4)] hover:bg-[#080705]/75 transition-colors">
+                <h3 className="font-serif text-base md:text-lg mb-1.5 md:mb-2">{a.title}</h3>
+                <p className="text-[0.65rem] md:text-[0.7rem] leading-relaxed text-cream/60">{a.body}</p>
               </div>
             ))}
           </div>
@@ -225,8 +225,6 @@ export default function HomePage() {
 
       {/* TESTIMONIALS */}
       <section id="testimonials" className="testimonials-section">
-        <Image src="/photos/lavender-wide.jpg" alt="" fill className="object-cover object-center" sizes="100vw" />
-        <div className="testimonials-section__overlay" />
         <div className="testimonials-section__inner">
 
         <div className="testimonials__header">
