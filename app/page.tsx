@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Nav } from "@/components/Nav";
 import { BookingWidget } from "@/components/BookingWidget";
 import { GalleryGrid } from "@/components/GalleryGrid";
+import { EventsGallery } from "@/components/EventsGallery";
 import { HUTS, SITE, PULL_QUOTES } from "@/lib/huts";
 import { getAllPrices } from "@/lib/price-store";
 
@@ -182,42 +183,6 @@ export default function HomePage() {
         <GalleryGrid photos={GALLERY} />
       </section>
 
-      {/* AMENITIES */}
-      <section id="amenities" className="relative overflow-hidden">
-        <Image
-          src="/photos/amenities-bg-new.png"
-          alt=""
-          fill
-          className="object-cover"
-          sizes="100vw"
-        />
-        <div className="absolute inset-0 bg-[#080705]/55" />
-        <div className="relative py-24 px-6 lg:px-10 max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <div className="eyebrow mb-3">What&apos;s Included</div>
-            <h2 className="font-serif text-4xl md:text-5xl font-light">Every detail, considered.</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {AMENITIES.map((a) => (
-              <div key={a.title} className="p-6 border border-[rgba(212,175,55,0.18)] bg-[#080705]/55 backdrop-blur-sm hover:border-[rgba(212,175,55,0.4)] hover:bg-[#080705]/75 transition-colors">
-                <h3 className="font-serif text-lg mb-2">{a.title}</h3>
-                <p className="text-[0.7rem] leading-relaxed text-cream/60">{a.body}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* STATS */}
-      <section className="border-y border-white/6 grid grid-cols-2 md:grid-cols-4 max-w-7xl mx-auto">
-        {[["3", "private cottages"], ["3,200", "feet altitude"], ["1.2", "acre orchard"], ["∞", "stars on clear nights"]].map(([n, l]) => (
-          <div key={l} className="p-10 text-center border-r border-white/6 last:border-r-0">
-            <div className="font-serif text-5xl font-light text-[var(--amber)] leading-none mb-2">{n}</div>
-            <div className="text-[0.6rem] tracking-[0.2em] uppercase text-cream/40">{l}</div>
-          </div>
-        ))}
-      </section>
-
       {/* EVENTS */}
       <section id="events" className="py-24 px-6 lg:px-10 max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-16 items-center mb-16">
@@ -269,29 +234,44 @@ export default function HomePage() {
               </a>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-2">
-            <div className="relative aspect-[3/4] overflow-hidden">
-              <Image src="/photos/events-1.jpg" alt="Outdoor garden party setup" fill className="object-cover hover:scale-105 transition-transform duration-700" sizes="25vw" />
-            </div>
-            <div className="grid gap-2">
-              <div className="relative aspect-square overflow-hidden">
-                <Image src="/photos/events-4.jpg" alt="Candlelit dinner" fill className="object-cover hover:scale-105 transition-transform duration-700" sizes="25vw" />
+          <EventsGallery />
+        </div>
+      </section>
+
+      {/* AMENITIES */}
+      <section id="amenities" className="relative overflow-hidden">
+        <Image
+          src="/photos/amenities-bg-new.png"
+          alt=""
+          fill
+          className="object-cover"
+          sizes="100vw"
+        />
+        <div className="absolute inset-0 bg-[#080705]/55" />
+        <div className="relative py-24 px-6 lg:px-10 max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <div className="eyebrow mb-3">What&apos;s Included</div>
+            <h2 className="font-serif text-4xl md:text-5xl font-light">Every detail, considered.</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {AMENITIES.map((a) => (
+              <div key={a.title} className="p-6 border border-[rgba(212,175,55,0.18)] bg-[#080705]/55 backdrop-blur-sm hover:border-[rgba(212,175,55,0.4)] hover:bg-[#080705]/75 transition-colors">
+                <h3 className="font-serif text-lg mb-2">{a.title}</h3>
+                <p className="text-[0.7rem] leading-relaxed text-cream/60">{a.body}</p>
               </div>
-              <div className="relative aspect-square overflow-hidden">
-                <Image src="/photos/events-6.jpg" alt="Purple orchard event" fill className="object-cover hover:scale-105 transition-transform duration-700" sizes="25vw" />
-              </div>
-            </div>
+            ))}
           </div>
         </div>
+      </section>
 
-        {/* Bottom photo strip */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-          {["/photos/events-2.jpg", "/photos/events-3.jpg", "/photos/events-5.jpg", "/photos/events-7.jpg"].map((src, i) => (
-            <div key={i} className="relative aspect-[4/3] overflow-hidden">
-              <Image src={src} alt="" fill className="object-cover hover:scale-105 transition-transform duration-700" sizes="25vw" />
-            </div>
-          ))}
-        </div>
+      {/* STATS */}
+      <section className="border-y border-white/6 grid grid-cols-2 md:grid-cols-4 max-w-7xl mx-auto">
+        {[["3", "private cottages"], ["3,200", "feet altitude"], ["1.2", "acre orchard"], ["∞", "stars on clear nights"]].map(([n, l]) => (
+          <div key={l} className="p-10 text-center border-r border-white/6 last:border-r-0">
+            <div className="font-serif text-5xl font-light text-[var(--amber)] leading-none mb-2">{n}</div>
+            <div className="text-[0.6rem] tracking-[0.2em] uppercase text-cream/40">{l}</div>
+          </div>
+        ))}
       </section>
 
       {/* TESTIMONIALS */}
