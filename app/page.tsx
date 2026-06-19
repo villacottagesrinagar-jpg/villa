@@ -3,6 +3,7 @@ import { Nav } from "@/components/Nav";
 import { BookingWidget } from "@/components/BookingWidget";
 import { GalleryGrid } from "@/components/GalleryGrid";
 import { EventsGallery } from "@/components/EventsGallery";
+import { TestimonialsCarousel } from "@/components/TestimonialsCarousel";
 import { HUTS, SITE, PULL_QUOTES } from "@/lib/huts";
 import { getAllPrices } from "@/lib/price-store";
 
@@ -17,41 +18,6 @@ const AMENITIES = [
   { title: "Luxury Linens", body: "Hand-loomed Kashmiri linens, towels, robes, and slippers provided." },
 ];
 
-// Real reviews lifted from Google (124 reviews, 4.9 stars). Edited only for length —
-// no embellishment. Each picked to hit a different audience: solo female, family,
-// design lovers, escape-the-city locals, "I never want to leave" emotional close.
-const TESTIMONIALS = [
-  {
-    quote: "Beautifully maintained and feels like a true hidden gem — so peaceful, surrounded by nature. One of the highlights was the apple trees right in the garden. The pool was great for kids and perfect for relaxing afternoons.",
-    author: "Sabereen Huq",
-    meta: "Family · Google review",
-  },
-  {
-    quote: "I booked the cottage for my birthday. Flowers surrounded by the trees, calmness and warmth all around. I went solo and it was perfectly safe — they have a lot of female staff which I absolutely loved. Made my birthday memorable.",
-    author: "Muskaan Ishaaq",
-    meta: "Solo · Google review",
-  },
-  {
-    quote: "It doesn't feel like it's made just for visitors — it truly feels like a home created with warmth and intention. From the beautiful flower buds with soft lights to the cute papier-mâché on the ceiling, everything is done with so much love and care.",
-    author: "Mehreen Wani",
-    meta: "Couple · Google review",
-  },
-  {
-    quote: "My personal advice: don't visit this place... because you'll fall in love with it. Seriously, I don't want to go back home from here. If I had 100 stars to give, I would gladly rate this place with all of them.",
-    author: "Shyam",
-    meta: "Family · Google review",
-  },
-  {
-    quote: "This is your own home in Srinagar, away from the hustle of the city. Beautifully calm, filled with apple trees, impeccable cleaning, food and other services makes your day. This is THE PLACE to stay in Srinagar.",
-    author: "Sampurna Roy",
-    meta: "Google review",
-  },
-  {
-    quote: "This place feels like stepping into a peaceful little dream. Surrounded by nature, it is the perfect escape from the noise of everyday life. The solace this place provides can't be explained in words.",
-    author: "Zainab Shafat",
-    meta: "Google review",
-  },
-];
 
 const GALLERY: { src: string; category: "exterior" | "interior"; width: number; height: number }[] = [
   { src: "/photos/lavender-night.jpg",   category: "exterior", width: 3793, height: 2844 },
@@ -81,7 +47,7 @@ export default function HomePage() {
       <Nav />
 
       {/* HERO */}
-      <section id="book" className="relative h-[100svh] min-h-[640px] overflow-hidden flex items-end">
+      <section className="relative h-[100svh] min-h-[640px] overflow-hidden flex items-end">
         <Image
           src="/photos/hero-aerial.png"
           alt="Villa Cottages — aerial view of the orchard and cottages"
@@ -90,9 +56,9 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/35 via-40% to-black/90" />
 
         {/* Centered quote */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none -translate-y-32">
+        <div className="absolute inset-x-0 top-[10%] flex justify-center pointer-events-none sm:top-0 sm:bottom-0 sm:items-center sm:-translate-y-32">
           <div className="text-center px-6 max-w-2xl">
-            <p className="font-serif italic text-xl md:text-2xl text-[var(--amber)]/90 leading-snug">
+            <p className="font-serif italic text-base sm:text-xl md:text-2xl text-[var(--amber)]/90 leading-snug">
               &ldquo;{PULL_QUOTES.hundredStars.quote}&rdquo;
             </p>
             <span className="block mt-3 text-[0.55rem] not-italic tracking-[0.3em] uppercase text-cream/40">
@@ -122,7 +88,7 @@ export default function HomePage() {
       </section>
 
       {/* BOOKING WIDGET */}
-      <section className="relative -mt-16 z-10 px-6 lg:px-10 pb-20">
+      <section id="book" className="relative -mt-16 z-10 px-6 lg:px-10 pb-20">
         <BookingWidget />
       </section>
 
@@ -224,43 +190,7 @@ export default function HomePage() {
       </section>
 
       {/* TESTIMONIALS */}
-      <section id="testimonials" className="testimonials-section">
-        <div className="testimonials-section__inner">
-
-        <div className="testimonials__header">
-          <div className="eyebrow mb-3">Testimonials</div>
-          <h2 className="testimonials__title">What guests say.</h2>
-          <div className="testimonials__rating">
-            <span className="testimonials__stars-row">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <svg key={i} viewBox="0 0 24 24" className="star-icon">
-                  <path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1 3-6z" />
-                </svg>
-              ))}
-            </span>
-            <span className="testimonials__rating-text"><strong>4.9</strong> · 124 reviews on Google</span>
-          </div>
-        </div>
-        <div className="testimonials__grid">
-          {TESTIMONIALS.map((t) => (
-            <div key={t.author} className="testimonial">
-              <div className="testimonial__stars">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <svg key={i} viewBox="0 0 24 24" className="star-icon">
-                    <path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1 3-6z" />
-                  </svg>
-                ))}
-              </div>
-              <p className="testimonial__quote">&ldquo;{t.quote}&rdquo;</p>
-              <div>
-                <strong className="testimonial__author">{t.author}</strong>
-                <span className="testimonial__meta">{t.meta}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-        </div>
-      </section>
+      <TestimonialsCarousel />
 
       {/* QUOTE BAND */}
       <section className="quote-band">
@@ -280,7 +210,7 @@ export default function HomePage() {
             <span className="final-booking__pull-author">— {PULL_QUOTES.fallInLove.author} · Google</span>
           </p>
           <h2 className="final-booking__heading">
-            Your Kashmir
+            Your stay with us
             <br />
             <em className="text-[var(--amber)]">awaits.</em>
           </h2>
@@ -310,6 +240,7 @@ export default function HomePage() {
           <div className="flex justify-center md:justify-end gap-6 order-2 md:order-3">
             <a href={SITE.instagramUrl} target="_blank" rel="noreferrer" className="text-[0.6rem] tracking-[0.15em] uppercase text-cream/35 hover:text-[var(--amber)] transition-colors">Instagram</a>
             <a href={SITE.airbnbListingUrl} target="_blank" rel="noreferrer" className="text-[0.6rem] tracking-[0.15em] uppercase text-cream/35 hover:text-[var(--amber)] transition-colors">Airbnb</a>
+            <a href="https://maps.app.goo.gl/WQvVw4ihEs6QEVre9" target="_blank" rel="noreferrer" className="text-[0.6rem] tracking-[0.15em] uppercase text-cream/35 hover:text-[var(--amber)] transition-colors">Directions</a>
             <a href={`mailto:${SITE.contactEmail}`} className="text-[0.6rem] tracking-[0.15em] uppercase text-cream/35 hover:text-[var(--amber)] transition-colors">Contact</a>
           </div>
         </div>

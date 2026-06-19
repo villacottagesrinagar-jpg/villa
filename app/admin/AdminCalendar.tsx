@@ -48,6 +48,9 @@ export function AdminCalendar({ hutId, initialBlocks }: { hutId: string; initial
   const [blocks, setBlocks] = useState(initialBlocks);
   const [busy, setBusy] = useState<string | null>(null);
   const [selected, setSelected] = useState<Block | null>(null);
+  const [editMode, setEditMode] = useState(false);
+  const [editDraft, setEditDraft] = useState<Block | null>(null);
+  const [saveBusy, setSaveBusy] = useState(false);
   const [monthOffset, setMonthOffset] = useState(0);
   const months = useMemo(() => nextMonths(6), []);
   const m = months[monthOffset];
@@ -113,11 +116,36 @@ export function AdminCalendar({ hutId, initialBlocks }: { hutId: string; initial
     }
   }
 
+  function openBlock(b: Block | null) {
+    setSelected(b);
+    setEditMode(false);
+    setEditDraft(null);
+  }
+
   function handleDayClick(iso: string, c: ReturnType<typeof classify>) {
     if (c.state === "open") {
       createBlock(iso);
     } else if (c.block) {
-      setSelected(c.block);
+      openBlock(c.block);
+    }
+  }
+
+  async function saveEdit() {
+    if (!editDraft?.eventId) return;
+    setSaveBusy(true);
+    try {
+      const r = await fetch("/api/admin/block", {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ hutId, block: editDraft }),
+      });
+      if (r.ok) {
+        const updated: Block = await r.json();
+        setBlocks((bs) => bs.map((b) => b.eventId === updated.eventId ? updated : b));
+        openBlock(updated);
+      }
+    } finally {
+      setSaveBusy(false);
     }
   }
 
@@ -276,51 +304,142 @@ export function AdminCalendar({ hutId, initialBlocks }: { hutId: string; initial
       {selected && (
         <div
           className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-          onClick={() => setSelected(null)}
+          onClick={() => { setSelected(null); setEditMode(false); setEditDraft(null); }}
         >
           <div
-            className="w-full max-w-sm bg-[#0e0d0b] border border-white/10 p-6 space-y-4"
+            className="w-full max-w-sm bg-[#0e0d0b] border border-white/10 p-6 space-y-4 max-h-[90dvh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="text-[0.55rem] tracking-[0.2em] uppercase text-cream/35">
-              {STATE_LABEL[selected.source === "site" ? "booked" : selected.source as CellState]}
-            </div>
-
-            <div className="space-y-1">
-              {selected.guestName && (
-                <div className="font-serif text-lg text-cream">{selected.guestName}</div>
-              )}
-              {selected.guestEmail && (
-                <div className="text-xs text-cream/50">{selected.guestEmail}</div>
-              )}
-              <div className="text-sm text-cream/60">
-                {formatDate(selected.start)} → {formatDate(addDays(selected.end, -1))}
-                {" · "}{nightsBetween(selected.start, selected.end)} night{nightsBetween(selected.start, selected.end) === 1 ? "" : "s"}
+            {/* Header row */}
+            <div className="flex items-center justify-between">
+              <div className="text-[0.55rem] tracking-[0.2em] uppercase text-cream/35">
+                {STATE_LABEL[selected.source === "site" ? "booked" : selected.source as CellState]}
               </div>
-              {selected.notes && (
-                <div className="text-xs text-cream/40 italic pt-1">{selected.notes}</div>
-              )}
-              {selected.paymentId && (
-                <div className="text-[0.6rem] text-cream/30 font-mono pt-1">Payment: {selected.paymentId}</div>
+              {!editMode && (
+                <button
+                  onClick={() => { setEditMode(true); setEditDraft({ ...selected }); }}
+                  className="text-[0.55rem] tracking-[0.15em] uppercase text-amber-400/70 hover:text-amber-400 transition-colors"
+                >
+                  Edit
+                </button>
               )}
             </div>
 
-            {selected.source === "manual" && (
-              <button
-                onClick={() => deleteBlock(selected)}
-                disabled={busy === selected.eventId}
-                className="w-full py-2 border border-red-500/40 text-red-400 text-[0.6rem] tracking-[0.15em] uppercase hover:bg-red-500/15 disabled:opacity-40 transition-colors"
-              >
-                {busy === selected.eventId ? "Unblocking…" : "Unblock these dates"}
-              </button>
-            )}
+            {editMode && editDraft ? (
+              /* ── Edit form ── */
+              <div className="space-y-3">
+                {[
+                  { label: "Guest name",    key: "guestName",    type: "text" },
+                  { label: "Email",         key: "guestEmail",   type: "email" },
+                  { label: "Phone",         key: "guestPhone",   type: "tel" },
+                  { label: "Guests",        key: "guests",       type: "text", placeholder: "e.g. 2 adults, 1 child" },
+                  { label: "Check-in time", key: "checkInTime",  type: "time" },
+                  { label: "Check-out time",key: "checkOutTime", type: "time" },
+                  { label: "Total (₹)",     key: "totalAmountInr",   type: "number" },
+                  { label: "Advance paid (₹)", key: "advancePaidInr", type: "number" },
+                ] .map(({ label, key, type, placeholder }) => (
+                  <div key={key}>
+                    <label className="block text-[0.5rem] tracking-widest uppercase text-amber-400/60 mb-1">{label}</label>
+                    <input
+                      type={type}
+                      placeholder={placeholder}
+                      value={(editDraft as Record<string, string | number | undefined>)[key] ?? ""}
+                      onChange={(e) => setEditDraft((d) => d ? {
+                        ...d,
+                        [key]: type === "number" ? (e.target.value ? Number(e.target.value) : undefined) : e.target.value || undefined,
+                      } : d)}
+                      className="w-full bg-transparent border border-white/10 px-2 py-1.5 text-[0.75rem] text-cream outline-none focus:border-[var(--amber)]/50"
+                    />
+                  </div>
+                ))}
+                <div>
+                  <label className="block text-[0.5rem] tracking-widest uppercase text-amber-400/60 mb-1">Notes</label>
+                  <textarea
+                    rows={3}
+                    value={editDraft.notes ?? ""}
+                    onChange={(e) => setEditDraft((d) => d ? { ...d, notes: e.target.value || undefined } : d)}
+                    className="w-full bg-transparent border border-white/10 px-2 py-1.5 text-[0.75rem] text-cream outline-none focus:border-[var(--amber)]/50 resize-y"
+                  />
+                </div>
+                <div className="flex gap-2 pt-1">
+                  <button
+                    onClick={saveEdit}
+                    disabled={saveBusy}
+                    className="flex-1 py-2 bg-amber-400/15 border border-amber-400/40 text-amber-400 text-[0.6rem] tracking-[0.15em] uppercase hover:bg-amber-400/25 disabled:opacity-40 transition-colors"
+                  >
+                    {saveBusy ? "Saving…" : "Save"}
+                  </button>
+                  <button
+                    onClick={() => { setEditMode(false); setEditDraft(null); }}
+                    className="flex-1 py-2 border border-white/10 text-cream/35 text-[0.6rem] tracking-[0.15em] uppercase hover:bg-white/5 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* ── View mode ── */
+              <>
+                <div className="space-y-1.5">
+                  {selected.guestName && (
+                    <div className="font-serif text-lg text-cream">{selected.guestName}</div>
+                  )}
+                  {selected.guestEmail && (
+                    <div className="text-xs text-cream/50">{selected.guestEmail}</div>
+                  )}
+                  {selected.guestPhone && (
+                    <div className="text-xs text-cream/50">{selected.guestPhone}</div>
+                  )}
 
-            <button
-              onClick={() => setSelected(null)}
-              className="w-full py-2 border border-white/10 text-cream/35 text-[0.6rem] tracking-[0.15em] uppercase hover:bg-white/5 transition-colors"
-            >
-              Close
-            </button>
+                  <div className="text-sm text-cream/60 pt-0.5">
+                    {formatDate(selected.start)} → {formatDate(addDays(selected.end, -1))}
+                    {" · "}{nightsBetween(selected.start, selected.end)} night{nightsBetween(selected.start, selected.end) === 1 ? "" : "s"}
+                  </div>
+
+                  {(selected.checkInTime || selected.checkOutTime) && (
+                    <div className="text-xs text-cream/45">
+                      {selected.checkInTime && <>Check-in {selected.checkInTime}</>}
+                      {selected.checkInTime && selected.checkOutTime && "  ·  "}
+                      {selected.checkOutTime && <>Check-out {selected.checkOutTime}</>}
+                    </div>
+                  )}
+                  {selected.guests && (
+                    <div className="text-xs text-cream/45">{selected.guests}</div>
+                  )}
+                  {selected.totalAmountInr != null && (
+                    <div className="text-xs text-cream/45">
+                      Total ₹{selected.totalAmountInr.toLocaleString("en-IN")}
+                      {selected.advancePaidInr != null && (
+                        <span className="text-cream/30"> · Advance ₹{selected.advancePaidInr.toLocaleString("en-IN")}</span>
+                      )}
+                    </div>
+                  )}
+                  {selected.notes && (
+                    <div className="text-xs text-cream/40 italic pt-1">{selected.notes}</div>
+                  )}
+                  {selected.paymentId && (
+                    <div className="text-[0.6rem] text-cream/30 font-mono pt-1">Payment: {selected.paymentId}</div>
+                  )}
+                </div>
+
+                {selected.source === "manual" && (
+                  <button
+                    onClick={() => deleteBlock(selected)}
+                    disabled={busy === selected.eventId}
+                    className="w-full py-2 border border-red-500/40 text-red-400 text-[0.6rem] tracking-[0.15em] uppercase hover:bg-red-500/15 disabled:opacity-40 transition-colors"
+                  >
+                    {busy === selected.eventId ? "Unblocking…" : "Unblock these dates"}
+                  </button>
+                )}
+
+                <button
+                  onClick={() => setSelected(null)}
+                  className="w-full py-2 border border-white/10 text-cream/35 text-[0.6rem] tracking-[0.15em] uppercase hover:bg-white/5 transition-colors"
+                >
+                  Close
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}

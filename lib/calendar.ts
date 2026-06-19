@@ -14,6 +14,12 @@ export type Block = {
   eventId?: string;
   guestName?: string;
   guestEmail?: string;
+  guestPhone?: string;
+  guests?: string;          // e.g. "2AD, 1ch"
+  checkInTime?: string;     // e.g. "14:00"
+  checkOutTime?: string;    // e.g. "11:00"
+  totalAmountInr?: number;
+  advancePaidInr?: number;
   paymentId?: string;
   notes?: string;
   calTitle?: string; // raw Google Calendar event title
@@ -119,13 +125,41 @@ function blockToGEvent(b: Block, hut: Hut): GEvent {
       case "airbnb": return `${prefix} Airbnb`;
     }
   })();
-  const description = JSON.stringify({
+
+  // Human-readable description for Google Calendar
+  const lines: string[] = [];
+  if (b.guestName)      lines.push(`👤 Guest: ${b.guestName}${b.guestPhone ? `  ·  📞 ${b.guestPhone}` : ""}`);
+  else if (b.guestPhone) lines.push(`📞 ${b.guestPhone}`);
+  if (b.guestEmail)     lines.push(`✉️  ${b.guestEmail}`);
+  if (b.guests)         lines.push(`👥 Guests: ${b.guests}`);
+  if (b.checkInTime || b.checkOutTime) {
+    const ci = b.checkInTime  ? `Check-in: ${b.checkInTime}`  : "";
+    const co = b.checkOutTime ? `Check-out: ${b.checkOutTime}` : "";
+    lines.push(`🕐 ${[ci, co].filter(Boolean).join("  ·  ")}`);
+  }
+  if (b.totalAmountInr) {
+    const adv = b.advancePaidInr ? `  ·  Advance: ₹${b.advancePaidInr.toLocaleString("en-IN")}` : "";
+    lines.push(`💳 Total: ₹${b.totalAmountInr.toLocaleString("en-IN")}${adv}`);
+  }
+  if (b.notes)          lines.push(`📝 ${b.notes}`);
+  if (b.paymentId)      lines.push(`🔖 Payment: ${b.paymentId}`);
+  const description = lines.join("\n");
+
+  // Structured data for our app to parse back
+  const medanData = JSON.stringify({
     source: b.source,
     guestName: b.guestName ?? null,
     guestEmail: b.guestEmail ?? null,
+    guestPhone: b.guestPhone ?? null,
+    guests: b.guests ?? null,
+    checkInTime: b.checkInTime ?? null,
+    checkOutTime: b.checkOutTime ?? null,
+    totalAmountInr: b.totalAmountInr ?? null,
+    advancePaidInr: b.advancePaidInr ?? null,
     paymentId: b.paymentId ?? null,
     notes: b.notes ?? null,
   });
+
   return {
     summary,
     description,
@@ -135,14 +169,21 @@ function blockToGEvent(b: Block, hut: Hut): GEvent {
       private: {
         medan_source: b.source,
         medan_payment: b.paymentId ?? "",
+        medan_data: medanData,
       },
     },
   };
 }
 
 function gEventToBlock(e: GEvent): Block {
+  // Priority 1: structured JSON in extendedProperties (written by new code)
+  // Priority 2: JSON in description (written by old code — backward compat)
   let parsed: Partial<Block> = {};
-  try { if (e.description) parsed = JSON.parse(e.description); } catch { /* ignore non-JSON descriptions */ }
+  try {
+    const raw = e.extendedProperties?.private?.medan_data ?? e.description;
+    if (raw) parsed = JSON.parse(raw);
+  } catch { /* non-JSON description from externally-created events */ }
+
   const source = (e.extendedProperties?.private?.medan_source as BlockSource | undefined)
               ?? (parsed.source as BlockSource | undefined)
               ?? inferSource(e.summary ?? "");
@@ -159,11 +200,17 @@ function gEventToBlock(e: GEvent): Block {
     start: e.start?.date ?? (e.start?.dateTime ?? "").slice(0, 10),
     end:   e.end?.date   ?? (e.end?.dateTime ?? "").slice(0, 10),
     source,
-    guestName: parsed.guestName ?? undefined,
-    guestEmail: parsed.guestEmail ?? undefined,
-    paymentId: parsed.paymentId ?? e.extendedProperties?.private?.medan_payment ?? undefined,
-    notes: parsed.notes ?? summaryNotes ?? undefined,
-    calTitle: e.summary ?? undefined,
+    guestName:      parsed.guestName      ?? undefined,
+    guestEmail:     parsed.guestEmail     ?? undefined,
+    guestPhone:     parsed.guestPhone     ?? undefined,
+    guests:         parsed.guests         ?? undefined,
+    checkInTime:    parsed.checkInTime    ?? undefined,
+    checkOutTime:   parsed.checkOutTime   ?? undefined,
+    totalAmountInr: parsed.totalAmountInr ?? undefined,
+    advancePaidInr: parsed.advancePaidInr ?? undefined,
+    paymentId:      parsed.paymentId      ?? e.extendedProperties?.private?.medan_payment ?? undefined,
+    notes:          parsed.notes          ?? summaryNotes ?? undefined,
+    calTitle:       e.summary             ?? undefined,
   };
 }
 

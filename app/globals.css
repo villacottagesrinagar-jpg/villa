@@ -899,9 +899,13 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 /* ─── Testimonials ─── */
 .testimonials-section {
   position: relative;
-  padding: 4rem 1rem;
+  padding: 5rem 1.5rem;
   text-align: center;
   overflow: hidden;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 /* bg image — positioned toward top on mobile to show lavender field */
 .testimonials-section::before {
@@ -936,8 +940,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .testimonials-section__inner {
   position: relative;
   z-index: 1;
-  max-width: 80rem;
+  max-width: 52rem;
   margin: 0 auto;
+  width: 100%;
 }
 .testimonials__header { margin-bottom: 2rem; }
 .testimonials__title {
@@ -964,33 +969,37 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .testimonials__rating-text strong {
   font-weight: 500;
 }
+.testimonials__rating-link {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: rgba(242, 234, 216, 0.3);
+  transition: text-decoration-color 0.15s;
+}
+.testimonials__rating-link:hover {
+  text-decoration-color: var(--amber);
+}
 .star-icon {
   width: 12px;
   height: 12px;
   fill: var(--amber);
 }
-.testimonials__grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.75rem;
-  max-width: 72rem;
-  margin: 0 auto;
-}
 .testimonial {
-  padding: 1.25rem;
+  padding: 2rem 1.5rem;
   border: 1px solid rgba(212, 175, 55, 0.15);
   text-align: center;
   background: rgba(8, 7, 5, 0.75);
   backdrop-filter: blur(8px);
+  margin-bottom: 1.75rem;
 }
-.testimonial__stars { display: flex; gap: 0.2rem; justify-content: center; margin-bottom: 0.75rem; }
+.testimonial__stars { display: flex; gap: 0.2rem; justify-content: center; margin-bottom: 1rem; }
 .testimonial__quote {
   font-family: var(--font-lora), var(--font-serif), serif;
-  font-size: 0.8rem;
+  font-size: 0.95rem;
   font-weight: 400;
-  line-height: 1.65;
+  line-height: 1.75;
   color: var(--cream);
-  margin-bottom: 0.875rem;
+  margin-bottom: 1.25rem;
 }
 .testimonial__author {
   font-size: 0.65rem;
@@ -1007,20 +1016,68 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   text-transform: uppercase;
   color: rgba(242, 234, 216, 0.4);
 }
+.testimonials__nav-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+}
+.testimonials__nav {
+  display: none;
+}
+@media (min-width: 640px) {
+  .testimonials__nav {
+    display: flex;
+    width: 2.75rem;
+    height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    color: rgba(242, 234, 216, 0.65);
+    font-size: 1.6rem;
+    line-height: 1;
+    background: rgba(8, 7, 5, 0.55);
+    backdrop-filter: blur(4px);
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+  }
+}
+.testimonials__nav:hover {
+  color: var(--amber);
+  border-color: rgba(212, 175, 55, 0.65);
+}
+.testimonials__dots {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+.testimonials__dot {
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.25);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.2s, transform 0.2s;
+}
+.testimonials__dot--active {
+  background: var(--amber);
+  transform: scale(1.5);
+}
 @media (min-width: 640px) {
   .testimonials-section { padding: 6rem 2rem; }
-  .testimonials__grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-  }
-  .testimonial { padding: 2rem; }
-  .testimonial__quote { font-size: 0.9rem; }
   .testimonials__header { margin-bottom: 3.5rem; }
+  .testimonial { padding: 2.5rem 2rem; }
+  .testimonial__quote { font-size: 1.05rem; }
 }
 @media (min-width: 768px) {
-  .testimonials-section { padding: 6rem 2.5rem; }
+  .testimonials-section { padding: 6rem 3rem; }
   .testimonials__title { font-size: 3rem; }
-  .testimonial__quote { font-size: 1rem; }
+  .testimonials-section__inner { max-width: 58rem; }
+  .testimonial { padding: 3rem 3.5rem; }
+  .testimonial__quote { font-size: 1.15rem; }
+  .testimonials__nav { width: 3.25rem; height: 3.25rem; font-size: 1.9rem; display: flex; }
 }
 
 /* ─── Modal (guest details) ─── */
