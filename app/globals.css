@@ -265,7 +265,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 @media (min-width: 768px) {
   .bw { padding: 2rem; }
-  .bw__grid { grid-template-columns: 1.4fr 1fr 1fr 0.8fr auto; }
+  .bw__grid { grid-template-columns: minmax(200px, 2fr) 1fr 1fr 0.8fr auto; }
   .bw__footer { flex-direction: row; align-items: center; justify-content: space-between; }
 }
 .bw__cell--cta {

@@ -113,6 +113,7 @@ export const SITE = {
   hostNotificationEmail: "host@villacottages.in",
   airbnbListingUrl: "https://www.airbnb.co.in/rooms/1196823291856037309",
   instagramUrl: "https://www.instagram.com/villa.cottages/",
+  whatsappUrl: "https://wa.me/917006923317",
   googleReviewsCount: 124,
   googleRating: 4.9,
 };
