@@ -345,6 +345,12 @@ export default function HomePage() {
           </div>
           <div className="text-[0.6rem] tracking-[0.12em] text-cream/25 text-center order-3 md:order-2">
             © 2025 {SITE.brandName} · {SITE.location}
+            <span className="block mt-1">
+              Built by{" "}
+              <a href="https://zamanishtiyaq.work/" target="_blank" rel="noreferrer" className="hover:text-[var(--amber)] transition-colors">
+                Zaman Ishtiyaq
+              </a>
+            </span>
           </div>
           <div className="flex justify-center md:justify-end gap-6 order-2 md:order-3">
             <a href={SITE.instagramUrl} target="_blank" rel="noreferrer" className="text-[0.6rem] tracking-[0.15em] uppercase text-cream/35 hover:text-[var(--amber)] transition-colors">Instagram</a>
