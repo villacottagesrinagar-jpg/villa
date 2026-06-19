@@ -899,7 +899,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 /* ─── Testimonials ─── */
 .testimonials-section {
   position: relative;
-  padding: 6rem 1.5rem;
+  padding: 4rem 1rem;
   text-align: center;
   overflow: hidden;
 }
@@ -923,7 +923,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   max-width: 80rem;
   margin: 0 auto;
 }
-.testimonials__header { margin-bottom: 3.5rem; }
+.testimonials__header { margin-bottom: 2rem; }
 .testimonials__title {
   font-family: var(--font-serif), serif;
   font-size: 2.5rem;
@@ -955,26 +955,26 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 .testimonials__grid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 2rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
   max-width: 72rem;
   margin: 0 auto;
 }
 .testimonial {
-  padding: 2rem;
+  padding: 1.25rem;
   border: 1px solid rgba(212, 175, 55, 0.15);
   text-align: center;
   background: rgba(8, 7, 5, 0.75);
   backdrop-filter: blur(8px);
 }
-.testimonial__stars { display: flex; gap: 0.25rem; justify-content: center; margin-bottom: 1.25rem; }
+.testimonial__stars { display: flex; gap: 0.2rem; justify-content: center; margin-bottom: 0.75rem; }
 .testimonial__quote {
   font-family: var(--font-lora), var(--font-serif), serif;
-  font-size: 1rem;
+  font-size: 0.8rem;
   font-weight: 400;
-  line-height: 1.7;
+  line-height: 1.65;
   color: var(--cream);
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.875rem;
 }
 .testimonial__author {
   font-size: 0.65rem;
@@ -991,10 +991,20 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   text-transform: uppercase;
   color: rgba(242, 234, 216, 0.4);
 }
+@media (min-width: 640px) {
+  .testimonials-section { padding: 6rem 2rem; }
+  .testimonials__grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+  .testimonial { padding: 2rem; }
+  .testimonial__quote { font-size: 0.9rem; }
+  .testimonials__header { margin-bottom: 3.5rem; }
+}
 @media (min-width: 768px) {
   .testimonials-section { padding: 6rem 2.5rem; }
   .testimonials__title { font-size: 3rem; }
-  .testimonials__grid { grid-template-columns: repeat(3, 1fr); }
+  .testimonial__quote { font-size: 1rem; }
 }
 
 /* ─── Modal (guest details) ─── */
