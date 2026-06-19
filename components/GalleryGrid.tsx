@@ -2,45 +2,69 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { RowsPhotoAlbum } from "react-photo-album";
+import "react-photo-album/rows.css";
 import { Lightbox } from "./Lightbox";
 
-// Repeating size pattern: large=2×2, wide=2×1, tall=1×2, normal=1×1
-const SIZES = ["large", "normal", "normal", "tall", "normal", "wide", "normal", "normal"] as const;
-type Size = (typeof SIZES)[number];
+type Photo = { src: string; category: "exterior" | "interior"; width: number; height: number };
+type Filter = "all" | "exterior" | "interior";
 
-export function GalleryGrid({ photos }: { photos: string[] }) {
+const FILTERS: { value: Filter; label: string }[] = [
+  { value: "all",      label: "All" },
+  { value: "exterior", label: "Exterior" },
+  { value: "interior", label: "Interior" },
+];
+
+export function GalleryGrid({ photos }: { photos: Photo[] }) {
+  const [filter, setFilter] = useState<Filter>("all");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  const filtered = filter === "all" ? photos : photos.filter((p) => p.category === filter);
 
   return (
     <>
-      <div className="gallery-mosaic">
-        {photos.map((src, i) => {
-          const size: Size = SIZES[i % SIZES.length];
-          return (
-            <div
-              key={src}
-              className={`gallery-mosaic__item gallery-mosaic__item--${size}`}
-              onClick={() => setLightboxIndex(i)}
-            >
+      <div className="gallery-filters">
+        {FILTERS.map(({ value, label }) => (
+          <button
+            key={value}
+            onClick={() => { setFilter(value); setLightboxIndex(null); }}
+            className={`gallery-filter-btn ${filter === value ? "gallery-filter-btn--active" : ""}`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      <div className="gallery-rows">
+        <RowsPhotoAlbum
+          photos={filtered}
+          targetRowHeight={65}
+          spacing={1}
+          padding={0}
+          rowConstraints={{ minPhotos: 5, maxPhotos: 8 }}
+          onClick={({ index }) => setLightboxIndex(index)}
+          render={{
+            image: (_props, { photo, width, height }) => (
               <Image
-                src={src}
+                src={photo.src}
                 alt=""
-                fill
-                className="gallery-mosaic__img"
-                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                width={width}
+                height={height}
+                className="gallery-rows__img"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               />
-            </div>
-          );
-        })}
+            ),
+          }}
+        />
       </div>
 
       {lightboxIndex !== null && (
         <Lightbox
-          photos={photos}
+          photos={filtered.map((p) => p.src)}
           index={lightboxIndex}
           onClose={() => setLightboxIndex(null)}
           onPrev={() => setLightboxIndex((i) => Math.max(0, (i ?? 0) - 1))}
-          onNext={() => setLightboxIndex((i) => Math.min(photos.length - 1, (i ?? 0) + 1))}
+          onNext={() => setLightboxIndex((i) => Math.min(filtered.length - 1, (i ?? 0) + 1))}
         />
       )}
     </>

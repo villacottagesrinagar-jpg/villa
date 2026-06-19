@@ -30,7 +30,7 @@ export default function RootLayout({
       lang="en"
       className={`${serif.variable} ${sans.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[#080705] text-[#f2ead8] font-sans">
+      <body suppressHydrationWarning className="min-h-full flex flex-col bg-[#080705] text-[#f2ead8] font-sans">
         <SmoothAnchor />
         {children}
         <a

@@ -2,52 +2,51 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { RowsPhotoAlbum } from "react-photo-album";
+import "react-photo-album/rows.css";
 import { Lightbox } from "./Lightbox";
 
 const PHOTOS = [
-  "/photos/events-1.jpg",
-  "/photos/events-4.jpg",
-  "/photos/events-6.jpg",
-  "/photos/events-2.jpg",
-  "/photos/events-3.jpg",
-  "/photos/events-5.jpg",
-  "/photos/events-7.jpg",
+  { src: "/photos/events-1.jpg", alt: "Garden party setup",  width: 1080, height: 1440 },
+  { src: "/photos/events-4.jpg", alt: "Candlelit dinner",    width: 1080, height: 1440 },
+  { src: "/photos/events-6.jpg", alt: "Orchard event",       width: 1440, height: 1920 },
+  { src: "/photos/events-2.jpg", alt: "",                    width: 1440, height: 1920 },
+  { src: "/photos/events-3.jpg", alt: "",                    width: 1440, height: 1920 },
+  { src: "/photos/events-5.jpg", alt: "",                    width: 1440, height: 1920 },
+  { src: "/photos/events-7.jpg", alt: "",                    width: 1440, height: 1920 },
 ];
 
 export function EventsGallery() {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
-  function open(i: number) { setLightboxIndex(i); }
-
   return (
     <>
-      {/* Top grid */}
-      <div className="grid grid-cols-2 gap-2">
-        <div className="relative aspect-[3/4] overflow-hidden cursor-pointer" onClick={() => open(0)}>
-          <Image src={PHOTOS[0]} alt="Garden party setup" fill className="object-cover hover:scale-105 transition-transform duration-700" sizes="25vw" />
-        </div>
-        <div className="grid gap-2">
-          <div className="relative aspect-square overflow-hidden cursor-pointer" onClick={() => open(1)}>
-            <Image src={PHOTOS[1]} alt="Candlelit dinner" fill className="object-cover hover:scale-105 transition-transform duration-700" sizes="25vw" />
-          </div>
-          <div className="relative aspect-square overflow-hidden cursor-pointer" onClick={() => open(2)}>
-            <Image src={PHOTOS[2]} alt="Orchard event" fill className="object-cover hover:scale-105 transition-transform duration-700" sizes="25vw" />
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom strip */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
-        {PHOTOS.slice(3).map((src, i) => (
-          <div key={src} className="relative aspect-[4/3] overflow-hidden cursor-pointer" onClick={() => open(i + 3)}>
-            <Image src={src} alt="" fill className="object-cover hover:scale-105 transition-transform duration-700" sizes="25vw" />
-          </div>
-        ))}
+      <div className="events-gallery">
+        <RowsPhotoAlbum
+          photos={PHOTOS}
+          targetRowHeight={130}
+          spacing={2}
+          padding={0}
+          rowConstraints={{ minPhotos: 3, maxPhotos: 4 }}
+          onClick={({ index }) => setLightboxIndex(index)}
+          render={{
+            image: (_props, { photo, width, height }) => (
+              <Image
+                src={photo.src}
+                alt={photo.alt ?? ""}
+                width={width}
+                height={height}
+                className="gallery-rows__img"
+                sizes="(max-width: 640px) 100vw, 33vw"
+              />
+            ),
+          }}
+        />
       </div>
 
       {lightboxIndex !== null && (
         <Lightbox
-          photos={PHOTOS}
+          photos={PHOTOS.map((p) => p.src)}
           index={lightboxIndex}
           onClose={() => setLightboxIndex(null)}
           onPrev={() => setLightboxIndex((i) => Math.max(0, (i ?? 0) - 1))}

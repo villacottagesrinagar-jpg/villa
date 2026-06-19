@@ -53,24 +53,26 @@ const TESTIMONIALS = [
   },
 ];
 
-const GALLERY = [
-  "/photos/lavender-night.jpg",
-  "/photos/gallery-new-1.avif",
-  "/photos/gallery-new-2.avif",
-  "/photos/gallery-new-3.avif",
-  "/photos/gallery-new-4.webp",
-  "/photos/gallery-new-5.webp",
-  "/photos/gallery-new-6.webp",
-  "/photos/gallery-new-7.jpg",
-  "/photos/exterior-night.jpg",
-  "/photos/orchard.jpg",
-  "/photos/interior-living.jpg",
-  "/photos/loft.jpg",
-  "/photos/kitchen.jpg",
-  "/photos/garden.jpg",
-  "/photos/firepit.png",
-  "/photos/pool.jpg",
-  "/photos/interior-bedroom.jpg",
+const GALLERY: { src: string; category: "exterior" | "interior"; width: number; height: number }[] = [
+  { src: "/photos/lavender-night.jpg",   category: "exterior", width: 3793, height: 2844 },
+  { src: "/photos/gallery-new-7.jpg",    category: "exterior", width: 960,  height: 1280 },
+  { src: "/photos/gallery-new-1.avif",   category: "exterior", width: 720,  height: 960  },
+  { src: "/photos/gallery-new-2.avif",   category: "exterior", width: 2560, height: 4551 },
+  { src: "/photos/gallery-new-3.avif",   category: "exterior", width: 2560, height: 3506 },
+  { src: "/photos/gallery-new-4.webp",   category: "exterior", width: 574,  height: 1020 },
+  { src: "/photos/gallery-new-5.webp",   category: "exterior", width: 1360, height: 907  },
+  { src: "/photos/gallery-new-6.webp",   category: "exterior", width: 765,  height: 1020 },
+  { src: "/photos/exterior-night.jpg",   category: "exterior", width: 2363, height: 3236 },
+  { src: "/photos/orchard.jpg",          category: "exterior", width: 2395, height: 3192 },
+  { src: "/photos/interior-living.jpg",  category: "interior", width: 2560, height: 1920 },
+  { src: "/photos/loft.jpg",             category: "interior", width: 2560, height: 1920 },
+  { src: "/photos/kitchen.jpg",          category: "interior", width: 2560, height: 1920 },
+  { src: "/photos/garden.jpg",           category: "exterior", width: 2364, height: 3233 },
+  { src: "/photos/firepit.png",          category: "exterior", width: 736,  height: 1104 },
+  { src: "/photos/pool.jpg",             category: "exterior", width: 2074, height: 3686 },
+  { src: "/photos/interior-bedroom.jpg", category: "interior", width: 2395, height: 3192 },
+  { src: "/photos/bathroom-1.avif",      category: "interior", width: 720,  height: 960  },
+  { src: "/photos/bathroom-2.avif",      category: "interior", width: 720,  height: 960  },
 ];
 
 export default function HomePage() {
@@ -105,67 +107,26 @@ export default function HomePage() {
             <span className="block h-px w-8 bg-[var(--amber)]" />
             {SITE.location}
           </div>
-          <h1 className="font-serif font-light text-5xl md:text-7xl leading-[1.05] tracking-tight max-w-3xl">
-            Stepping into a
-            <br />
-            peaceful little <em className="text-cream/70">dream.</em>
-          </h1>
-          <p className="mt-5 text-sm tracking-wider text-white/55">
-            Private A-frame cottages on an apple orchard
+          <div className="hero__h1-row">
+            <h1 className="font-serif font-light text-5xl md:text-7xl leading-[1.05] tracking-tight max-w-3xl">
+              Stepping into a
+              <br />
+              peaceful little <em className="text-cream/70">dream.</em>
+            </h1>
+            <div className="hero__review-attr eyebrow">— Zainab Shafat · Google review</div>
+          </div>
+          <p className="hero__tagline">
+            Villa Cottages sits in Srinagar surrounded by apple trees and the Kashmir mountain ranges.
+            Every window frames a painting. Every morning begins with birdsong.
           </p>
         </div>
       </section>
 
-      {/* BOOKING WIDGET (sticky-ish floats over hero base) */}
+      {/* BOOKING WIDGET */}
       <section className="relative -mt-16 z-10 px-6 lg:px-10 pb-20">
         <BookingWidget />
       </section>
 
-      {/* INTRO */}
-      <section className="py-24 px-6 lg:px-10 max-w-3xl mx-auto text-center">
-        <div className="eyebrow mb-4 justify-center inline-flex">— {PULL_QUOTES.peacefulDream.author} · Google review</div>
-        <p className="font-serif text-3xl md:text-4xl font-light leading-snug text-cream italic">
-          &ldquo;{PULL_QUOTES.peacefulDream.quote}&rdquo;
-        </p>
-        <p className="mt-10 text-sm leading-relaxed text-cream/55 max-w-xl mx-auto">
-          Villa Cottages sits in Srinagar surrounded by apple trees and the Kashmir mountain ranges.
-          Every window frames a painting. Every morning begins with birdsong.
-        </p>
-      </section>
-
-      {/* STAYS */}
-      <section id="stays" className="py-24 px-6 lg:px-10 max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <div className="eyebrow mb-3">Two Stays</div>
-          <h2 className="font-serif text-4xl md:text-5xl font-light">Choose your cottage.</h2>
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {HUTS.filter((h) => !h.hidden).map((hut) => (
-            <a key={hut.id} href="#book" className="group block border border-white/6 hover:border-[var(--amber)]/30 transition-colors">
-              <div className="relative aspect-[4/5] overflow-hidden">
-                <Image src={hut.heroPhoto} alt={hut.name} fill className="object-cover group-hover:scale-105 transition-transform duration-700" sizes="(max-width: 1024px) 100vw, 33vw" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-                <div className="absolute top-4 left-4 eyebrow text-[0.5rem]">
-                  {hut.tier === "luxury" ? "Luxury" : "Standard"}
-                </div>
-              </div>
-              <div className="p-6">
-                <h3 className="font-serif text-2xl font-light mb-1.5">{hut.name}</h3>
-                <p className="text-[0.75rem] text-cream/55 mb-4 leading-relaxed">{hut.tagline}</p>
-                <div className="flex justify-between items-end pt-4 border-t border-white/6">
-                  <span className="text-[0.65rem] tracking-[0.18em] uppercase text-cream/40">
-                    Sleeps {hut.maxGuests} · {hut.bedrooms} bedrooms
-                  </span>
-                  <span className="font-serif text-xl">
-                    ₹{(prices[hut.id] ?? hut.nightlyRateInr).toLocaleString("en-IN")}
-                    <span className="text-[0.55rem] tracking-[0.2em] uppercase text-cream/40 ml-1">/ night</span>
-                  </span>
-                </div>
-              </div>
-            </a>
-          ))}
-        </div>
-      </section>
 
       {/* GALLERY */}
       <section id="gallery" className="py-24">
@@ -180,18 +141,19 @@ export default function HomePage() {
       </section>
 
       {/* EVENTS */}
-      <section id="events" className="py-24 px-6 lg:px-10 max-w-7xl mx-auto">
-        <div className="grid lg:grid-cols-2 gap-16 items-center mb-16">
+      <div id="events" className="events-section-wrap">
+      <section className="events-section">
+        <div className="events-section__layout">
           <div>
-            <div className="eyebrow mb-4">Private Events</div>
-            <h2 className="font-serif text-4xl md:text-5xl font-light leading-[1.1] mb-6">
+            <div className="eyebrow events-section__eyebrow">Private Events</div>
+            <h2 className="font-serif events-section__heading">
               Make it a<br />
-              <em className="text-[var(--amber)]">moment to remember.</em>
+              <em>moment to remember.</em>
             </h2>
-            <p className="text-sm leading-relaxed text-cream/55 mb-8 max-w-md">
+            <p className="events-section__body">
               The orchard transforms for your occasion. Low tables, lanterns, flowers, and candlelight — all set up before you arrive. We handle everything so you just show up and celebrate.
             </p>
-            <div className="grid grid-cols-2 gap-3 mb-10">
+            <div className="events-section__types">
               {[
                 "Birthday Parties",
                 "Anniversaries",
@@ -200,18 +162,18 @@ export default function HomePage() {
                 "Bachelorette Parties",
                 "Family Gatherings",
               ].map((e) => (
-                <div key={e} className="flex items-center gap-2 text-[0.7rem] tracking-wider text-cream/60">
-                  <span className="w-1 h-1 rounded-full bg-[var(--amber)] shrink-0" />
+                <div key={e} className="events-section__type">
+                  <span className="events-section__dot" />
                   {e}
                 </div>
               ))}
             </div>
-            <div className="flex flex-wrap gap-3">
+            <div className="events-section__ctas">
               <a
                 href={`https://wa.me/917006923317?text=${encodeURIComponent("Hi, I'd like to enquire about hosting a private event at Villa Cottages. Please share details on packages and availability.")}`}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-block py-3.5 px-8 border border-[var(--amber)]/35 text-[0.65rem] tracking-[0.22em] uppercase text-[var(--amber)] hover:bg-[var(--amber)] hover:text-[#080705] transition-colors"
+                className="events-section__cta-primary"
               >
                 Enquire on WhatsApp
               </a>
@@ -219,9 +181,9 @@ export default function HomePage() {
                 href="https://www.instagram.com/moodboardbyhsm/"
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 py-3.5 px-8 border border-white/10 text-[0.65rem] tracking-[0.22em] uppercase text-cream/50 hover:text-cream hover:border-white/25 transition-colors"
+                className="events-section__cta-secondary"
               >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-3.5 h-3.5">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="events-section__cta-icon">
                   <rect x="3" y="3" width="18" height="18" rx="5" />
                   <circle cx="12" cy="12" r="4" />
                   <circle cx="17.5" cy="6.5" r="1" fill="currentColor" />
@@ -233,6 +195,7 @@ export default function HomePage() {
           <EventsGallery />
         </div>
       </section>
+      </div>
 
       {/* AMENITIES */}
       <section id="amenities" className="relative overflow-hidden">
@@ -271,22 +234,23 @@ export default function HomePage() {
       </section>
 
       {/* TESTIMONIALS */}
-      <section id="testimonials" className="relative py-24 px-6 lg:px-10 text-center overflow-hidden">
+      <section id="testimonials" className="testimonials-section">
         <Image src="/photos/lavender-wide.jpg" alt="" fill className="object-cover object-center" sizes="100vw" />
-        <div className="absolute inset-0 bg-[#080705]/65" />
-        <div className="relative max-w-7xl mx-auto">
+        <div className="testimonials-section__overlay" />
+        <div className="testimonials-section__inner">
+
         <div className="testimonials__header">
           <div className="eyebrow mb-3">Testimonials</div>
           <h2 className="testimonials__title">What guests say.</h2>
           <div className="testimonials__rating">
-            <span className="flex gap-0.5">
+            <span className="testimonials__stars-row">
               {Array.from({ length: 5 }).map((_, i) => (
-                <svg key={i} viewBox="0 0 24 24" className="w-3 h-3 fill-[var(--amber)]">
+                <svg key={i} viewBox="0 0 24 24" className="star-icon">
                   <path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1 3-6z" />
                 </svg>
               ))}
             </span>
-            <span className="text-cream"><strong className="font-medium">4.9</strong> · 124 reviews on Google</span>
+            <span className="testimonials__rating-text"><strong>4.9</strong> · 124 reviews on Google</span>
           </div>
         </div>
         <div className="testimonials__grid">
@@ -294,7 +258,7 @@ export default function HomePage() {
             <div key={t.author} className="testimonial">
               <div className="testimonial__stars">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <svg key={i} viewBox="0 0 24 24" className="w-3 h-3 fill-[var(--amber)]">
+                  <svg key={i} viewBox="0 0 24 24" className="star-icon">
                     <path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1 3-6z" />
                   </svg>
                 ))}

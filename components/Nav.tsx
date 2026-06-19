@@ -5,10 +5,10 @@ import { useEffect, useState } from "react";
 import { SITE } from "@/lib/huts";
 
 const LINKS: [string, string][] = [
-  ["Stays", "#stays"],
   ["Gallery", "#gallery"],
   ["Events", "#events"],
   ["Amenities", "#amenities"],
+  ["Reviews", "#testimonials"],
 ];
 
 export function Nav() {
