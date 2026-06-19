@@ -846,7 +846,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 .final-booking__inner {
   position: relative;
-  max-width: 48rem;
+  max-width: 60rem;
   margin: 0 auto;
   text-align: center;
 }
