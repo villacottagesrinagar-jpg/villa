@@ -12,7 +12,7 @@ const AMENITIES = [
   { title: "Fire Circle", body: "Stone fire pit with seating. Available on request." },
   { title: "Kitchenette", body: "Each cottage has its own kitchenette. Chef and food available on the property." },
   { title: "WiFi", body: "Available at the property." },
-  { title: "Concierge", body: "24/7 host support, local guides, shikara bookings on Dal Lake." },
+  { title: "Concierge", body: "24/7 host support. Staff on property to assist with anything you need." },
   { title: "Orchard Access", body: "Full run of a working orchard. Pick fruit in season." },
   { title: "Luxury Linens", body: "Hand-loomed Kashmiri linens, towels, robes, and slippers provided." },
 ];
@@ -198,16 +198,8 @@ export default function HomePage() {
       </div>
 
       {/* AMENITIES */}
-      <section id="amenities" className="relative overflow-hidden">
-        <Image
-          src="/photos/amenities-bg-new.png"
-          alt=""
-          fill
-          className="object-cover"
-          sizes="100vw"
-        />
-        <div className="absolute inset-0 bg-[#080705]/55" />
-        <div className="relative py-24 px-6 lg:px-10 max-w-7xl mx-auto">
+      <section id="amenities" className="amenities-section">
+        <div className="amenities-section__inner">
           <div className="text-center mb-16">
             <div className="eyebrow mb-3">What&apos;s Included</div>
             <h2 className="font-serif text-4xl md:text-5xl font-light">Every detail, considered.</h2>
@@ -221,7 +213,7 @@ export default function HomePage() {
             ))}
           </div>
         </div>
-        <div className="relative stats">
+        <div className="relative z-10 stats">
           {[["2", "private cottages"], ["4.9", "on Google"], ["4.8", "on Airbnb"], ["∞", "stars on clear nights"]].map(([n, l]) => (
             <div key={l} className="stats__item">
               <div className="stats__number">{n}</div>

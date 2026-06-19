@@ -492,6 +492,52 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   .lb__nav--next { right: 2rem; }
 }
 
+/* ─── Amenities section ─── */
+.amenities-section {
+  position: relative;
+  overflow: hidden;
+}
+.amenities-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("/photos/amenities-bg-new.png") center/cover no-repeat;
+  opacity: 0.22;
+  z-index: 0;
+}
+.amenities-section::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    #080705 0%,
+    rgba(8,7,5,0.55) 22%,
+    rgba(8,7,5,0.30) 50%,
+    rgba(8,7,5,0.55) 78%,
+    #080705 100%
+  );
+  z-index: 0;
+}
+.amenities-section__inner {
+  position: relative;
+  z-index: 1;
+  padding: 6rem 1.5rem;
+  max-width: 80rem;
+  margin: 0 auto;
+}
+@media (min-width: 1024px) {
+  .amenities-section {
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .amenities-section__inner {
+    padding: 8rem 2.5rem;
+  }
+}
+
 /* ─── Stats bar ─── */
 .stats {
   border-top: 1px solid rgba(255,255,255,0.06);
@@ -923,7 +969,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 .testimonial__stars { display: flex; gap: 0.25rem; justify-content: center; margin-bottom: 1.25rem; }
 .testimonial__quote {
-  font-family: var(--font-serif), serif;
+  font-family: var(--font-lora), var(--font-serif), serif;
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.7;

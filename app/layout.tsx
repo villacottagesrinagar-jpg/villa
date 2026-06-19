@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Inter } from "next/font/google";
+import { Cormorant_Garamond, Inter, Lora } from "next/font/google";
 import "./globals.css";
 import { SmoothAnchor } from "@/components/SmoothAnchor";
 
@@ -16,6 +16,13 @@ const sans = Inter({
   weight: ["300", "400", "500"],
 });
 
+const lora = Lora({
+  variable: "--font-lora",
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  style: ["normal", "italic"],
+});
+
 export const metadata: Metadata = {
   title: "Villa Cottages — A-Frame Stays in the Kashmir Valley",
   description:
@@ -28,7 +35,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${serif.variable} ${sans.variable} h-full antialiased`}
+      className={`${serif.variable} ${sans.variable} ${lora.variable} h-full antialiased`}
     >
       <body suppressHydrationWarning className="min-h-full flex flex-col bg-[#080705] text-[#f2ead8] font-sans">
         <SmoothAnchor />
