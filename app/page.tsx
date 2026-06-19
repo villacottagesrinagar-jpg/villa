@@ -276,7 +276,10 @@ export default function HomePage() {
       </section>
 
       {/* TESTIMONIALS */}
-      <section id="testimonials" className="py-24 px-6 lg:px-10 max-w-7xl mx-auto text-center">
+      <section id="testimonials" className="relative py-24 px-6 lg:px-10 text-center overflow-hidden">
+        <Image src="/photos/lavender-wide.jpg" alt="" fill className="object-cover object-center" sizes="100vw" />
+        <div className="absolute inset-0 bg-[#080705]/80" />
+        <div className="relative max-w-7xl mx-auto">
         <div className="mb-14">
           <div className="eyebrow mb-3">Testimonials</div>
           <h2 className="font-serif text-4xl md:text-5xl font-light mb-5">What guests say.</h2>
@@ -308,6 +311,7 @@ export default function HomePage() {
               </div>
             </div>
           ))}
+        </div>
         </div>
       </section>
 
