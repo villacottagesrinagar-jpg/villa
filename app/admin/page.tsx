@@ -13,7 +13,7 @@ export default async function AdminPage() {
   if (!session) redirect("/admin/login");
 
   const from = new Date().toISOString().slice(0, 10);
-  const toDate = new Date(); toDate.setMonth(toDate.getMonth() + 3);
+  const toDate = new Date(); toDate.setMonth(toDate.getMonth() + 6);
   const to = toDate.toISOString().slice(0, 10);
 
   const prices = getAllPrices();

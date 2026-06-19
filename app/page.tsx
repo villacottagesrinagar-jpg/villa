@@ -221,16 +221,14 @@ export default function HomePage() {
             ))}
           </div>
         </div>
-      </section>
-
-      {/* STATS */}
-      <section className="stats">
-        {[["2", "private cottages"], ["4.9", "on Google"], ["4.8", "on Airbnb"], ["∞", "stars on clear nights"]].map(([n, l]) => (
-          <div key={l} className="stats__item">
-            <div className="stats__number">{n}</div>
-            <div className="stats__label">{l}</div>
-          </div>
-        ))}
+        <div className="relative stats">
+          {[["2", "private cottages"], ["4.9", "on Google"], ["4.8", "on Airbnb"], ["∞", "stars on clear nights"]].map(([n, l]) => (
+            <div key={l} className="stats__item">
+              <div className="stats__number">{n}</div>
+              <div className="stats__label">{l}</div>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* TESTIMONIALS */}

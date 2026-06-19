@@ -27,14 +27,6 @@ function classify(
   return { state: "open" };
 }
 
-const STATE_COLOR: Record<CellState, string> = {
-  open:   "bg-green-500/15 hover:bg-green-500/25 text-cream",
-  hold:   "bg-amber-500/35 text-cream",
-  manual: "bg-red-500/45 text-cream",
-  airbnb: "bg-blue-500/35 text-cream/80",
-  booked: "bg-red-500/45 text-cream",
-};
-
 const STATE_LABEL: Record<CellState, string> = {
   open:   "Available",
   hold:   "Hold (pending checkout)",
@@ -43,11 +35,22 @@ const STATE_LABEL: Record<CellState, string> = {
   booked: "Site booking",
 };
 
+// Bar colors — used for the bottom strip, not full-cell fills
+const BAR_COLOR: Record<CellState, string> = {
+  open:   "",
+  hold:   "bg-amber-400/80",
+  manual: "bg-red-500/80",
+  airbnb: "bg-blue-500/75",
+  booked: "bg-red-500/80",
+};
+
 export function AdminCalendar({ hutId, initialBlocks }: { hutId: string; initialBlocks: Block[] }) {
   const [blocks, setBlocks] = useState(initialBlocks);
   const [busy, setBusy] = useState<string | null>(null);
   const [selected, setSelected] = useState<Block | null>(null);
-  const months = useMemo(() => nextMonths(3), []);
+  const [monthOffset, setMonthOffset] = useState(0);
+  const months = useMemo(() => nextMonths(6), []);
+  const m = months[monthOffset];
 
   const [rangeStart, setRangeStart] = useState("");
   const [rangeEnd, setRangeEnd] = useState("");
@@ -167,70 +170,106 @@ export function AdminCalendar({ hutId, initialBlocks }: { hutId: string; initial
         </div>
       </div>
 
-      {/* Calendar grid */}
-      {months.map((m) => (
-        <div key={`${m.year}-${m.month}`}>
-          <div className="text-[0.7rem] tracking-[0.18em] uppercase text-cream/45 mb-3">
-            {monthName(m.month)} {m.year}
-          </div>
-          <div className="grid grid-cols-7 gap-y-1">
-            {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
-              <div key={i} className="text-center text-[0.55rem] text-cream/30 py-1">{d}</div>
-            ))}
-            {Array.from({ length: m.firstDayOffset }).map((_, i) => (
-              <div key={`pad-${i}`} />
-            ))}
-            {Array.from({ length: m.daysInMonth }, (_, i) => i + 1).map((day) => {
-              const iso = `${m.year}-${String(m.month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-              const past = iso < today;
-              const c = classify(iso, blocks);
-              const isOpen = c.state === "open";
-              const pos = c.position;
+      {/* Month navigation */}
+      <div className="flex items-center justify-between">
+        <button
+          onClick={() => setMonthOffset((o) => o - 1)}
+          disabled={monthOffset === 0}
+          className="w-7 h-7 flex items-center justify-center text-cream/50 hover:text-cream disabled:opacity-20 disabled:cursor-not-allowed transition-colors text-base"
+          aria-label="Previous month"
+        >
+          ‹
+        </button>
+        <span className="text-[0.7rem] tracking-[0.18em] uppercase text-cream/60 select-none">
+          {monthName(m.month)} {m.year}
+        </span>
+        <button
+          onClick={() => setMonthOffset((o) => o + 1)}
+          disabled={monthOffset === months.length - 1}
+          className="w-7 h-7 flex items-center justify-center text-cream/50 hover:text-cream disabled:opacity-20 disabled:cursor-not-allowed transition-colors text-base"
+          aria-label="Next month"
+        >
+          ›
+        </button>
+      </div>
 
-              const roundingClass =
-                isOpen || !pos ? "rounded-sm"
-                : pos === "single" ? "rounded-sm"
-                : pos === "first" ? "rounded-l-sm rounded-r-none"
-                : pos === "last" ? "rounded-r-sm rounded-l-none"
-                : "rounded-none";
+      {/* Calendar grid — one month */}
+      <div className="grid grid-cols-7">
+        {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((d) => (
+          <div key={d} className="text-center text-[0.5rem] text-cream/30 pb-2">{d}</div>
+        ))}
+        {Array.from({ length: m.firstDayOffset }).map((_, i) => (
+          <div key={`pad-${i}`} />
+        ))}
+        {Array.from({ length: m.daysInMonth }, (_, i) => i + 1).map((day) => {
+          const iso = `${m.year}-${String(m.month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+          const past = iso < today;
+          const c = classify(iso, blocks);
+          const isOpen = c.state === "open";
+          const pos = c.position;
+          const isBusy = busy === iso || busy === c.block?.eventId;
 
-              const xPadding =
-                !isOpen && pos === "middle" ? "-mx-px"
-                : !isOpen && pos === "last" ? "-ml-px"
-                : !isOpen && pos === "first" ? "-mr-px"
-                : "";
+          return (
+            <button
+              key={iso}
+              disabled={past || isBusy}
+              onClick={() => !past && handleDayClick(iso, c)}
+              title={isOpen ? "Click to block" : STATE_LABEL[c.state]}
+              className={[
+                "relative aspect-square flex flex-col items-center justify-center text-[0.68rem] font-light transition-colors select-none",
+                past ? "text-cream/20 cursor-default" : "text-cream",
+                isOpen && !past ? "hover:bg-green-500/15 cursor-pointer" : "",
+                !isOpen && !past ? "cursor-pointer hover:brightness-110" : "",
+                isBusy ? "opacity-40" : "",
+              ].join(" ")}
+            >
+              {/* Day number */}
+              <span className="relative z-10 leading-none">{day}</span>
 
-              const colorClass = past
-                ? "bg-white/3 text-cream/20 cursor-default"
-                : STATE_COLOR[c.state];
+              {/* Check-in / check-out micro labels */}
+              {!isOpen && pos === "first" && (
+                <span className="relative z-10 text-[0.37rem] tracking-[0.08em] uppercase text-cream/50 leading-none mt-[3px]">in</span>
+              )}
+              {!isOpen && pos === "last" && (
+                <span className="relative z-10 text-[0.37rem] tracking-[0.08em] uppercase text-cream/50 leading-none mt-[3px]">out</span>
+              )}
 
-              const isBusy = busy === iso || busy === c.block?.eventId;
-
-              return (
-                <button
-                  key={iso}
-                  disabled={past || isBusy}
-                  onClick={() => !past && handleDayClick(iso, c)}
-                  className={`aspect-square flex flex-col items-center justify-center gap-0 text-[0.7rem] font-light transition-colors ${colorClass} ${roundingClass} ${xPadding} ${isBusy ? "opacity-40" : ""}`}
-                  title={isOpen ? "Click to block" : STATE_LABEL[c.state]}
-                >
-                  <span>{day}</span>
-                  {!isOpen && pos === "first" && <span className="text-[0.42rem] tracking-widest uppercase opacity-60 leading-none">in</span>}
-                  {!isOpen && pos === "last"  && <span className="text-[0.42rem] tracking-widest uppercase opacity-60 leading-none">out</span>}
-                  {!isOpen && pos === "single" && <span className="text-[0.42rem] tracking-widest uppercase opacity-60 leading-none">·</span>}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      ))}
+              {/* Google-Calendar-style bar at bottom of cell */}
+              {!isOpen && pos && (
+                <div
+                  className={[
+                    "absolute bottom-1 h-[5px]",
+                    BAR_COLOR[c.state],
+                    pos === "first"  ? "left-1/2 right-0 rounded-l-sm" :
+                    pos === "last"   ? "left-0 right-1/2 rounded-r-sm" :
+                    pos === "middle" ? "left-0 right-0" :
+                    "left-[18%] right-[18%] rounded-sm",
+                  ].join(" ")}
+                />
+              )}
+            </button>
+          );
+        })}
+      </div>
 
       {/* Legend */}
-      <div className="flex flex-wrap gap-4 text-[0.6rem] text-cream/50 pt-2 border-t border-white/8">
-        <span><span className="inline-block w-2.5 h-2.5 bg-green-500/30 mr-1.5 align-middle rounded-sm" />Open — click to block</span>
-        <span><span className="inline-block w-2.5 h-2.5 bg-amber-500/40 mr-1.5 align-middle rounded-sm" />Hold</span>
-        <span><span className="inline-block w-2.5 h-2.5 bg-red-500/45 mr-1.5 align-middle rounded-sm" />Blocked — click to view</span>
-        <span><span className="inline-block w-2.5 h-2.5 bg-blue-500/35 mr-1.5 align-middle rounded-sm" />Airbnb — click to view</span>
+      <div className="flex flex-wrap gap-x-4 gap-y-2 text-[0.58rem] text-cream/45 pt-2 border-t border-white/8">
+        <span className="flex items-center gap-1.5">
+          <span className="inline-block w-5 h-[5px] bg-green-500/40 rounded-sm" />
+          Open
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="inline-block w-5 h-[5px] bg-amber-400/80 rounded-sm" />
+          Hold
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="inline-block w-5 h-[5px] bg-red-500/80 rounded-sm" />
+          Blocked
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="inline-block w-5 h-[5px] bg-blue-500/75 rounded-sm" />
+          Airbnb
+        </span>
       </div>
 
       {/* Block detail modal */}
@@ -311,6 +350,6 @@ function addDays(iso: string, n: number): string {
 }
 
 function formatDate(iso: string): string {
-  const [y, m, d] = iso.split("-").map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+  const [y, mo, d] = iso.split("-").map(Number);
+  return new Date(y, mo - 1, d).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
 }
