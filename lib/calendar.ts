@@ -16,6 +16,7 @@ export type Block = {
   guestEmail?: string;
   paymentId?: string;
   notes?: string;
+  calTitle?: string; // raw Google Calendar event title
 };
 
 // ─── In-memory dev fallback ───
@@ -145,6 +146,14 @@ function gEventToBlock(e: GEvent): Block {
   const source = (e.extendedProperties?.private?.medan_source as BlockSource | undefined)
               ?? (parsed.source as BlockSource | undefined)
               ?? inferSource(e.summary ?? "");
+
+  // Extract notes from summary as fallback (e.g. "[VC] BLOCKED · Owner stay" → "Owner stay")
+  const summaryNotes = (() => {
+    const s = e.summary ?? "";
+    const idx = s.indexOf(" · ");
+    return idx !== -1 ? s.slice(idx + 3).trim() : undefined;
+  })();
+
   return {
     eventId: e.id ?? undefined,
     start: e.start?.date ?? (e.start?.dateTime ?? "").slice(0, 10),
@@ -153,7 +162,8 @@ function gEventToBlock(e: GEvent): Block {
     guestName: parsed.guestName ?? undefined,
     guestEmail: parsed.guestEmail ?? undefined,
     paymentId: parsed.paymentId ?? e.extendedProperties?.private?.medan_payment ?? undefined,
-    notes: parsed.notes ?? undefined,
+    notes: parsed.notes ?? summaryNotes ?? undefined,
+    calTitle: e.summary ?? undefined,
   };
 }
 

@@ -211,10 +211,13 @@ export function AdminCalendar({ hutId, initialBlocks }: { hutId: string; initial
                   key={iso}
                   disabled={past || isBusy}
                   onClick={() => !past && handleDayClick(iso, c)}
-                  className={`aspect-square text-[0.7rem] font-light transition-colors ${colorClass} ${roundingClass} ${xPadding} ${isBusy ? "opacity-40" : ""}`}
+                  className={`aspect-square flex flex-col items-center justify-center gap-0 text-[0.7rem] font-light transition-colors ${colorClass} ${roundingClass} ${xPadding} ${isBusy ? "opacity-40" : ""}`}
                   title={isOpen ? "Click to block" : STATE_LABEL[c.state]}
                 >
-                  {day}
+                  <span>{day}</span>
+                  {!isOpen && pos === "first" && <span className="text-[0.42rem] tracking-widest uppercase opacity-60 leading-none">in</span>}
+                  {!isOpen && pos === "last"  && <span className="text-[0.42rem] tracking-widest uppercase opacity-60 leading-none">out</span>}
+                  {!isOpen && pos === "single" && <span className="text-[0.42rem] tracking-widest uppercase opacity-60 leading-none">·</span>}
                 </button>
               );
             })}
@@ -244,15 +247,21 @@ export function AdminCalendar({ hutId, initialBlocks }: { hutId: string; initial
               {STATE_LABEL[selected.source === "site" ? "booked" : selected.source as CellState]}
             </div>
 
-            <div>
+            <div className="space-y-1">
               {selected.guestName && (
-                <div className="font-serif text-lg text-cream mb-0.5">{selected.guestName}</div>
+                <div className="font-serif text-lg text-cream">{selected.guestName}</div>
+              )}
+              {selected.guestEmail && (
+                <div className="text-xs text-cream/50">{selected.guestEmail}</div>
               )}
               <div className="text-sm text-cream/60">
                 {formatDate(selected.start)} → {formatDate(addDays(selected.end, -1))}
               </div>
-              {selected.notes && (
-                <div className="mt-2 text-xs text-cream/35 italic">{selected.notes}</div>
+              {selected.notes && selected.notes !== "Blocked by manager" && (
+                <div className="text-xs text-cream/40 italic pt-1">{selected.notes}</div>
+              )}
+              {selected.paymentId && (
+                <div className="text-[0.6rem] text-cream/30 font-mono pt-1">Payment: {selected.paymentId}</div>
               )}
             </div>
 
