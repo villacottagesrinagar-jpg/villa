@@ -502,7 +502,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   position: absolute;
   inset: 0;
   background: url("/photos/amenities-bg-new.png") center/cover no-repeat;
-  opacity: 0.22;
+  opacity: 0.55;
   z-index: 0;
 }
 .amenities-section::after {
@@ -511,11 +511,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   inset: 0;
   background: linear-gradient(
     to bottom,
-    #080705 0%,
-    rgba(8,7,5,0.55) 22%,
-    rgba(8,7,5,0.30) 50%,
-    rgba(8,7,5,0.55) 78%,
-    #080705 100%
+    rgba(8,7,5,0.80) 0%,
+    rgba(8,7,5,0.30) 25%,
+    rgba(8,7,5,0.15) 50%,
+    rgba(8,7,5,0.30) 75%,
+    rgba(8,7,5,0.80) 100%
   );
   z-index: 0;
 }
