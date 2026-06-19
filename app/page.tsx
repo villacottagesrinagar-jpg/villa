@@ -68,7 +68,6 @@ const GALLERY: { src: string; category: "exterior" | "interior"; width: number; 
   { src: "/photos/loft.jpg",             category: "interior", width: 2560, height: 1920 },
   { src: "/photos/kitchen.jpg",          category: "interior", width: 2560, height: 1920 },
   { src: "/photos/garden.jpg",           category: "exterior", width: 2364, height: 3233 },
-  { src: "/photos/firepit.png",          category: "exterior", width: 736,  height: 1104 },
   { src: "/photos/pool.jpg",             category: "exterior", width: 2074, height: 3686 },
   { src: "/photos/interior-bedroom.jpg", category: "interior", width: 2395, height: 3192 },
   { src: "/photos/bathroom-1.avif",      category: "interior", width: 720,  height: 960  },
@@ -133,8 +132,9 @@ export default function HomePage() {
         <div className="text-center mb-12 px-6 lg:px-10 max-w-7xl mx-auto">
           <div className="eyebrow mb-3">Gallery</div>
           <h2 className="font-serif text-4xl md:text-5xl font-light">Inside the property.</h2>
-          <p className="mt-4 font-serif italic text-lg text-cream/55 max-w-xl mx-auto">
-            &ldquo;{PULL_QUOTES.appleTrees.quote}&rdquo; <span className="text-cream/30 text-[0.65rem] not-italic tracking-wider">— {PULL_QUOTES.appleTrees.author} · Google review</span>
+          <p className="mt-4 font-serif italic text-lg text-cream/55 max-w-2xl mx-auto">
+            &ldquo;{PULL_QUOTES.appleTrees.quote}&rdquo;
+            <span className="block mt-1 text-cream/30 text-[0.65rem] not-italic tracking-wider">— {PULL_QUOTES.appleTrees.author} · Google review</span>
           </p>
         </div>
         <GalleryGrid photos={GALLERY} />

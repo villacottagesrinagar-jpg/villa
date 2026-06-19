@@ -662,7 +662,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 @media (min-width: 1024px) {
   .events-section {
-    padding: 6rem 2.5rem;
+    padding: 8rem 2.5rem;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 }
 .events-section__layout {
