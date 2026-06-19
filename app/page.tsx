@@ -246,7 +246,7 @@ export default function HomePage() {
               ))}
             </div>
             <a
-              href={`https://wa.me/918715008939?text=${encodeURIComponent("Hi, I'd like to enquire about hosting a private event at Villa Cottages. Please share details on packages and availability.")}`}
+              href={`https://wa.me/917006923317?text=${encodeURIComponent("Hi, I'd like to enquire about hosting a private event at Villa Cottages. Please share details on packages and availability.")}`}
               target="_blank"
               rel="noreferrer"
               className="inline-block py-3.5 px-8 border border-[var(--amber)]/35 text-[0.65rem] tracking-[0.22em] uppercase text-[var(--amber)] hover:bg-[var(--amber)] hover:text-[#080705] transition-colors"
