@@ -3,9 +3,9 @@ import { redirect } from "next/navigation";
 import { HUTS } from "@/lib/huts";
 import { listBlocks } from "@/lib/calendar";
 import { getAllPrices } from "@/lib/price-store";
-import { AdminCalendar } from "./AdminCalendar";
 import { PriceEditor } from "./PriceEditor";
 import { AdminShell } from "./AdminShell";
+import { AdminCalendarsSection } from "./AdminCalendarsSection";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +21,10 @@ export default async function AdminPage() {
 
   const hutsWithBlocks = await Promise.all(
     HUTS.map(async (h) => ({ hut: h, blocks: await listBlocks(h.id, from, to) }))
+  );
+
+  const initialBlocksMap = Object.fromEntries(
+    hutsWithBlocks.map(({ hut, blocks }) => [hut.id, blocks])
   );
 
   async function handleSignOut() {
@@ -39,17 +43,10 @@ export default async function AdminPage() {
         bookings made here appear on Airbnb within 2-4 hours (Airbnb's iCal refresh schedule).
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-        {hutsWithBlocks.map(({ hut, blocks }) => (
-          <div key={hut.id}>
-            <div className="flex items-baseline justify-between mb-4">
-              <h2 className="font-serif text-xl admin-text">{hut.name}</h2>
-              <span className="eyebrow text-[0.5rem]">{hut.tier}</span>
-            </div>
-            <AdminCalendar hutId={hut.id} initialBlocks={blocks} />
-          </div>
-        ))}
-      </div>
+      <AdminCalendarsSection
+        huts={HUTS.map((h) => ({ id: h.id, name: h.name, tier: h.tier }))}
+        initialBlocksMap={initialBlocksMap}
+      />
     </AdminShell>
   );
 }
