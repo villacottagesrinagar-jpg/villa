@@ -118,33 +118,22 @@ export function BookingWidget({ defaultHutId }: { defaultHutId?: string }) {
             ))}
           </select>
         </div>
-      </div>
-
-      <div className="bw__footer">
-        <div className="bw__footer-text">
-          {nights > 0 ? (
-            <>
-              <span className="text-cream">{nights} night{nights === 1 ? "" : "s"}</span> · {fmtINR(hut.nightlyRateInr)}/night
-              {nights < BOOKING_RULES.minNights && (
-                <span className="text-[var(--amber)] ml-2">Minimum {BOOKING_RULES.minNights} nights</span>
-              )}
-            </>
+        <div className="bw__cell bw__cell--cta">
+          {!availability ? (
+            <button className="bw__cta w-full" onClick={check} disabled={loading || nights < BOOKING_RULES.minNights}>
+              {loading ? "Checking…" : "Check Availability"}
+            </button>
+          ) : availability.available ? (
+            <button className="bw__cta w-full" onClick={() => setShowGuestForm(true)} disabled={loading}>
+              {`Reserve · ${fmtINR(availability.totalInr ?? 0)}`}
+            </button>
           ) : (
-            <>Choose your dates</>
+            <span className="text-[0.7rem] text-red-400/80">Not available</span>
+          )}
+          {nights > 0 && nights < BOOKING_RULES.minNights && (
+            <span className="text-[0.6rem] text-[var(--amber)] mt-1 block">Min {BOOKING_RULES.minNights} nights</span>
           )}
         </div>
-
-        {!availability ? (
-          <button className="bw__cta" onClick={check} disabled={loading || nights < BOOKING_RULES.minNights}>
-            {loading ? "Checking…" : "Check Availability"}
-          </button>
-        ) : availability.available ? (
-          <button className="bw__cta" onClick={() => setShowGuestForm(true)} disabled={loading}>
-            {`Reserve · ${fmtINR(availability.totalInr ?? 0)}`}
-          </button>
-        ) : (
-          <span className="text-[0.75rem] text-red-400/80">Not available — try other dates</span>
-        )}
       </div>
 
       {error && <p className="mt-4 text-[0.72rem] text-red-400/80">{error}</p>}

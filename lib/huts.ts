@@ -108,7 +108,7 @@ export const SITE = {
   // Split for typography — first word in regular, second in italic amber
   brandNameWord1: "Villa",
   brandNameWord2: "Cottages",
-  location: "Kashmir Valley, India",
+  location: "Srinagar, Kashmir",
   contactEmail: "hello@villacottages.in",
   hostNotificationEmail: "host@villacottages.in",
   airbnbListingUrl: "https://www.airbnb.co.in/rooms/1196823291856037309",

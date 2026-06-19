@@ -1,11 +1,12 @@
 import Image from "next/image";
 import { Nav } from "@/components/Nav";
 import { BookingWidget } from "@/components/BookingWidget";
+import { GalleryGrid } from "@/components/GalleryGrid";
 import { HUTS, SITE, PULL_QUOTES } from "@/lib/huts";
 import { getAllPrices } from "@/lib/price-store";
 
 const AMENITIES = [
-  { title: "Two A-Frames & One Standard", body: "Three glass A-frame cottages spread across 1.2 acres of working apple orchard." },
+  { title: "Two A-Frame Cottages", body: "Two glass A-frame cottages spread across a working apple orchard." },
   { title: "Private Mosaic Pool", body: "Open May–October, surrounded by apple trees. Loungers and stone deck included." },
   { title: "Fire Circle", body: "Stone fire pit with Adirondack seating for 6. Firewood provided year-round." },
   { title: "Full Kitchens", body: "Espresso machine and dining for 6. Optional Kashmiri chef on request." },
@@ -74,12 +75,12 @@ export default function HomePage() {
         <Image
           src="/photos/hero-aerial.png"
           alt="Villa Cottages — aerial view of the orchard and cottages"
-          fill priority className="object-cover" sizes="100vw"
+          fill priority className="object-cover object-bottom" sizes="100vw"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/35 via-40% to-black/90" />
 
         {/* Centered quote */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none -translate-y-32">
           <div className="text-center px-6 max-w-2xl">
             <p className="font-serif italic text-xl md:text-2xl text-[var(--amber)]/90 leading-snug">
               &ldquo;{PULL_QUOTES.hundredStars.quote}&rdquo;
@@ -93,15 +94,15 @@ export default function HomePage() {
         <div className="relative max-w-7xl w-full mx-auto px-6 lg:px-10 pb-24">
           <div className="eyebrow flex items-center gap-3 mb-5">
             <span className="block h-px w-8 bg-[var(--amber)]" />
-            {SITE.location} · 3,200 ft
+            {SITE.location}
           </div>
           <h1 className="font-serif font-light text-5xl md:text-7xl leading-[1.05] tracking-tight max-w-3xl">
-            Where the orchard
+            Stepping into a
             <br />
-            meets the <em className="text-cream/70">sky.</em>
+            peaceful little <em className="text-cream/70">dream.</em>
           </h1>
           <p className="mt-5 text-sm tracking-wider text-white/55">
-            Three private A-frame cottages · 1.2-acre apple orchard · Sleeps 4–12
+            Private A-frame cottages on an apple orchard
           </p>
         </div>
       </section>
@@ -118,7 +119,7 @@ export default function HomePage() {
           &ldquo;{PULL_QUOTES.peacefulDream.quote}&rdquo;
         </p>
         <p className="mt-10 text-sm leading-relaxed text-cream/55 max-w-xl mx-auto">
-          Villa Cottages sits in the Kashmir Valley surrounded by century-old apple trees and the Pir Panjal range.
+          Villa Cottages sits in Srinagar surrounded by apple trees and the Kashmir mountain ranges.
           Every window frames a painting. Every morning begins with birdsong.
         </p>
       </section>
@@ -126,7 +127,7 @@ export default function HomePage() {
       {/* STAYS */}
       <section id="stays" className="py-24 px-6 lg:px-10 max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <div className="eyebrow mb-3">Three Stays</div>
+          <div className="eyebrow mb-3">Two Stays</div>
           <h2 className="font-serif text-4xl md:text-5xl font-light">Choose your cottage.</h2>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-4xl mx-auto">
@@ -174,13 +175,7 @@ export default function HomePage() {
             &ldquo;{PULL_QUOTES.appleTrees.quote}&rdquo; <span className="text-cream/30 text-[0.65rem] not-italic tracking-wider">— {PULL_QUOTES.appleTrees.author}</span>
           </p>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
-          {GALLERY.map((src, i) => (
-            <div key={src} className={`relative overflow-hidden ${i === 0 ? "col-span-2 md:row-span-2 aspect-square md:aspect-auto" : "aspect-[4/5]"}`}>
-              <Image src={src} alt="" fill className="object-cover hover:scale-105 transition-transform duration-700" sizes="(max-width: 768px) 50vw, 33vw" />
-            </div>
-          ))}
-        </div>
+        <GalleryGrid photos={GALLERY} />
       </section>
 
       {/* AMENITIES */}
