@@ -295,8 +295,9 @@ export function AdminCalendar({ hutId, initialBlocks }: { hutId: string; initial
               )}
               <div className="text-sm text-cream/60">
                 {formatDate(selected.start)} → {formatDate(addDays(selected.end, -1))}
+                {" · "}{nightsBetween(selected.start, selected.end)} night{nightsBetween(selected.start, selected.end) === 1 ? "" : "s"}
               </div>
-              {selected.notes && selected.notes !== "Blocked by manager" && (
+              {selected.notes && (
                 <div className="text-xs text-cream/40 italic pt-1">{selected.notes}</div>
               )}
               {selected.paymentId && (
@@ -352,4 +353,8 @@ function addDays(iso: string, n: number): string {
 function formatDate(iso: string): string {
   const [y, mo, d] = iso.split("-").map(Number);
   return new Date(y, mo - 1, d).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+}
+
+function nightsBetween(start: string, end: string): number {
+  return Math.round((new Date(end).getTime() - new Date(start).getTime()) / 86_400_000);
 }
