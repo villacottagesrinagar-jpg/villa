@@ -58,8 +58,16 @@ export const AdminCalendar = forwardRef<
   const [editDraft, setEditDraft] = useState<Block | null>(null);
   const [saveBusy, setSaveBusy] = useState(false);
   const [monthOffset, setMonthOffset] = useState(0);
-  const months = useMemo(() => nextMonths(6), []);
-  const m = months[monthOffset];
+  const m = useMemo(() => {
+    const base = new Date();
+    const d = new Date(base.getFullYear(), base.getMonth() + monthOffset, 1);
+    return {
+      year: d.getFullYear(),
+      month: d.getMonth(),
+      daysInMonth: new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate(),
+      firstDayOffset: d.getDay(),
+    };
+  }, [monthOffset]);
 
   useImperativeHandle(ref, () => ({
     addBlock: (block: Block) => setBlocks((bs) => [...bs, block]),
@@ -138,8 +146,7 @@ export const AdminCalendar = forwardRef<
       <div className="flex items-center justify-between">
         <button
           onClick={() => setMonthOffset((o) => o - 1)}
-          disabled={monthOffset === 0}
-          className="w-7 h-7 flex items-center justify-center text-cream/50 hover:text-cream disabled:opacity-20 disabled:cursor-not-allowed transition-colors text-base"
+          className="w-7 h-7 flex items-center justify-center text-cream/50 hover:text-cream transition-colors text-base"
           aria-label="Previous month"
         >
           ‹
@@ -149,8 +156,7 @@ export const AdminCalendar = forwardRef<
         </span>
         <button
           onClick={() => setMonthOffset((o) => o + 1)}
-          disabled={monthOffset === months.length - 1}
-          className="w-7 h-7 flex items-center justify-center text-cream/50 hover:text-cream disabled:opacity-20 disabled:cursor-not-allowed transition-colors text-base"
+          className="w-7 h-7 flex items-center justify-center text-cream/50 hover:text-cream transition-colors text-base"
           aria-label="Next month"
         >
           ›
@@ -378,17 +384,6 @@ export const AdminCalendar = forwardRef<
   );
 });
 
-function nextMonths(count: number) {
-  const today = new Date();
-  const out: { year: number; month: number; daysInMonth: number; firstDayOffset: number }[] = [];
-  for (let i = 0; i < count; i++) {
-    const d = new Date(today.getFullYear(), today.getMonth() + i, 1);
-    const daysInMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
-    const firstDayOffset = new Date(d.getFullYear(), d.getMonth(), 1).getDay();
-    out.push({ year: d.getFullYear(), month: d.getMonth(), daysInMonth, firstDayOffset });
-  }
-  return out;
-}
 
 function monthName(m: number) {
   return ["January","February","March","April","May","June","July","August","September","October","November","December"][m];
