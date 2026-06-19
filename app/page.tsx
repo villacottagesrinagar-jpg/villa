@@ -122,12 +122,10 @@ export default function HomePage() {
           Villa Cottages sits in Srinagar surrounded by apple trees and the Kashmir mountain ranges.
           Every window frames a painting. Every morning begins with birdsong.
         </p>
-        <blockquote className="mt-12 border-t border-white/8 pt-10 max-w-xl mx-auto">
-          <p className="font-serif italic text-lg md:text-xl text-cream/70 leading-snug">
-            &ldquo;It doesn&apos;t feel like it&apos;s made just for visitors — it truly feels like a home created with warmth and intention. From the beautiful flower buds with soft lights to the cute papier-mâché on the ceiling, everything is done with so much love and care.&rdquo;
-          </p>
-          <footer className="mt-4 text-[0.6rem] tracking-[0.25em] uppercase text-cream/35">— Mehreen Wani · Google review</footer>
-        </blockquote>
+        <p className="mt-8 font-serif italic text-base text-cream/50">
+          &ldquo;{PULL_QUOTES.warmthIntention.quote}&rdquo;
+        </p>
+        <span className="block mt-2 text-[0.55rem] tracking-[0.25em] uppercase text-cream/30">— {PULL_QUOTES.warmthIntention.author} · Google review</span>
       </section>
 
       {/* STAYS */}

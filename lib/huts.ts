@@ -109,7 +109,7 @@ export const SITE = {
   brandNameWord1: "Villa",
   brandNameWord2: "Cottages",
   location: "Srinagar, Kashmir",
-  contactEmail: "hello@villacottages.in",
+  contactEmail: "villa.cottages.srinagar@gmail.com",
   hostNotificationEmail: "host@villacottages.in",
   airbnbListingUrl: "https://www.airbnb.co.in/rooms/1196823291856037309",
   instagramUrl: "https://www.instagram.com/villa.cottages/",

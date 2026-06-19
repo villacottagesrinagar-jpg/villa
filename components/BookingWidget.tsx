@@ -4,6 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import { HUTS, BOOKING_RULES } from "@/lib/huts";
 
 const VISIBLE_HUTS = HUTS.filter((h) => !h.hidden);
+const BOTH_ID = "both";
+const BOTH_RATE = VISIBLE_HUTS.reduce((sum, h) => sum + h.nightlyRateInr, 0);
+const BOTH_MAX_GUESTS = VISIBLE_HUTS.reduce((sum, h) => sum + h.maxGuests, 0);
 
 type Availability = {
   available: boolean;
@@ -37,25 +40,40 @@ export function BookingWidget({ defaultHutId }: { defaultHutId?: string }) {
   const [guests, setGuests] = useState(2);
   const [loading, setLoading] = useState(false);
   const [availability, setAvailability] = useState<Availability | null>(null);
+  const [bothTotal, setBothTotal] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showGuestForm, setShowGuestForm] = useState(false);
   const [guestName, setGuestName] = useState("");
   const [guestEmail, setGuestEmail] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
 
-  const hut = useMemo(() => VISIBLE_HUTS.find((h) => h.id === hutId)!, [hutId]);
+  const isBoth = hutId === BOTH_ID;
+  const hut = useMemo(() => VISIBLE_HUTS.find((h) => h.id === hutId), [hutId]);
+  const maxGuests = isBoth ? BOTH_MAX_GUESTS : (hut?.maxGuests ?? 4);
   const nights = nightsBetween(checkIn, checkOut);
 
   async function check() {
     setLoading(true);
     setError(null);
     setAvailability(null);
+    setBothTotal(null);
     try {
-      const url = `/api/availability?hut=${hutId}&from=${checkIn}&to=${checkOut}&guests=${guests}`;
-      const r = await fetch(url);
-      if (!r.ok) throw new Error("Couldn't check availability. Try again.");
-      const data = await r.json();
-      setAvailability(data);
+      if (isBoth) {
+        const results = await Promise.all(
+          VISIBLE_HUTS.map((h) =>
+            fetch(`/api/availability?hut=${h.id}&from=${checkIn}&to=${checkOut}&guests=${guests}`).then((r) => r.json())
+          )
+        );
+        const allAvailable = results.every((r) => r.available);
+        const total = results.reduce((sum, r) => sum + (r.totalInr ?? 0), 0);
+        setBothTotal(total);
+        setAvailability({ available: allAvailable, blocked: [], nights: results[0]?.nights ?? nights });
+      } else {
+        const url = `/api/availability?hut=${hutId}&from=${checkIn}&to=${checkOut}&guests=${guests}`;
+        const r = await fetch(url);
+        if (!r.ok) throw new Error("Couldn't check availability. Try again.");
+        setAvailability(await r.json());
+      }
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Something went wrong.");
     } finally {
@@ -64,6 +82,13 @@ export function BookingWidget({ defaultHutId }: { defaultHutId?: string }) {
   }
 
   async function startCheckout() {
+    if (isBoth) {
+      const msg = encodeURIComponent(
+        `Hi, I'd like to book Both Cottages from ${checkIn} to ${checkOut} for ${guests} guests. Please confirm availability and total.`
+      );
+      window.open(`https://wa.me/918715008939?text=${msg}`, "_blank");
+      return;
+    }
     setLoading(true);
     try {
       const r = await fetch("/api/booking/init", {
@@ -86,8 +111,11 @@ export function BookingWidget({ defaultHutId }: { defaultHutId?: string }) {
 
   useEffect(() => {
     setAvailability(null);
+    setBothTotal(null);
     setError(null);
   }, [hutId, checkIn, checkOut, guests]);
+
+  const displayTotal = isBoth ? (bothTotal ?? 0) : (availability?.totalInr ?? 0);
 
   return (
     <div className="bw">
@@ -100,6 +128,7 @@ export function BookingWidget({ defaultHutId }: { defaultHutId?: string }) {
                 {h.name} · ₹{h.nightlyRateInr.toLocaleString("en-IN")}
               </option>
             ))}
+            <option value={BOTH_ID}>Both Cottages · ₹{BOTH_RATE.toLocaleString("en-IN")}</option>
           </select>
         </div>
         <div className="bw__cell">
@@ -113,7 +142,7 @@ export function BookingWidget({ defaultHutId }: { defaultHutId?: string }) {
         <div className="bw__cell">
           <label>Guests</label>
           <select value={guests} onChange={(e) => setGuests(Number(e.target.value))}>
-            {Array.from({ length: hut.maxGuests }, (_, i) => i + 1).map((n) => (
+            {Array.from({ length: maxGuests }, (_, i) => i + 1).map((n) => (
               <option key={n} value={n}>{n} guest{n === 1 ? "" : "s"}</option>
             ))}
           </select>
@@ -124,8 +153,8 @@ export function BookingWidget({ defaultHutId }: { defaultHutId?: string }) {
               {loading ? "Checking…" : "Check Availability"}
             </button>
           ) : availability.available ? (
-            <button className="bw__cta w-full" onClick={() => setShowGuestForm(true)} disabled={loading}>
-              {`Reserve · ${fmtINR(availability.totalInr ?? 0)}`}
+            <button className="bw__cta w-full" onClick={() => isBoth ? startCheckout() : setShowGuestForm(true)} disabled={loading}>
+              {isBoth ? `Enquire · ${fmtINR(displayTotal)}` : `Reserve · ${fmtINR(displayTotal)}`}
             </button>
           ) : (
             <span className="text-[0.7rem] text-red-400/80">Not available</span>
@@ -138,12 +167,21 @@ export function BookingWidget({ defaultHutId }: { defaultHutId?: string }) {
 
       {error && <p className="mt-4 text-[0.72rem] text-red-400/80">{error}</p>}
 
-      {availability?.available && availability.breakdown && (
+      {availability?.available && !isBoth && availability.breakdown && (
         <div className="bw__breakdown">
           <div className="bw__row"><span>{fmtINR(availability.breakdown.nightlyInr)} × {availability.nights} nights</span><span>{fmtINR(availability.breakdown.subtotalInr)}</span></div>
           <div className="bw__row"><span>Cleaning</span><span>{fmtINR(availability.breakdown.cleaningFeeInr)}</span></div>
           <div className="bw__row"><span>GST</span><span>{fmtINR(availability.breakdown.taxInr)}</span></div>
-          <div className="bw__row bw__row--total"><span>Total</span><span>{fmtINR(availability.totalInr ?? 0)}</span></div>
+          <div className="bw__row bw__row--total"><span>Total</span><span>{fmtINR(displayTotal)}</span></div>
+        </div>
+      )}
+
+      {availability?.available && isBoth && bothTotal !== null && (
+        <div className="bw__breakdown">
+          <div className="bw__row"><span>₹{BOTH_RATE.toLocaleString("en-IN")} × {nights} nights (both cottages)</span><span>{fmtINR(BOTH_RATE * nights)}</span></div>
+          <div className="bw__row"><span>Cleaning (×2)</span><span>{fmtINR(BOOKING_RULES.cleaningFeeInr * 2)}</span></div>
+          <div className="bw__row"><span>GST</span><span>{fmtINR(Math.round(bothTotal - BOTH_RATE * nights - BOOKING_RULES.cleaningFeeInr * 2))}</span></div>
+          <div className="bw__row bw__row--total"><span>Total</span><span>{fmtINR(bothTotal)}</span></div>
         </div>
       )}
 
