@@ -93,7 +93,7 @@ export const HUTS: Hut[] = [
 ];
 
 export const BOOKING_RULES = {
-  minNights: 2,
+  minNights: 1,
   // 1-day buffer either side of any Airbnb-imported block, to soften iCal's 2-4hr sync lag.
   airbnbBufferDays: 1,
   // How long the booking dates are tentatively held during checkout.
