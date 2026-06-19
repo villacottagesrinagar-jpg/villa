@@ -370,6 +370,41 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   .lb__nav--next { right: 2rem; }
 }
 
+/* ─── Stats bar ─── */
+.stats {
+  border-top: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr);
+  max-width: 80rem;
+  margin: 0 auto;
+}
+.stats__item {
+  padding: 2.5rem;
+  text-align: center;
+  border-right: 1px solid rgba(255,255,255,0.06);
+}
+.stats__item:nth-child(2n) { border-right: none; }
+@media (min-width: 768px) {
+  .stats { grid-template-columns: repeat(4, 1fr); }
+  .stats__item:nth-child(2n) { border-right: 1px solid rgba(255,255,255,0.06); }
+  .stats__item:last-child { border-right: none; }
+}
+.stats__number {
+  font-family: var(--font-serif, Georgia, serif);
+  font-size: 3rem;
+  font-weight: 300;
+  color: #D4AF37;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+.stats__label {
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(245,240,230,0.4);
+}
+
 /* ─── Gallery mosaic ─── */
 .gallery-mosaic {
   display: grid;

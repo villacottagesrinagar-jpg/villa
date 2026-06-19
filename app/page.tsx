@@ -61,6 +61,7 @@ const GALLERY = [
   "/photos/gallery-new-4.webp",
   "/photos/gallery-new-5.webp",
   "/photos/gallery-new-6.webp",
+  "/photos/gallery-new-7.jpg",
   "/photos/exterior-night.jpg",
   "/photos/orchard.jpg",
   "/photos/interior-living.jpg",
@@ -260,11 +261,11 @@ export default function HomePage() {
       </section>
 
       {/* STATS */}
-      <section className="border-y border-white/6 grid grid-cols-2 md:grid-cols-4 max-w-7xl mx-auto">
-        {[["3", "private cottages"], ["3,200", "feet altitude"], ["1.2", "acre orchard"], ["∞", "stars on clear nights"]].map(([n, l]) => (
-          <div key={l} className="p-10 text-center border-r border-white/6 last:border-r-0">
-            <div className="font-serif text-5xl font-light text-[var(--amber)] leading-none mb-2">{n}</div>
-            <div className="text-[0.6rem] tracking-[0.2em] uppercase text-cream/40">{l}</div>
+      <section className="stats">
+        {[["2", "private cottages"], ["4.9", "on Google"], ["4.8", "on Airbnb"], ["∞", "stars on clear nights"]].map(([n, l]) => (
+          <div key={l} className="stats__item">
+            <div className="stats__number">{n}</div>
+            <div className="stats__label">{l}</div>
           </div>
         ))}
       </section>
