@@ -162,9 +162,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 /* ─── Quote band ─── */
 .quote-band {
   padding: 4rem 1.5rem;
-  border-top: 1px solid rgba(212, 175, 55, 0.15);
-  border-bottom: 1px solid rgba(212, 175, 55, 0.15);
-  background: var(--amber-glow);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 .quote-band__inner {
   max-width: 56rem;
