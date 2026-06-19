@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/poll-airbnb",
+      "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/sweep-holds",
+      "schedule": "0 7 * * *"
+    }
+  ]
+}
