@@ -1142,6 +1142,10 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .admin-light .border-white\/6  { border-color: rgba(28, 24, 20, 0.06) !important; }
 .admin-light .border-white\/5  { border-color: rgba(28, 24, 20, 0.05) !important; }
 
+/* Hardcoded dark backgrounds */
+.admin-light .bg-\[\#080705\]\/60,
+.admin-light .bg-\[\#080705\] { background-color: #ffffff !important; }
+
 /* Info box */
 .admin-light .admin-info-box {
   background-color: rgba(212, 175, 55, 0.08) !important;
