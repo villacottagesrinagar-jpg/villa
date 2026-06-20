@@ -26,7 +26,35 @@ const lora = Lora({
 export const metadata: Metadata = {
   title: "Villa Cottages, Srinagar — Private Orchard Stay in Kashmir",
   description:
-    "Two private cottages on a working apple orchard in Srinagar. Pool, mountain views, and total peace. 4.9 stars on Google.",
+    "Two private A-frame cottages on a working apple orchard in Srinagar, Kashmir. Mosaic pool, mountain views, fire circle, and 24/7 concierge. Rated 4.9 stars on Google. Book your Kashmir escape today.",
+  metadataBase: new URL("https://www.villacottages.in"),
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "Villa Cottages, Srinagar — Private Orchard Stay in Kashmir",
+    description:
+      "Two private A-frame cottages on a working apple orchard in Srinagar. Mosaic pool, mountain views, and total peace. Rated 4.9 stars on Google.",
+    url: "https://www.villacottages.in",
+    siteName: "Villa Cottages",
+    images: [
+      {
+        url: "/photos/hero-aerial.png",
+        width: 1200,
+        height: 630,
+        alt: "Villa Cottages — aerial view of A-frame cottages in apple orchard, Srinagar Kashmir",
+      },
+    ],
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Villa Cottages, Srinagar — Private Orchard Stay in Kashmir",
+    description:
+      "Two private A-frame cottages on a working apple orchard in Srinagar. Mosaic pool, mountain views. Rated 4.9 stars on Google.",
+    images: ["/photos/hero-aerial.png"],
+  },
 };
 
 export default function RootLayout({
