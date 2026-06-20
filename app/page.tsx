@@ -44,19 +44,24 @@ const jsonLd = {
   "@context": "https://schema.org",
   "@graph": [
     {
+      "@type": "WebSite",
+      "@id": "https://www.villacottages.in/#website",
+      "url": "https://www.villacottages.in",
+      "name": "Villa Cottages"
+    },
+    {
       "@type": "LodgingBusiness",
       "@id": "https://www.villacottages.in/#lodging",
       "name": "Villa Cottages",
       "description": "Two private A-frame cottages on a working apple orchard in Srinagar, Kashmir. Mosaic pool, mountain views, fire circle, and 24/7 concierge.",
       "url": "https://www.villacottages.in",
-      "telephone": "+91-7006923317",
+      "telephone": "+91-8715008939",
       "email": "villa.cottages.srinagar@gmail.com",
       "address": {
         "@type": "PostalAddress",
-        "streetAddress": "Wadura, Sopore",
         "addressLocality": "Srinagar",
         "addressRegion": "Jammu & Kashmir",
-        "postalCode": "193201",
+        "postalCode": "190006",
         "addressCountry": "IN"
       },
       "geo": {
@@ -65,9 +70,21 @@ const jsonLd = {
         "longitude": 74.5974
       },
       "image": [
-        "https://www.villacottages.in/photos/hero-aerial.png",
-        "https://www.villacottages.in/photos/exterior-night.jpg",
-        "https://www.villacottages.in/photos/pool.jpg"
+        {
+          "@type": "ImageObject",
+          "url": "https://www.villacottages.in/photos/hero-aerial.png",
+          "caption": "Aerial view of Villa Cottages apple orchard, Srinagar Kashmir"
+        },
+        {
+          "@type": "ImageObject",
+          "url": "https://www.villacottages.in/photos/exterior-night.jpg",
+          "caption": "Villa Cottages A-frame cottages at night, Srinagar"
+        },
+        {
+          "@type": "ImageObject",
+          "url": "https://www.villacottages.in/photos/pool.jpg",
+          "caption": "Private mosaic splash pool at Villa Cottages, Srinagar"
+        }
       ],
       "aggregateRating": {
         "@type": "AggregateRating",
@@ -85,14 +102,25 @@ const jsonLd = {
         { "@type": "LocationFeatureSpecification", "name": "Mountain Views", "value": true },
         { "@type": "LocationFeatureSpecification", "name": "24/7 Concierge", "value": true }
       ],
-      "numberOfRooms": "2",
+      "numberOfRooms": 2,
       "petsAllowed": false,
-      "checkinTime": "14:00",
-      "checkoutTime": "11:00",
+      "checkinTime": "T14:00",
+      "checkoutTime": "T11:00",
+      "priceRange": "₹12,000–₹24,000",
       "currenciesAccepted": "INR",
+      "paymentAccepted": "Cash, UPI, Credit Card",
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+          "opens": "00:00",
+          "closes": "23:59"
+        }
+      ],
       "sameAs": [
         "https://www.instagram.com/villa.cottages/",
-        "https://www.airbnb.co.in/rooms/1196823291856037309"
+        "https://www.airbnb.co.in/rooms/1196823291856037309",
+        "https://maps.app.goo.gl/WQvVw4ihEs6QEVre9"
       ]
     },
     {
@@ -267,7 +295,7 @@ export default function HomePage() {
             </div>
             <div className="events-section__ctas">
               <a
-                href={`https://wa.me/917006923317?text=${encodeURIComponent("Hi, I'd like to enquire about hosting a private event at Villa Cottages. Please share details on packages and availability.")}`}
+                href={`https://wa.me/918715008939?text=${encodeURIComponent("Hi, I'd like to enquire about hosting a private event at Villa Cottages. Please share details on packages and availability.")}`}
                 target="_blank"
                 rel="noreferrer"
                 className="events-section__cta-primary"
@@ -360,7 +388,8 @@ export default function HomePage() {
             Villa <em className="text-[var(--amber)]">Cottages</em>
           </div>
           <div className="text-[0.6rem] tracking-[0.12em] text-cream/25 text-center order-3 md:order-2">
-            © 2025 {SITE.brandName} · {SITE.location}
+            © 2026 {SITE.brandName} · {SITE.location}
+            <span className="block mt-0.5">Srinagar, Jammu & Kashmir 190006 · +91 87150 08939</span>
             <span className="block mt-1">
               Built by{" "}
               <a href="https://zamanishtiyaq.work/" target="_blank" rel="noreferrer" className="hover:text-[var(--amber)] transition-colors">

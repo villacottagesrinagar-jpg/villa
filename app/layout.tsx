@@ -27,7 +27,7 @@ const lora = Lora({
 export const metadata: Metadata = {
   title: "Villa Cottages, Srinagar — Private Orchard Stay in Kashmir",
   description:
-    "Two private A-frame cottages on a working apple orchard in Srinagar, Kashmir. Mosaic pool, mountain views, fire circle, and 24/7 concierge. Rated 4.9 stars on Google. Book your Kashmir escape today.",
+    "Two private A-frame cottages in a Srinagar apple orchard. Mosaic pool, mountain views, fire circle. Rated 4.9 on Google. Book your Kashmir escape.",
   metadataBase: new URL("https://www.villacottages.in"),
   alternates: {
     canonical: "/",
