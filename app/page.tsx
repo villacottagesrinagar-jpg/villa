@@ -40,10 +40,141 @@ const GALLERY: { src: string; category: "exterior" | "interior"; width: number; 
   { src: "/photos/bathroom-2.avif",      category: "interior", width: 720,  height: 960  },
 ];
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "LodgingBusiness",
+      "@id": "https://www.villacottages.in/#lodging",
+      "name": "Villa Cottages",
+      "description": "Two private A-frame cottages on a working apple orchard in Srinagar, Kashmir. Mosaic pool, mountain views, fire circle, and 24/7 concierge.",
+      "url": "https://www.villacottages.in",
+      "telephone": "+91-7006923317",
+      "email": "villa.cottages.srinagar@gmail.com",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Wadura, Sopore",
+        "addressLocality": "Srinagar",
+        "addressRegion": "Jammu & Kashmir",
+        "postalCode": "193201",
+        "addressCountry": "IN"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 34.2268,
+        "longitude": 74.5974
+      },
+      "image": [
+        "https://www.villacottages.in/photos/hero-aerial.png",
+        "https://www.villacottages.in/photos/exterior-night.jpg",
+        "https://www.villacottages.in/photos/pool.jpg"
+      ],
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "reviewCount": "124",
+        "bestRating": "5",
+        "worstRating": "1"
+      },
+      "amenityFeature": [
+        { "@type": "LocationFeatureSpecification", "name": "Private Pool", "value": true },
+        { "@type": "LocationFeatureSpecification", "name": "WiFi", "value": true },
+        { "@type": "LocationFeatureSpecification", "name": "Kitchenette", "value": true },
+        { "@type": "LocationFeatureSpecification", "name": "Fire Pit", "value": true },
+        { "@type": "LocationFeatureSpecification", "name": "Apple Orchard Access", "value": true },
+        { "@type": "LocationFeatureSpecification", "name": "Mountain Views", "value": true },
+        { "@type": "LocationFeatureSpecification", "name": "24/7 Concierge", "value": true }
+      ],
+      "numberOfRooms": "2",
+      "petsAllowed": false,
+      "checkinTime": "14:00",
+      "checkoutTime": "11:00",
+      "currenciesAccepted": "INR",
+      "sameAs": [
+        "https://www.instagram.com/villa.cottages/",
+        "https://www.airbnb.co.in/rooms/1196823291856037309"
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Where is Villa Cottages located?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Villa Cottages is located in Wadura, Sopore, Srinagar, Jammu & Kashmir, India — set inside a working apple orchard with clear views of the surrounding Kashmir mountain ranges."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How many cottages are there?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "There are two private A-frame cottages — Luxury 1 and Luxury 2 — each with its own kitchenette, bedroom, and bathroom. They can be booked individually or together."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is there a swimming pool?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. There is a private mosaic splash pool on the property, available from May to October. It is surrounded by apple trees with loungers and a stone deck."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is the check-in and check-out time?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Check-in is at 2:00 PM and check-out is at 11:00 AM. Early check-in or late check-out may be arranged subject to availability — just ask your host."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is Villa Cottages on Airbnb?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Villa Cottages is listed on Airbnb with a 4.8-star rating. You can also book directly through our website for the best rates."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I host a private event at Villa Cottages?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. The orchard can be set up for private events including birthday parties, anniversaries, bridal showers, bachelorette parties, and family gatherings. Low tables, lanterns, flowers, and candlelight are all arranged before you arrive. Enquire on WhatsApp for availability and packages."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is there WiFi at Villa Cottages?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, WiFi is available across the property."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Are meals available?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Each cottage has its own kitchenette. We also accept pre-orders for meals — just let us know in advance and we will arrange it for you."
+          }
+        }
+      ]
+    }
+  ]
+};
+
 export default function HomePage() {
   const prices = getAllPrices();
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Nav />
 
       {/* HERO */}
