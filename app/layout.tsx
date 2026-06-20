@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Cormorant_Garamond, Inter, Lora } from "next/font/google";
 import "./globals.css";
 import { SmoothAnchor } from "@/components/SmoothAnchor";
+import { Analytics } from "@vercel/analytics/next";
 
 const serif = Cormorant_Garamond({
   variable: "--font-serif",
@@ -68,6 +69,7 @@ export default function RootLayout({
       <body suppressHydrationWarning className="min-h-full flex flex-col bg-[#080705] text-[#f2ead8] font-sans">
         <SmoothAnchor />
         {children}
+        <Analytics />
         <a
           href="https://wa.me/918715008939?text=Hi%2C%20I%20saw%20Villa%20Cottages%20and%20would%20love%20to%20know%20more%20about%20availability%20and%20booking."
           target="_blank"
