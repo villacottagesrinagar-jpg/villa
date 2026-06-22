@@ -33,6 +33,13 @@ async function runPoll() {
       const events = await nodeIcal.async.fromURL(url);
       const incoming = Object.values(events)
         .filter((e): e is nodeIcal.VEvent => (e as { type?: string }).type === "VEVENT")
+        .filter((e) => {
+          // Skip Airbnb availability-window blocks ("Not available") — these are
+          // not real bookings, just Airbnb's way of marking dates outside the
+          // host's booking window. Importing them would falsely block our calendar.
+          const s = String((e as { summary?: string }).summary ?? "").trim().toLowerCase();
+          return s !== "not available" && s !== "";
+        })
         .map((e) => ({
           uid: String(e.uid),
           start: toIso(e.start as Date),
@@ -40,9 +47,11 @@ async function runPoll() {
           summary: String(e.summary ?? ""),
         }));
 
-      // What's currently mirrored in Google Calendar (last 18 months window)
       const from = new Date().toISOString().slice(0, 10);
-      const toDate = new Date(); toDate.setMonth(toDate.getMonth() + 18);
+      // Only reconcile within the window Airbnb reliably exports (~4 months).
+      // Beyond that, Airbnb drops bookings from the feed but they're not cancelled —
+      // deleting them would falsely re-open real bookings.
+      const toDate = new Date(); toDate.setMonth(toDate.getMonth() + 4);
       const to = toDate.toISOString().slice(0, 10);
       const existing = (await listBlocks(hut.id, from, to)).filter((b) => b.source === "airbnb");
 
