@@ -359,13 +359,21 @@ export const AdminCalendar = forwardRef<
                   )}
                 </div>
 
-                {selected.source === "manual" && (
+                {selected.source === "manual" ? (
                   <button
                     onClick={() => deleteBlock(selected)}
                     disabled={busy === selected.eventId}
                     className="w-full py-2 border border-red-500/40 text-red-400 text-[0.6rem] tracking-[0.15em] uppercase hover:bg-red-500/15 disabled:opacity-40 transition-colors"
                   >
                     {busy === selected.eventId ? "Unblocking…" : "Unblock these dates"}
+                  </button>
+                ) : selected.source !== "airbnb" && (
+                  <button
+                    onClick={() => { if (confirm("Delete this booking from the calendar?")) deleteBlock(selected); }}
+                    disabled={busy === selected.eventId}
+                    className="w-full py-2 border border-red-500/40 text-red-400 text-[0.6rem] tracking-[0.15em] uppercase hover:bg-red-500/15 disabled:opacity-40 transition-colors"
+                  >
+                    {busy === selected.eventId ? "Deleting…" : "Delete booking"}
                   </button>
                 )}
 
