@@ -23,7 +23,12 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) { return POST(req); }
 
 async function runPoll() {
-  const report: Record<string, { added: number; removed: number; skipped: number; error?: string }> = {};
+  type HutReport = {
+    added: number; removed: number; skipped: number; error?: string;
+    addedEvents?: { start: string; end: string; summary: string; uid: string }[];
+    removedEvents?: { start: string; end: string; guestName?: string; uid: string }[];
+  };
+  const report: Record<string, HutReport> = {};
 
   for (const hut of HUTS) {
     const url = process.env[hut.airbnbIcalUrlEnv];
@@ -59,6 +64,8 @@ async function runPoll() {
       const incomingByUid = new Map(incoming.map((i) => [i.uid, i]));
 
       let added = 0, removed = 0;
+      const addedEvents: HutReport["addedEvents"] = [];
+      const removedEvents: HutReport["removedEvents"] = [];
 
       // Add new
       for (const inc of incoming) {
@@ -71,6 +78,7 @@ async function runPoll() {
           notes: `uid:${inc.uid}`,
           guestName: inc.summary,
         });
+        addedEvents!.push({ start: inc.start, end: inc.end, summary: inc.summary, uid: inc.uid });
         added++;
       }
 
@@ -80,12 +88,13 @@ async function runPoll() {
         if (!uid || !incomingByUid.has(uid)) {
           if (ex.eventId) {
             await deleteBlock(hut.id, ex.eventId);
+            removedEvents!.push({ start: ex.start, end: ex.end, guestName: ex.guestName, uid });
             removed++;
           }
         }
       }
 
-      report[hut.id] = { added, removed, skipped: incoming.length - added };
+      report[hut.id] = { added, removed, skipped: incoming.length - added, addedEvents, removedEvents };
     } catch (e: unknown) {
       report[hut.id] = { added: 0, removed: 0, skipped: 0, error: e instanceof Error ? e.message : String(e) };
     }
