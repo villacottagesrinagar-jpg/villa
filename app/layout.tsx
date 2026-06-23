@@ -40,10 +40,10 @@ export const metadata: Metadata = {
     siteName: "Villa Cottages",
     images: [
       {
-        url: "/photos/hero-aerial.png",
+        url: "/photos/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Villa Cottages — aerial view of A-frame cottages in apple orchard, Srinagar Kashmir",
+        alt: "Villa Cottages — Srinagar, Kashmir",
       },
     ],
     locale: "en_IN",
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
     title: "Villa Cottages, Srinagar — Private Orchard Stay in Kashmir",
     description:
       "Two private A-frame cottages on a working apple orchard in Srinagar. Mosaic pool, mountain views. Rated 4.9 stars on Google.",
-    images: ["/photos/hero-aerial.png"],
+    images: ["/photos/og-image.png"],
   },
 };
 
