@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
 // Also support GET for manual triggers in dev/inspection (still requires auth)
 export async function GET(req: NextRequest) { return POST(req); }
 
-async function runPoll() {
+export async function runPoll() {
   type HutReport = {
     added: number; removed: number; skipped: number; error?: string;
     addedEvents?: { start: string; end: string; summary: string; uid: string }[];
