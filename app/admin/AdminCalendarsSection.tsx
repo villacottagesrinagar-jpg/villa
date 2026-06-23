@@ -21,7 +21,9 @@ export function AdminCalendarsSection({
 
   const [selectedHuts, setSelectedHuts] = useState<Set<string>>(new Set());
   const [syncBusy, setSyncBusy] = useState(false);
-  const [syncMsg, setSyncMsg] = useState<string | null>(null);
+  type SyncEvent = { start: string; end: string; summary: string; uid: string };
+  type SyncHutReport = { added: number; removed: number; skipped: number; error?: string; addedEvents?: SyncEvent[]; removedEvents?: { start: string; end: string; guestName?: string; uid: string }[] };
+  const [syncReport, setSyncReport] = useState<Record<string, SyncHutReport> | null>(null);
   const [rangeStart, setRangeStart] = useState("");
   const [rangeEnd, setRangeEnd] = useState("");
   const [rangeGuest, setRangeGuest] = useState("");
@@ -94,23 +96,24 @@ export function AdminCalendarsSection({
 
   async function handleSyncAirbnb() {
     setSyncBusy(true);
-    setSyncMsg(null);
+    setSyncReport(null);
     try {
       const r = await fetch("/api/admin/sync-airbnb", { method: "POST" });
       const data = await r.json();
-      if (!r.ok) { setSyncMsg("Sync failed"); return; }
-      const { report } = data;
-      const parts = Object.entries(report as Record<string, { added: number; removed: number; error?: string }>)
-        .filter(([, v]) => !v.error)
-        .map(([id, v]) => `${id}: +${v.added} −${v.removed}`);
-      setSyncMsg(parts.join(" · ") || "✓ Up to date");
-      if (Object.values(report as Record<string, { added: number; removed: number }>).some((v) => v.added > 0 || v.removed > 0)) {
+      if (!r.ok) { setSyncReport({}); return; }
+      const { report } = data as { report: Record<string, SyncHutReport> };
+      setSyncReport(report);
+      if (Object.values(report).some((v) => v.added > 0 || v.removed > 0)) {
         router.refresh();
       }
     } finally {
       setSyncBusy(false);
-      setTimeout(() => setSyncMsg(null), 6000);
     }
+  }
+
+  function fmtDate(iso: string) {
+    const d = new Date(iso + "T00:00:00");
+    return d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
   }
 
   return (
@@ -208,15 +211,63 @@ export function AdminCalendarsSection({
       </div>
 
       {/* Airbnb sync */}
-      <div className="flex items-center gap-3 mb-2">
-        <button
-          onClick={handleSyncAirbnb}
-          disabled={syncBusy}
-          className="px-4 py-1.5 border border-blue-500/40 text-blue-400 text-[0.6rem] tracking-[0.18em] uppercase hover:bg-blue-500/10 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-        >
-          {syncBusy ? "Syncing…" : "↻ Sync Airbnb"}
-        </button>
-        {syncMsg && <span className="text-[0.65rem] text-cream/50">{syncMsg}</span>}
+      <div className="space-y-3 mb-4">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleSyncAirbnb}
+            disabled={syncBusy}
+            className="px-4 py-1.5 border border-blue-500/40 text-blue-400 text-[0.6rem] tracking-[0.18em] uppercase hover:bg-blue-500/10 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            {syncBusy ? "Syncing…" : "↻ Sync Airbnb"}
+          </button>
+          {syncReport && <button onClick={() => setSyncReport(null)} className="text-[0.55rem] text-cream/30 hover:text-cream/60 transition-colors">✕ dismiss</button>}
+        </div>
+
+        {syncReport && (
+          <div className="border border-white/8 bg-white/3 p-3 space-y-3 text-[0.68rem]">
+            {Object.entries(syncReport).map(([hutId, r]) => {
+              const hut = huts.find((h) => h.id === hutId);
+              const label = hut?.name ?? hutId;
+              if (r.error) return (
+                <div key={hutId}>
+                  <div className="text-[0.55rem] tracking-widest uppercase text-cream/35 mb-1">{label}</div>
+                  <div className="text-red-400/70">{r.error}</div>
+                </div>
+              );
+              const hasChanges = (r.addedEvents?.length ?? 0) + (r.removedEvents?.length ?? 0) > 0;
+              return (
+                <div key={hutId}>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="text-[0.55rem] tracking-widest uppercase text-cream/35">{label}</span>
+                    <span className="text-cream/30">·</span>
+                    {hasChanges ? (
+                      <>
+                        {(r.addedEvents?.length ?? 0) > 0 && <span className="text-green-400/80">+{r.added} added</span>}
+                        {(r.removedEvents?.length ?? 0) > 0 && <span className="text-red-400/70 ml-1">−{r.removed} removed</span>}
+                      </>
+                    ) : (
+                      <span className="text-cream/30">up to date</span>
+                    )}
+                  </div>
+                  {r.addedEvents?.map((e) => (
+                    <div key={e.uid} className="flex items-center gap-2 pl-2 py-0.5 border-l border-green-500/30 mb-1">
+                      <span className="text-green-400/70">+</span>
+                      <span className="text-cream/60">{fmtDate(e.start)} → {fmtDate(e.end)}</span>
+                      <span className="text-cream/35">{e.summary}</span>
+                    </div>
+                  ))}
+                  {r.removedEvents?.map((e) => (
+                    <div key={e.uid} className="flex items-center gap-2 pl-2 py-0.5 border-l border-red-500/30 mb-1">
+                      <span className="text-red-400/70">−</span>
+                      <span className="text-cream/60">{fmtDate(e.start)} → {fmtDate(e.end)}</span>
+                      {e.guestName && <span className="text-cream/35">{e.guestName}</span>}
+                    </div>
+                  ))}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Per-hut calendars */}
