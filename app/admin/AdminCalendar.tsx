@@ -317,45 +317,89 @@ export const AdminCalendar = forwardRef<
               </div>
             ) : (
               <>
-                <div className="space-y-1.5">
+                <div className="space-y-4">
+                  {/* Guest name */}
                   {selected.guestName && (
-                    <div className="font-serif text-lg text-cream">{selected.guestName}</div>
-                  )}
-                  {selected.guestEmail && (
-                    <div className="text-xs text-cream/50">{selected.guestEmail}</div>
-                  )}
-                  {selected.guestPhone && (
-                    <div className="text-xs text-cream/50">{selected.guestPhone}</div>
+                    <div className="font-serif text-xl text-cream leading-tight">{selected.guestName}</div>
                   )}
 
-                  <div className="text-sm text-cream/60 pt-0.5">
-                    {formatDate(selected.start)} → {formatDate(selected.end)}
-                    {" · "}{nightsBetween(selected.start, selected.end)} night{nightsBetween(selected.start, selected.end) === 1 ? "" : "s"}
-                  </div>
-
-                  {(selected.checkInTime || selected.checkOutTime) && (
-                    <div className="text-xs text-cream/45">
-                      {selected.checkInTime && <>Check-in {selected.checkInTime}</>}
-                      {selected.checkInTime && selected.checkOutTime && "  ·  "}
-                      {selected.checkOutTime && <>Check-out {selected.checkOutTime}</>}
-                    </div>
-                  )}
-                  {selected.guests && (
-                    <div className="text-xs text-cream/45">{selected.guests}</div>
-                  )}
-                  {selected.totalAmountInr != null && (
-                    <div className="text-xs text-cream/45">
-                      Total ₹{selected.totalAmountInr.toLocaleString("en-IN")}
-                      {selected.advancePaidInr != null && (
-                        <span className="text-cream/30"> · Advance ₹{selected.advancePaidInr.toLocaleString("en-IN")}</span>
+                  {/* Contact row */}
+                  {(selected.guestPhone || selected.guestEmail) && (
+                    <div className="space-y-1.5">
+                      {selected.guestPhone && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-[0.5rem] tracking-[0.18em] uppercase text-cream/30">Phone</span>
+                          <a href={`tel:${selected.guestPhone}`} className="text-xs text-cream/70 hover:text-cream transition-colors">{selected.guestPhone}</a>
+                        </div>
+                      )}
+                      {selected.guestEmail && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-[0.5rem] tracking-[0.18em] uppercase text-cream/30">Email</span>
+                          <span className="text-xs text-cream/70">{selected.guestEmail}</span>
+                        </div>
                       )}
                     </div>
                   )}
-                  {selected.notes && (
-                    <div className="text-xs text-cream/40 italic pt-1">{selected.notes}</div>
+
+                  {/* Divider */}
+                  <div className="border-t border-white/8" />
+
+                  {/* Stay details */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[0.5rem] tracking-[0.18em] uppercase text-cream/30">Check-in</span>
+                      <span className="text-xs text-cream/70">{formatDate(selected.start)}{selected.checkInTime && <span className="text-cream/40 ml-1.5">{selected.checkInTime}</span>}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[0.5rem] tracking-[0.18em] uppercase text-cream/30">Check-out</span>
+                      <span className="text-xs text-cream/70">{formatDate(selected.end)}{selected.checkOutTime && <span className="text-cream/40 ml-1.5">{selected.checkOutTime}</span>}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[0.5rem] tracking-[0.18em] uppercase text-cream/30">Duration</span>
+                      <span className="text-xs text-cream/70">{nightsBetween(selected.start, selected.end)} night{nightsBetween(selected.start, selected.end) === 1 ? "" : "s"}</span>
+                    </div>
+                    {selected.guests && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-[0.5rem] tracking-[0.18em] uppercase text-cream/30">Guests</span>
+                        <span className="text-xs text-cream/70">{selected.guests}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Payment */}
+                  {selected.totalAmountInr != null && (
+                    <>
+                      <div className="border-t border-white/8" />
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[0.5rem] tracking-[0.18em] uppercase text-cream/30">Total</span>
+                          <span className="text-xs text-cream/70">₹{selected.totalAmountInr.toLocaleString("en-IN")}</span>
+                        </div>
+                        {selected.advancePaidInr != null && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-[0.5rem] tracking-[0.18em] uppercase text-cream/30">Advance paid</span>
+                            <span className="text-xs text-cream/70">₹{selected.advancePaidInr.toLocaleString("en-IN")}</span>
+                          </div>
+                        )}
+                        {selected.paymentId && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-[0.5rem] tracking-[0.18em] uppercase text-cream/30">Payment ID</span>
+                            <span className="text-[0.6rem] text-cream/30 font-mono">{selected.paymentId}</span>
+                          </div>
+                        )}
+                      </div>
+                    </>
                   )}
-                  {selected.paymentId && (
-                    <div className="text-[0.6rem] text-cream/30 font-mono pt-1">Payment: {selected.paymentId}</div>
+
+                  {/* Notes */}
+                  {selected.notes && (
+                    <>
+                      <div className="border-t border-white/8" />
+                      <div>
+                        <div className="text-[0.5rem] tracking-[0.18em] uppercase text-cream/30 mb-1.5">Notes</div>
+                        <div className="bg-white/4 border border-white/8 px-3 py-2.5 text-[0.7rem] text-cream/50 leading-relaxed whitespace-pre-wrap">{selected.notes}</div>
+                      </div>
+                    </>
                   )}
                 </div>
 
