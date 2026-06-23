@@ -57,6 +57,7 @@ export const AdminCalendar = forwardRef<
   const [editMode, setEditMode] = useState(false);
   const [editDraft, setEditDraft] = useState<Block | null>(null);
   const [saveBusy, setSaveBusy] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [monthOffset, setMonthOffset] = useState(0);
   const m = useMemo(() => {
     const base = new Date();
@@ -108,6 +109,7 @@ export const AdminCalendar = forwardRef<
     setSelected(b);
     setEditMode(false);
     setEditDraft(null);
+    setConfirmDelete(false);
   }
 
   function handleDayClick(iso: string, c: ReturnType<typeof classify>) {
@@ -413,13 +415,33 @@ export const AdminCalendar = forwardRef<
                     {busy === selected.eventId ? "Unblocking…" : "Unblock these dates"}
                   </button>
                 ) : selected.source !== "airbnb" && (
-                  <button
-                    onClick={() => { if (confirm("Delete this booking from the calendar?")) deleteBlock(selected); }}
-                    disabled={busy === selected.eventId}
-                    className="w-full py-2 border border-red-500/40 text-red-400 text-[0.6rem] tracking-[0.15em] uppercase hover:bg-red-500/15 disabled:opacity-40 transition-colors"
-                  >
-                    {busy === selected.eventId ? "Deleting…" : "Delete booking"}
-                  </button>
+                  confirmDelete ? (
+                    <div className="space-y-2">
+                      <div className="text-[0.6rem] text-cream/50 text-center">Delete this booking?</div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => deleteBlock(selected)}
+                          disabled={busy === selected.eventId}
+                          className="flex-1 py-2 bg-red-500/20 border border-red-500/50 text-red-400 text-[0.6rem] tracking-[0.15em] uppercase hover:bg-red-500/30 disabled:opacity-40 transition-colors"
+                        >
+                          {busy === selected.eventId ? "Deleting…" : "Yes, delete"}
+                        </button>
+                        <button
+                          onClick={() => setConfirmDelete(false)}
+                          className="flex-1 py-2 border border-white/10 text-cream/35 text-[0.6rem] tracking-[0.15em] uppercase hover:bg-white/5 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setConfirmDelete(true)}
+                      className="w-full py-2 border border-red-500/40 text-red-400 text-[0.6rem] tracking-[0.15em] uppercase hover:bg-red-500/15 transition-colors"
+                    >
+                      Delete booking
+                    </button>
+                  )
                 )}
 
                 <button
