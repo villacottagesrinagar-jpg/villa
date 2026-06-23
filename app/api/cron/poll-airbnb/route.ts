@@ -52,7 +52,8 @@ export async function runPoll() {
           summary: String(e.summary ?? ""),
         }));
 
-      const from = new Date().toISOString().slice(0, 10);
+      const fromDate = new Date(); fromDate.setDate(fromDate.getDate() - 30);
+      const from = fromDate.toISOString().slice(0, 10);
       // Only reconcile within the window Airbnb reliably exports (~4 months).
       // Beyond that, Airbnb drops bookings from the feed but they're not cancelled —
       // deleting them would falsely re-open real bookings.
