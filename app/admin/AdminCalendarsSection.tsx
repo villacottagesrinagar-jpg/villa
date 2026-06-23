@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { AdminCalendar, type AdminCalendarHandle } from "./AdminCalendar";
 import type { Block } from "@/lib/calendar";
 
@@ -15,9 +16,12 @@ export function AdminCalendarsSection({
   huts: HutInfo[];
   initialBlocksMap: Record<string, Block[]>;
 }) {
+  const router = useRouter();
   const calRefs = useRef<Record<string, AdminCalendarHandle | null>>({});
 
   const [selectedHuts, setSelectedHuts] = useState<Set<string>>(new Set());
+  const [syncBusy, setSyncBusy] = useState(false);
+  const [syncMsg, setSyncMsg] = useState<string | null>(null);
   const [rangeStart, setRangeStart] = useState("");
   const [rangeEnd, setRangeEnd] = useState("");
   const [rangeGuest, setRangeGuest] = useState("");
@@ -87,6 +91,27 @@ export function AdminCalendarsSection({
   }
 
   const canSave = !!rangeStart && !!rangeEnd && rangeStart < rangeEnd && selectedHuts.size > 0 && !busy;
+
+  async function handleSyncAirbnb() {
+    setSyncBusy(true);
+    setSyncMsg(null);
+    try {
+      const r = await fetch("/api/admin/sync-airbnb", { method: "POST" });
+      const data = await r.json();
+      if (!r.ok) { setSyncMsg("Sync failed"); return; }
+      const { report } = data;
+      const parts = Object.entries(report as Record<string, { added: number; removed: number; error?: string }>)
+        .filter(([, v]) => !v.error)
+        .map(([id, v]) => `${id}: +${v.added} −${v.removed}`);
+      setSyncMsg(parts.join(" · ") || "✓ Up to date");
+      if (Object.values(report as Record<string, { added: number; removed: number }>).some((v) => v.added > 0 || v.removed > 0)) {
+        router.refresh();
+      }
+    } finally {
+      setSyncBusy(false);
+      setTimeout(() => setSyncMsg(null), 6000);
+    }
+  }
 
   return (
     <>
@@ -180,6 +205,18 @@ export function AdminCalendarsSection({
           </button>
           {msg && <span className="text-[0.65rem] text-cream/50">{msg}</span>}
         </div>
+      </div>
+
+      {/* Airbnb sync */}
+      <div className="flex items-center gap-3 mb-2">
+        <button
+          onClick={handleSyncAirbnb}
+          disabled={syncBusy}
+          className="px-4 py-1.5 border border-blue-500/40 text-blue-400 text-[0.6rem] tracking-[0.18em] uppercase hover:bg-blue-500/10 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        >
+          {syncBusy ? "Syncing…" : "↻ Sync Airbnb"}
+        </button>
+        {syncMsg && <span className="text-[0.65rem] text-cream/50">{syncMsg}</span>}
       </div>
 
       {/* Per-hut calendars */}
