@@ -41,6 +41,7 @@ export function AdminCalendarsSection({
   }
 
   function resetForm() {
+    setSelectedHuts(new Set());
     setRangeStart(""); setRangeEnd("");
     setRangeGuest(""); setRangePhone(""); setRangeEmail(""); setRangeGuests("");
     setRangeTotal(""); setRangeAdvance(""); setRangeNote("");
@@ -131,14 +132,14 @@ export function AdminCalendarsSection({
         {/* Dates */}
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="block text-[0.55rem] tracking-widest uppercase text-amber-400/70 mb-1">From</label>
+            <label className="block text-[0.55rem] tracking-widest uppercase text-amber-400 mb-1">From</label>
             <input type="date" min={today} value={rangeStart} onChange={(e) => setRangeStart(e.target.value)}
-              className="w-full bg-transparent border border-white/10 px-2 py-1.5 text-[0.75rem] text-cream outline-none focus:border-[var(--amber)]/50" />
+              className="w-full bg-transparent border border-white/10 px-2 py-1.5 text-[0.75rem] text-cream outline-none focus:border-[var(--amber)]/50 cursor-pointer [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:opacity-50 [&::-webkit-calendar-picker-indicator]:cursor-pointer" />
           </div>
           <div>
-            <label className="block text-[0.55rem] tracking-widest uppercase text-amber-400/70 mb-1">To</label>
+            <label className="block text-[0.55rem] tracking-widest uppercase text-amber-400 mb-1">To</label>
             <input type="date" min={rangeStart || today} value={rangeEnd} onChange={(e) => setRangeEnd(e.target.value)}
-              className="w-full bg-transparent border border-white/10 px-2 py-1.5 text-[0.75rem] text-cream outline-none focus:border-[var(--amber)]/50" />
+              className="w-full bg-transparent border border-white/10 px-2 py-1.5 text-[0.75rem] text-cream outline-none focus:border-[var(--amber)]/50 cursor-pointer [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:opacity-50 [&::-webkit-calendar-picker-indicator]:cursor-pointer" />
           </div>
         </div>
 
@@ -154,7 +155,7 @@ export function AdminCalendarsSection({
             { label: "Advance (₹)", value: rangeAdvance, set: setRangeAdvance, type: "number" },
           ].map(({ label, value, set, type, placeholder }) => (
             <div key={label}>
-              <label className="block text-[0.5rem] tracking-widest uppercase text-amber-400/60 mb-1">{label}</label>
+              <label className="block text-[0.5rem] tracking-widest uppercase text-amber-400 mb-1">{label}</label>
               <input type={type} placeholder={placeholder} value={value}
                 onChange={(e) => set(e.target.value)}
                 className="w-full bg-transparent border border-white/10 px-2 py-1.5 text-[0.75rem] text-cream outline-none focus:border-[var(--amber)]/50 placeholder:text-cream/20" />
@@ -163,7 +164,7 @@ export function AdminCalendarsSection({
         </div>
 
         <div>
-          <label className="block text-[0.5rem] tracking-widest uppercase text-amber-400/60 mb-1">Notes</label>
+          <label className="block text-[0.5rem] tracking-widest uppercase text-amber-400 mb-1">Notes</label>
           <textarea placeholder="Owner stay, Maintenance, etc." value={rangeNote} onChange={(e) => setRangeNote(e.target.value)}
             rows={2}
             className="w-full bg-transparent border border-white/10 px-2 py-1.5 text-[0.75rem] text-cream outline-none focus:border-[var(--amber)]/50 placeholder:text-cream/25 resize-y" />

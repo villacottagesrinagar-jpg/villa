@@ -277,7 +277,7 @@ export const AdminCalendar = forwardRef<
                   { label: "Advance paid (₹)",  key: "advancePaidInr", type: "number" },
                 ].map(({ label, key, type, placeholder }) => (
                   <div key={key}>
-                    <label className="block text-[0.5rem] tracking-widest uppercase text-amber-400/60 mb-1">{label}</label>
+                    <label className="block text-[0.5rem] tracking-widest uppercase text-amber-400 mb-1">{label}</label>
                     <input
                       type={type}
                       placeholder={placeholder}
@@ -291,7 +291,7 @@ export const AdminCalendar = forwardRef<
                   </div>
                 ))}
                 <div>
-                  <label className="block text-[0.5rem] tracking-widest uppercase text-amber-400/60 mb-1">Notes</label>
+                  <label className="block text-[0.5rem] tracking-widest uppercase text-amber-400 mb-1">Notes</label>
                   <textarea
                     rows={3}
                     value={editDraft.notes ?? ""}
