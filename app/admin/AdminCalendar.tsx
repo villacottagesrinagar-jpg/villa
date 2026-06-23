@@ -407,13 +407,33 @@ export const AdminCalendar = forwardRef<
                 </div>
 
                 {selected.source === "manual" ? (
-                  <button
-                    onClick={() => deleteBlock(selected)}
-                    disabled={busy === selected.eventId}
-                    className="w-full py-2 border border-red-500/40 text-red-400 text-[0.6rem] tracking-[0.15em] uppercase hover:bg-red-500/15 disabled:opacity-40 transition-colors"
-                  >
-                    {busy === selected.eventId ? "Unblocking…" : "Unblock these dates"}
-                  </button>
+                  confirmDelete ? (
+                    <div className="space-y-2">
+                      <div className="text-[0.6rem] text-cream/50 text-center">Unblock these dates?</div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => deleteBlock(selected)}
+                          disabled={busy === selected.eventId}
+                          className="flex-1 py-2 bg-red-500/20 border border-red-500/50 text-red-400 text-[0.6rem] tracking-[0.15em] uppercase hover:bg-red-500/30 disabled:opacity-40 transition-colors"
+                        >
+                          {busy === selected.eventId ? "Unblocking…" : "Yes, unblock"}
+                        </button>
+                        <button
+                          onClick={() => setConfirmDelete(false)}
+                          className="flex-1 py-2 border border-white/10 text-cream/35 text-[0.6rem] tracking-[0.15em] uppercase hover:bg-white/5 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setConfirmDelete(true)}
+                      className="w-full py-2 border border-red-500/40 text-red-400 text-[0.6rem] tracking-[0.15em] uppercase hover:bg-red-500/15 transition-colors"
+                    >
+                      Unblock these dates
+                    </button>
+                  )
                 ) : selected.source !== "airbnb" && (
                   confirmDelete ? (
                     <div className="space-y-2">
