@@ -191,6 +191,7 @@ export const AdminCalendar = forwardRef<
                 isOpen && !past ? "hover:bg-green-500/15 cursor-pointer" : "",
                 !isOpen && !past ? "cursor-pointer hover:brightness-110" : "",
                 isBusy ? "opacity-40" : "",
+                iso === today ? "ring-1 ring-amber-400/60 ring-inset" : "",
               ].join(" ")}
             >
               <span className="relative z-10 leading-none">{day}</span>
