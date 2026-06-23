@@ -39,11 +39,11 @@ async function runPoll() {
       const incoming = Object.values(events)
         .filter((e): e is nodeIcal.VEvent => (e as { type?: string }).type === "VEVENT")
         .filter((e) => {
-          // Skip Airbnb availability-window blocks ("Not available") — these are
-          // not real bookings, just Airbnb's way of marking dates outside the
-          // host's booking window. Importing them would falsely block our calendar.
+          // Skip Airbnb availability-window blocks — summaries include
+          // "Not available" and "Airbnb (Not available)". These are not real
+          // bookings; importing them falsely blocks our calendar.
           const s = String((e as { summary?: string }).summary ?? "").trim().toLowerCase();
-          return s !== "not available" && s !== "";
+          return s !== "" && !s.includes("not available");
         })
         .map((e) => ({
           uid: String(e.uid),
