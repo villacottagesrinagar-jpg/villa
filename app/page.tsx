@@ -131,23 +131,31 @@ const jsonLd = {
           "name": "Where is Villa Cottages located?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Villa Cottages is located in Wadura, Sopore, Srinagar, Jammu & Kashmir, India — set inside a working apple orchard with clear views of the surrounding Kashmir mountain ranges."
+            "text": "Villa Cottages is located in Srinagar, Jammu & Kashmir 190006, India — set inside a working apple orchard with unobstructed views of the Kashmir Himalayan mountain ranges. The property is approximately 45 minutes from Srinagar city centre and 50 minutes from Sheikh ul-Alam International Airport (SXR). It is about 1.5 hours from Gulmarg ski resort and 2.5 hours from Pahalgam, making it a convenient base for day trips to both. Srinagar's major attractions — Dal Lake, Mughal Gardens (Nishat Bagh, Shalimar Bagh), and the old city bazaars — are all within 45 to 60 minutes by road. The orchard setting means guests wake up surrounded by apple trees rather than hotel corridors, with mountain views from every window."
           }
         },
         {
           "@type": "Question",
-          "name": "How many cottages are there?",
+          "name": "What makes Villa Cottages different from hotels in Srinagar?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "There are two private A-frame cottages — Luxury 1 and Luxury 2 — each with its own kitchenette, bedroom, and bathroom. They can be booked individually or together."
+            "text": "Villa Cottages is not a hotel. It is a private orchard property — two A-frame cottages set inside a working apple orchard in Srinagar, Kashmir. When you book, you have the entire property to yourselves: no shared lobbies, no other tourists, no hotel corridors. The setting is completely private, surrounded by hundreds of apple trees with the Himalayan mountain ranges visible from every window. The property has a private mosaic splash pool (open May to October), a stone fire circle, and a 24/7 on-site host. Rated 4.9 out of 5 on Google across 124 reviews and 4.8 on Airbnb, it consistently ranks among the most distinctive stays in Kashmir for families, couples, and groups seeking privacy over a conventional hotel experience."
           }
         },
         {
           "@type": "Question",
-          "name": "Is there a swimming pool?",
+          "name": "How many cottages are there and what is included?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes. There is a private mosaic splash pool on the property, available from May to October. It is surrounded by apple trees with loungers and a stone deck."
+            "text": "There are two private A-frame cottages — Luxury 1 and Luxury 2 — each with its own independent kitchenette, bedroom loft, bathroom, and private entrance. Each cottage accommodates two to four guests comfortably. They can be booked individually at ₹12,000 per night or together at ₹24,000 per night. Booking both gives your group exclusive use of the entire property including the pool and orchard. All stays include fresh linens and quality bedding, WiFi, 24/7 host concierge, and full access to the apple orchard and fire circle. Meals can be pre-ordered and arranged by the host. Cleaning fee of ₹500 applies per stay."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is there a swimming pool at Villa Cottages?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Villa Cottages has a private mosaic splash pool on the property, open from May through October each year. The pool is surrounded by apple trees with sun loungers and a stone deck, and is exclusive to cottage guests — it is not shared with any other visitors or the public. It is well suited for families with children and for evening swims during warm Kashmir summers. The pool is not heated. From November through April, Kashmir experiences cold winters and snowfall, during which the pool is closed; the fire circle and indoor kitchenettes make the property equally enjoyable in the colder months."
           }
         },
         {
@@ -155,15 +163,15 @@ const jsonLd = {
           "name": "What is the check-in and check-out time?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Check-in is at 2:00 PM and check-out is at 11:00 AM. Early check-in or late check-out may be arranged subject to availability — just ask your host."
+            "text": "Standard check-in at Villa Cottages is at 2:00 PM and check-out is at 11:00 AM. Early check-in or late check-out may be possible depending on availability — contact the host in advance via WhatsApp at +91 87150 08939 to request it. The property has 24/7 on-site staff, so arrivals outside standard hours can generally be accommodated with prior notice. There is no unattended self check-in — a host will always be present to welcome guests and walk them through the property."
           }
         },
         {
           "@type": "Question",
-          "name": "Is Villa Cottages on Airbnb?",
+          "name": "Is Villa Cottages good for a Kashmir luxury stay near Gulmarg?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes. Villa Cottages is listed on Airbnb with a 4.8-star rating. You can also book directly through our website for the best rates."
+            "text": "Villa Cottages is one of the most highly rated private luxury stays in the Srinagar region, with a 4.9-star Google rating across 124 reviews. It is located approximately 1.5 hours from Gulmarg, making it a practical and significantly more peaceful base than Gulmarg hotels during peak ski season or summer. Guests frequently use Villa Cottages as their Srinagar base while taking day trips to Gulmarg, Pahalgam, Sonamarg, and the Mughal Gardens. The property offers what most Srinagar hotels cannot: total privacy, an apple orchard setting, a private pool, and a stay experience that feels distinctly Kashmiri rather than generic hotel accommodation."
           }
         },
         {
@@ -171,23 +179,15 @@ const jsonLd = {
           "name": "Can I host a private event at Villa Cottages?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes. The orchard can be set up for private events including birthday parties, anniversaries, bridal showers, bachelorette parties, and family gatherings. Low tables, lanterns, flowers, and candlelight are all arranged before you arrive. Enquire on WhatsApp for availability and packages."
+            "text": "Yes. The apple orchard at Villa Cottages can be set up for private events with full styling — low tables, lanterns, flowers, and candlelight are all arranged by the host team before guests arrive. Events hosted include birthday parties, anniversaries, bridal showers, bachelorette parties, family gatherings, and retirement celebrations. The orchard setting creates a naturally dramatic venue unlike any conventional event space in Srinagar. The host handles all setup logistics so guests simply arrive to a ready celebration. Enquire about availability, guest capacity, and packages via WhatsApp at +91 87150 08939."
           }
         },
         {
           "@type": "Question",
-          "name": "Is there WiFi at Villa Cottages?",
+          "name": "Are meals available at Villa Cottages?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes, WiFi is available across the property."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Are meals available?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Each cottage has its own kitchenette. We also accept pre-orders for meals — just let us know in advance and we will arrange it for you."
+            "text": "Each cottage at Villa Cottages has its own private kitchenette for self-catering. The host also accepts pre-orders for meals — Kashmiri and Indian food can be arranged with advance notice before your check-in date. This includes breakfast, lunch, and dinner. The nearest restaurants and local markets are accessible within a short drive. For groups booking private events, catering can be arranged as part of the event package. Contact the host via WhatsApp at +91 87150 08939 at least 24 hours before arrival to arrange meals."
           }
         }
       ]
