@@ -329,8 +329,8 @@ export const AdminCalendar = forwardRef<
                   )}
 
                   <div className="text-sm text-cream/60 pt-0.5">
-                    {formatDate(selected.start)} → {formatDate(addDays(selected.end, -1))}
-                    {" · "}{nightsBetween(selected.start, addDays(selected.end, -1))} night{nightsBetween(selected.start, addDays(selected.end, -1)) === 1 ? "" : "s"}
+                    {formatDate(selected.start)} → {formatDate(selected.end)}
+                    {" · "}{nightsBetween(selected.start, selected.end)} night{nightsBetween(selected.start, selected.end) === 1 ? "" : "s"}
                   </div>
 
                   {(selected.checkInTime || selected.checkOutTime) && (
