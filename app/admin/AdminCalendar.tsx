@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, useImperativeHandle, useMemo, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from "react";
 import type { Block } from "@/lib/calendar";
 
 function todayISO() { return new Date().toISOString().slice(0, 10); }
@@ -52,6 +52,7 @@ export const AdminCalendar = forwardRef<
   { hutId: string; initialBlocks: Block[] }
 >(function AdminCalendar({ hutId, initialBlocks }, ref) {
   const [blocks, setBlocks] = useState(initialBlocks);
+  useEffect(() => { setBlocks(initialBlocks); }, [initialBlocks]);
   const [busy, setBusy] = useState<string | null>(null);
   const [selected, setSelected] = useState<Block | null>(null);
   const [editMode, setEditMode] = useState(false);
