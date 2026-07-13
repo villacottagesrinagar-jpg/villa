@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRef, useState } from "react";
 
 const ITEMS = [
@@ -46,6 +47,7 @@ export function TestimonialsCarousel() {
 
   return (
     <section id="testimonials" className="testimonials-section">
+      <Image src="/photos/lavender-wide.jpg" alt="" fill className="object-cover" style={{ objectPosition: "center 20%", opacity: 0.55 }} sizes="100vw" />
       <div className="testimonials-section__inner">
 
         <div className="testimonials__header">

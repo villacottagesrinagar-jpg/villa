@@ -267,6 +267,7 @@ export default function HomePage() {
 
       {/* EVENTS */}
       <div id="events" className="events-section-wrap">
+      <Image src="/photos/events-bg.jpg" alt="" fill className="object-cover object-center" style={{ opacity: 0.22 }} sizes="100vw" />
       <section className="events-section">
         <div className="events-section__layout">
           <div>
@@ -324,6 +325,7 @@ export default function HomePage() {
 
       {/* AMENITIES */}
       <section id="amenities" className="amenities-section">
+        <Image src="/photos/amenities-bg-new.png" alt="" fill className="object-cover object-center" style={{ opacity: 0.55 }} sizes="100vw" />
         <div className="amenities-section__inner">
           <div className="text-center mb-8 md:mb-16">
             <div className="eyebrow mb-3">What&apos;s Included</div>

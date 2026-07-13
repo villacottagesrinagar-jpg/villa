@@ -497,14 +497,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   position: relative;
   overflow: hidden;
 }
-.amenities-section::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: url("/photos/amenities-bg-new.png") center/cover no-repeat;
-  opacity: 0.55;
-  z-index: 0;
-}
 .amenities-section::after {
   content: "";
   position: absolute;
@@ -676,14 +668,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .events-section-wrap {
   position: relative;
   overflow: hidden;
-}
-.events-section-wrap::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: url("/photos/events-bg.jpg") center/cover no-repeat;
-  opacity: 0.22;
-  z-index: 0;
 }
 .events-section-wrap::after {
   content: "";
@@ -908,14 +892,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   justify-content: center;
 }
 /* bg image — positioned toward top on mobile to show lavender field */
-.testimonials-section::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: url("/photos/lavender-wide.jpg") center 20%/cover no-repeat;
-  opacity: 0.55;
-  z-index: 0;
-}
 /* gradient overlay */
 .testimonials-section::after {
   content: "";
