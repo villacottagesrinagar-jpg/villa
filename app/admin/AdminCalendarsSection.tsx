@@ -35,6 +35,7 @@ export function AdminCalendarsSection({
   const [rangeNote, setRangeNote] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [waMsg, setWaMsg] = useState<string | null>(null);
 
   const today = todayISO();
 
@@ -109,8 +110,7 @@ export function AdminCalendarsSection({
       setMsg("✓ Saved");
       if (rangeGuest) {
         const hutNames = [...selectedHuts].map((id) => huts.find((h) => h.id === id)?.name ?? id);
-        const msg = buildWhatsAppMsg(hutNames);
-        window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank");
+        setWaMsg(buildWhatsAppMsg(hutNames));
       }
       resetForm();
     } else {
@@ -313,6 +313,30 @@ export function AdminCalendarsSection({
           </div>
         ))}
       </div>
+
+      {/* WhatsApp share dialog */}
+      {waMsg && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
+          <div className="bg-[#111008] border border-[var(--amber)]/20 p-6 max-w-sm w-full space-y-4">
+            <div className="text-[0.6rem] tracking-[0.18em] uppercase text-cream/45">Booking confirmed</div>
+            <pre className="text-[0.7rem] leading-relaxed text-cream/80 whitespace-pre-wrap font-sans">{waMsg}</pre>
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={() => { window.open(`https://wa.me/?text=${encodeURIComponent(waMsg)}`, "_blank"); setWaMsg(null); }}
+                className="flex-1 py-2 bg-[#25D366] text-[#0e0d0b] text-[0.65rem] tracking-[0.15em] uppercase font-medium hover:opacity-90 transition-opacity"
+              >
+                Post to WhatsApp
+              </button>
+              <button
+                onClick={() => setWaMsg(null)}
+                className="px-4 py-2 border border-white/15 text-cream/40 text-[0.65rem] tracking-[0.15em] uppercase hover:text-cream/60 transition-colors"
+              >
+                Dismiss
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
