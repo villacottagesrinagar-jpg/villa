@@ -53,6 +53,28 @@ export function AdminCalendarsSection({
     setRangeTotal(""); setRangeAdvance(""); setRangeNote("");
   }
 
+  function buildWhatsAppMsg(hutNames: string[]) {
+    const fmt = (iso: string) => new Date(iso + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+    const nights = Math.round((new Date(rangeEnd).getTime() - new Date(rangeStart).getTime()) / 86400000);
+    const lines = [
+      `🏡 *New Booking — Villa Cottages*`,
+      ``,
+      `*Cottage:* ${hutNames.join(" + ")}`,
+      `*Guest:* ${rangeGuest}`,
+      rangePhone ? `*Phone:* ${rangePhone}` : null,
+      rangeEmail ? `*Email:* ${rangeEmail}` : null,
+      rangeGuests ? `*Guests:* ${rangeGuests}` : null,
+      ``,
+      `*Check-in:* ${fmt(rangeStart)}`,
+      `*Check-out:* ${fmt(rangeEnd)} (${nights} night${nights !== 1 ? "s" : ""})`,
+      ``,
+      rangeTotal ? `*Total:* ₹${Number(rangeTotal).toLocaleString("en-IN")}` : null,
+      rangeAdvance ? `*Advance paid:* ₹${Number(rangeAdvance).toLocaleString("en-IN")}` : null,
+      rangeNote ? `*Note:* ${rangeNote}` : null,
+    ].filter(Boolean).join("\n");
+    return lines;
+  }
+
   async function handleSave() {
     if (!rangeStart || !rangeEnd || rangeStart >= rangeEnd || selectedHuts.size === 0) return;
     setBusy(true);
@@ -85,6 +107,11 @@ export function AdminCalendarsSection({
     const failed = results.filter((r) => r.status === "rejected").length;
     if (failed === 0) {
       setMsg("✓ Saved");
+      if (rangeGuest) {
+        const hutNames = [...selectedHuts].map((id) => huts.find((h) => h.id === id)?.name ?? id);
+        const msg = buildWhatsAppMsg(hutNames);
+        window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank");
+      }
       resetForm();
     } else {
       setMsg(`${results.length - failed} saved, ${failed} failed`);
