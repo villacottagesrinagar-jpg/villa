@@ -317,9 +317,9 @@ export function AdminCalendarsSection({
       {/* WhatsApp share dialog */}
       {waMsg && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
-          <div className="bg-[#111008] border border-[var(--amber)]/20 p-6 max-w-sm w-full space-y-4">
-            <div className="text-[0.6rem] tracking-[0.18em] uppercase text-cream/45">Booking confirmed</div>
-            <pre className="text-[0.7rem] leading-relaxed text-[#f2ead8] whitespace-pre-wrap font-sans">{waMsg}</pre>
+          <div style={{ background: "#1e1c14", border: "1px solid rgba(212,175,55,0.25)" }} className="p-6 max-w-sm w-full space-y-4">
+            <div style={{ color: "rgba(242,234,216,0.5)" }} className="text-[0.6rem] tracking-[0.18em] uppercase">Booking confirmed</div>
+            <pre style={{ color: "#f2ead8", fontSize: "0.72rem", lineHeight: 1.7 }} className="whitespace-pre-wrap font-sans">{waMsg}</pre>
             <div className="flex gap-3 pt-2">
               <button
                 onClick={() => { window.open(`https://wa.me/?text=${encodeURIComponent(waMsg)}`, "_blank"); setWaMsg(null); }}
