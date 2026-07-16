@@ -25,17 +25,17 @@ const lora = Lora({
 });
 
 export const metadata: Metadata = {
-  title: "Villa Cottages, Srinagar — Private Orchard Stay in Kashmir",
+  title: "Villa Cottages, Srinagar — Private Cottage on a Kashmir Apple Orchard",
   description:
-    "Two private A-frame cottages in a Srinagar apple orchard. Mosaic pool, mountain views, fire circle. Rated 4.9 on Google. Book your Kashmir escape.",
+    "Two private A-frame cottages on a Srinagar apple orchard. Mosaic pool, mountain views, fire circle. Rated 4.9 on Google. Book your private Kashmir cottage.",
   metadataBase: new URL("https://www.villacottages.in"),
   alternates: {
     canonical: "/",
   },
   openGraph: {
-    title: "Villa Cottages, Srinagar — Private Orchard Stay in Kashmir",
+    title: "Villa Cottages, Srinagar — Private Cottage on a Kashmir Apple Orchard",
     description:
-      "Two private A-frame cottages on a working apple orchard in Srinagar. Mosaic pool, mountain views, and total peace. Rated 4.9 stars on Google.",
+      "Two private A-frame cottages on a Srinagar apple orchard. Mosaic pool, mountain views, and total peace. Rated 4.9 stars on Google.",
     url: "https://www.villacottages.in",
     siteName: "Villa Cottages",
     images: [
@@ -51,9 +51,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Villa Cottages, Srinagar — Private Orchard Stay in Kashmir",
+    title: "Villa Cottages, Srinagar — Private Cottage on a Kashmir Apple Orchard",
     description:
-      "Two private A-frame cottages on a working apple orchard in Srinagar. Mosaic pool, mountain views. Rated 4.9 stars on Google.",
+      "Two private A-frame cottages on a Srinagar apple orchard. Mosaic pool, mountain views. Rated 4.9 stars on Google.",
     images: ["/photos/og-image.png"],
   },
 };

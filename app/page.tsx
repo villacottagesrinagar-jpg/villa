@@ -53,7 +53,7 @@ const jsonLd = {
       "@type": "LodgingBusiness",
       "@id": "https://www.villacottages.in/#lodging",
       "name": "Villa Cottages",
-      "description": "Two private A-frame cottages on a working apple orchard in Srinagar, Kashmir. Mosaic pool, mountain views, fire circle, and 24/7 concierge.",
+      "description": "Private apple orchard cottage stay in Srinagar, Kashmir. Two A-frame cottages with mosaic pool, mountain views, fire circle, and 24/7 concierge.",
       "url": "https://www.villacottages.in",
       "telephone": "+91-8715008939",
       "email": "villa.cottages.srinagar@gmail.com",
@@ -189,6 +189,30 @@ const jsonLd = {
             "@type": "Answer",
             "text": "Each cottage at Villa Cottages has its own private kitchenette for self-catering. The host also accepts pre-orders for meals — Kashmiri and Indian food can be arranged with advance notice before your check-in date. This includes breakfast, lunch, and dinner. The nearest restaurants and local markets are accessible within a short drive. For groups booking private events, catering can be arranged as part of the event package. Contact the host via WhatsApp at +91 87150 08939 at least 24 hours before arrival to arrange meals."
           }
+        },
+        {
+          "@type": "Question",
+          "name": "What is the best time to visit Kashmir for a summer vacation?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The best time for a Kashmir summer vacation is May through September. During this period the apple orchard at Villa Cottages is in full bloom, the private mosaic pool is open, and temperatures are comfortable for outdoor evenings around the fire circle. June and July see the orchard in peak condition with mountain views unobstructed by haze. August is ideal for families. Day trips to Gulmarg (1.5 hours) and Pahalgam (2.5 hours) are most accessible in summer. Villa Cottages is a particularly peaceful base for a summer Kashmir escape compared to busy Srinagar city hotels — surrounded by hundreds of apple trees with no shared corridors or lobbies."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is Villa Cottages a good base for day trips to Gulmarg and Pahalgam?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Villa Cottages is approximately 1.5 hours from Gulmarg ski resort and 2.5 hours from Pahalgam, making it a practical and significantly more peaceful base than hotels in either destination. Guests regularly use the orchard cottage as their Srinagar base while taking day trips to Gulmarg, Pahalgam, Sonamarg, Dal Lake, and the Mughal Gardens. Returning to a private apple orchard cottage at the end of each day — rather than a busy hotel — is one of the most common things guests mention in reviews. The property is also 50 minutes from Sheikh ul-Alam International Airport (SXR) for easy arrival and departure."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What type of accommodation is Villa Cottages — hotel, homestay, or cottage?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Villa Cottages is a private cottage stay — it is not a hotel and not a homestay. There are two independent A-frame cottages set on a working apple orchard in Srinagar. When you book, the property is exclusively yours: no shared reception, no other guests, no hotel corridors. This makes it fundamentally different from Srinagar hotels and houseboats on Dal Lake. It is closer in character to a private villa or luxury cottage rental — the host lives on the property and is available around the clock, but guests have complete privacy within their cottage. Rated 4.9 on Google across 124 reviews and 4.8 on Airbnb."
+          }
         }
       ]
     }
@@ -240,7 +264,7 @@ export default function HomePage() {
             <div className="hero__review-attr eyebrow">— Zainab Shafat · Google review</div>
           </div>
           <p className="hero__tagline">
-            Villa Cottages sits in Srinagar surrounded by apple trees and the Kashmir mountain ranges.
+            A private cottage on a Srinagar apple orchard, deep in the Kashmir mountain ranges.
             Every window frames a painting. Every morning begins with birdsong.
           </p>
         </div>
