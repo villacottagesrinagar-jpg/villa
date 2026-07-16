@@ -58,7 +58,7 @@ export function AdminCalendarsSection({
     const fmt = (iso: string) => new Date(iso + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
     const nights = Math.round((new Date(rangeEnd).getTime() - new Date(rangeStart).getTime()) / 86400000);
     const lines = [
-      `🏡 *New Booking — Villa Cottages*`,
+      `*New Booking — Villa Cottages*`,
       ``,
       `*Cottage:* ${hutNames.join(" + ")}`,
       `*Guest:* ${rangeGuest}`,
@@ -319,7 +319,7 @@ export function AdminCalendarsSection({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
           <div className="bg-[#111008] border border-[var(--amber)]/20 p-6 max-w-sm w-full space-y-4">
             <div className="text-[0.6rem] tracking-[0.18em] uppercase text-cream/45">Booking confirmed</div>
-            <pre className="text-[0.7rem] leading-relaxed text-cream/80 whitespace-pre-wrap font-sans">{waMsg}</pre>
+            <pre className="text-[0.7rem] leading-relaxed text-[#f2ead8] whitespace-pre-wrap font-sans">{waMsg}</pre>
             <div className="flex gap-3 pt-2">
               <button
                 onClick={() => { window.open(`https://wa.me/?text=${encodeURIComponent(waMsg)}`, "_blank"); setWaMsg(null); }}
