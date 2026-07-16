@@ -1,0 +1,42 @@
+"use client";
+
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { SITE } from "@/lib/huts";
+
+export function BlogNav() {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  return (
+    <nav className={`nav ${scrolled ? "nav--scrolled" : ""}`}>
+      <div className="nav__inner">
+        <Link href="/" className="nav__logo">
+          Villa <em>Cottages</em>
+        </Link>
+
+        <div className="nav__right">
+          <a href={SITE.whatsappUrl} target="_blank" rel="noreferrer" aria-label="WhatsApp" className="nav__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-4 h-4">
+              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+            </svg>
+          </a>
+          <a href={SITE.instagramUrl} target="_blank" rel="noreferrer" aria-label="Instagram" className="nav__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-4 h-4">
+              <rect x="3" y="3" width="18" height="18" rx="5" />
+              <circle cx="12" cy="12" r="4" />
+              <circle cx="17.5" cy="6.5" r="1" fill="currentColor" />
+            </svg>
+          </a>
+          <Link href="/#book" className="nav__cta">Check Availability</Link>
+        </div>
+      </div>
+    </nav>
+  );
+}
