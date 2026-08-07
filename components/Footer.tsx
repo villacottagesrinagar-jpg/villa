@@ -1,8 +1,15 @@
 import { SITE, PULL_QUOTES } from "@/lib/huts";
+import { SubscribeForm } from "@/components/SubscribeForm";
 
 export function Footer() {
   return (
     <footer className="py-12 px-6 lg:px-10 border-t border-white/6 max-w-7xl mx-auto">
+      <div className="mb-10 flex flex-col items-center gap-3">
+        <p style={{ color: "rgba(242,234,216,0.35)", fontSize: "0.6rem", letterSpacing: "0.18em" }} className="uppercase text-center">
+          Early access to dates &amp; seasonal offers
+        </p>
+        <SubscribeForm />
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6 items-center text-center md:text-left">
         <div className="font-serif text-xl">
           Villa <em className="text-[var(--amber)]">Cottages</em>
