@@ -37,17 +37,23 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Send welcome email (best-effort)
-  try {
-    await resend.emails.send({
+  // Send welcome email to subscriber and notify villa (both best-effort)
+  await Promise.allSettled([
+    resend.emails.send({
       from: "Villa Cottages <bookings@villacottages.in>",
       to: email,
       subject: "You're on the list — Villa Cottages",
       react: WelcomeEmail({ firstName }),
-    });
-  } catch (err) {
-    console.error("[subscribe] welcome email failed", err);
-  }
+    }),
+    process.env.EMAIL_VILLA
+      ? resend.emails.send({
+          from: "Villa Cottages <bookings@villacottages.in>",
+          to: process.env.EMAIL_VILLA,
+          subject: `New subscriber · ${email}`,
+          html: `<p style="font-family:sans-serif"><strong>${firstName || "Someone"}</strong> just subscribed to the Villa Cottages email list.<br/><br/>Email: ${email}</p>`,
+        })
+      : Promise.resolve(),
+  ]);
 
   return NextResponse.json({ ok: true });
 }
