@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) { return POST(req); }
 
 type Channel = {
-  source: Extract<BlockSource, "airbnb" | "stayeasy">;
+  source: Extract<BlockSource, "airbnb" | "stayeasy" | "goibibo">;
   urlEnv: (h: Hut) => string;
   // How far ahead we trust the feed. Airbnb only exports ~4 months and silently drops
   // later bookings (so we must not treat "missing" as "cancelled" beyond that).
@@ -38,7 +38,7 @@ type Channel = {
   // echoes, not new information: for such events import only the nights no other source
   // already holds. Real bookings (any other summary) are always imported in full so a true
   // double booking stays visible.
-  dedupeEchoSummary?: string;
+  dedupeEchoSummary?: string | RegExp;
   // Key mirrored blocks by UID + date range (StayEasy reuses a UID while the range changes).
   rangeKeyed?: boolean;
 };
@@ -59,6 +59,17 @@ const CHANNELS: Channel[] = [
     horizonMonths: 18,
     keep: (s) => !s.includes(OWN_MARKER),
     dedupeEchoSummary: "blocked",
+    rangeKeyed: true,
+  },
+  {
+    // Goibibo / MakeMyTrip (InGo) External Calendar Sync export. Generic block summaries are
+    // treated as echoes (same rule as StayEasy); anything that looks like a real booking is
+    // imported in full so a true double booking stays visible.
+    source: "goibibo",
+    urlEnv: (h) => h.goibiboIcalUrlEnv,
+    horizonMonths: 18,
+    keep: (s) => !s.includes(OWN_MARKER),
+    dedupeEchoSummary: /^(blocked|not available|unavailable|closed|booked|reserved|sold out)$/,
     rangeKeyed: true,
   },
 ];
@@ -126,7 +137,9 @@ async function syncChannel(hut: Hut, ch: Channel, url: string, r: HutReport) {
   type Piece = { key: string; start: string; end: string; summary: string };
   const wanted: Piece[] = [];
   for (const inc of incoming) {
-    const isEcho = ch.dedupeEchoSummary && inc.summary.trim().toLowerCase() === ch.dedupeEchoSummary;
+    const sum = inc.summary.trim().toLowerCase();
+    const isEcho = ch.dedupeEchoSummary &&
+      (typeof ch.dedupeEchoSummary === "string" ? sum === ch.dedupeEchoSummary : ch.dedupeEchoSummary.test(sum));
     const ranges: { start: string; end: string }[] = [];
     if (isEcho) {
       let runStart: string | null = null;

@@ -1,6 +1,7 @@
 // iCal feed that each channel imports to mirror our bookings.
 //   Airbnb:   https://www.villacottages.in/api/ical/luxury-1               (no param — existing URL)
 //   StayEasy: https://www.villacottages.in/api/ical/luxury-1?for=stayeasy
+//   Goibibo:  https://www.villacottages.in/api/ical/luxury-1?for=goibibo
 // Each channel gets everything EXCEPT blocks that originated from itself (avoids reflection loops),
 // so Airbnb sees site + manual + hold + StayEasy blocks, and StayEasy sees site + manual + hold + Airbnb blocks.
 
@@ -16,7 +17,7 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ hutId: stri
 
   // Which channel is consuming this feed. Default "airbnb" keeps the original URL working.
   const forParam = req.nextUrl.searchParams.get("for") ?? "airbnb";
-  if (forParam !== "airbnb" && forParam !== "stayeasy") {
+  if (forParam !== "airbnb" && forParam !== "stayeasy" && forParam !== "goibibo") {
     return new NextResponse("Unknown channel", { status: 400 });
   }
 
@@ -54,6 +55,7 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ hutId: stri
         b.source === "manual" ? `Blocked (${SITE.brandName})` :
         b.source === "airbnb" ? "Reserved (Airbnb)" :
         b.source === "stayeasy" ? "Reserved (StayEasy)" :
+        b.source === "goibibo" ? "Reserved (Goibibo)" :
         b.source === "hold"   ? `Held (${SITE.brandName})` :
         `Blocked`,
       description: `Imported from ${SITE.brandName}`,
