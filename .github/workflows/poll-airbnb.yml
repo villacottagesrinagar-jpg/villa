@@ -1,4 +1,4 @@
-name: Poll Airbnb + StayEasy iCal
+name: Poll Airbnb + StayEasy + Goibibo iCal
 
 on:
   schedule:
@@ -6,16 +6,58 @@ on:
   workflow_dispatch:         # manual trigger from GitHub UI
 
 permissions:
-  actions: write             # lets the keepalive step re-enable this workflow
+  actions: write             # keepalive re-enable + read previous runs
+
+env:
+  SITE: https://www.villacottages.in
 
 jobs:
   poll:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger poll
+        id: poll
         run: |
-          curl -f -X GET "https://www.villacottages.in/api/cron/poll-airbnb" \
-            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
+          set +e
+          code=$(curl -sS -o poll.json -w "%{http_code}" "$SITE/api/cron/poll-airbnb" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}")
+          echo "http=$code"
+          if [ "$code" != "200" ]; then
+            echo "problem=poll endpoint returned HTTP $code" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # Any channel error on a hut that has feeds configured counts as a failure.
+          # ("no iCal url configured" is expected for the hidden standard hut.)
+          errs=$(jq -r '[.report | to_entries[] | select(.value.error != null and .value.error != "no iCal url configured") | "\(.key): \(.value.error)"] | join("\n")' poll.json)
+          if [ -n "$errs" ]; then
+            printf 'problem<<EOF\n%s\nEOF\n' "$errs" >> "$GITHUB_OUTPUT"
+          fi
+          jq -c '{ranAt, report: (.report | map_values({added, removed, skipped, error}))}' poll.json
+
+      - name: Alert on state change (first failure / recovery)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PROBLEM: ${{ steps.poll.outputs.problem }}
+        run: |
+          prev=$(gh run list --repo "${{ github.repository }}" --workflow poll-airbnb.yml \
+                   --status completed --limit 1 --json conclusion -q '.[0].conclusion')
+          echo "previous completed run: ${prev:-none}"
+          alert() {
+            curl -sS -X POST "$SITE/api/cron/alert" \
+              -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" -H "Content-Type: application/json" \
+              -d "$(jq -n --arg s "$1" --arg t "$2" '{subject:$s,text:$t}')" || true
+          }
+          if [ -n "$PROBLEM" ]; then
+            echo "::error::Calendar sync problem: $PROBLEM"
+            if [ "$prev" != "failure" ]; then
+              url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+              body=$(printf 'First failing run: %s\n\n%s\n\nAvailability may be out of sync across Airbnb / StayEasy / Goibibo until this is fixed.' "$url" "$PROBLEM")
+              alert "Sync is FAILING" "$body"
+            fi
+            exit 1
+          elif [ "$prev" = "failure" ]; then
+            alert "Sync recovered" "The calendar poll is healthy again (run ${{ github.run_id }})."
+          fi
 
       # GitHub auto-disables scheduled workflows after 60 days without repo commits
       # ("disabled_inactivity"), which silently stopped this poll in Oct 2026.
