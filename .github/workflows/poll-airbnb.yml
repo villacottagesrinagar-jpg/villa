@@ -1,9 +1,12 @@
-name: Poll Airbnb iCal
+name: Poll Airbnb + StayEasy iCal
 
 on:
   schedule:
     - cron: "*/15 * * * *"  # every 15 minutes
   workflow_dispatch:         # manual trigger from GitHub UI
+
+permissions:
+  actions: write             # lets the keepalive step re-enable this workflow
 
 jobs:
   poll:
@@ -13,3 +16,12 @@ jobs:
         run: |
           curl -f -X GET "https://www.villacottages.in/api/cron/poll-airbnb" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
+
+      # GitHub auto-disables scheduled workflows after 60 days without repo commits
+      # ("disabled_inactivity"), which silently stopped this poll in Oct 2026.
+      # Re-enabling through the API on every run keeps it alive.
+      - name: Keepalive (prevent 60-day inactivity disable)
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow enable poll-airbnb.yml --repo "${{ github.repository }}"
