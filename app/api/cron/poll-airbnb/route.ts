@@ -1,13 +1,15 @@
-// Pulls each hut's Airbnb iCal feed and mirrors blocks back to Google Calendar.
-// Schedule from Vercel cron: every 10 min → POST /api/cron/poll-airbnb with Authorization: Bearer ${CRON_SECRET}
+// Pulls each hut's external-channel iCal feeds (Airbnb, StayEasy) and mirrors blocks
+// into that hut's Google Calendar. Triggered every 15 min by .github/workflows/poll-airbnb.yml
+// (GET with Authorization: Bearer ${CRON_SECRET}); Vercel's daily cron is the fallback.
+// (Route path kept as poll-airbnb so existing cron/workflow URLs keep working.)
 //
-// Idempotent: we tag mirrored events with extendedProperties.medan_source = "airbnb"
-// and the iCal UID so re-runs don't create duplicates.
+// Idempotent: mirrored events carry extendedProperties.medan_source = <channel> and
+// the iCal UID in notes ("uid:<UID>"), so re-runs don't create duplicates.
 
 import { NextRequest, NextResponse } from "next/server";
 import * as nodeIcal from "node-ical";
-import { HUTS } from "@/lib/huts";
-import { createBlock, listBlocks, deleteBlock } from "@/lib/calendar";
+import { HUTS, SITE, type Hut } from "@/lib/huts";
+import { createBlock, listBlocks, deleteBlock, type BlockSource } from "@/lib/calendar";
 
 export const dynamic = "force-dynamic";
 
@@ -22,86 +24,122 @@ export async function POST(req: NextRequest) {
 // Also support GET for manual triggers in dev/inspection (still requires auth)
 export async function GET(req: NextRequest) { return POST(req); }
 
+type Channel = {
+  source: Extract<BlockSource, "airbnb" | "stayeasy">;
+  urlEnv: (h: Hut) => string;
+  // How far ahead we trust the feed. Airbnb only exports ~4 months and silently drops
+  // later bookings (so we must not treat "missing" as "cancelled" beyond that).
+  // StayEasy exports everything it has.
+  horizonMonths: number;
+  // Drop feed events that are not real bookings, or that are our own blocks echoed back.
+  keep: (summary: string) => boolean;
+};
+
+const OWN_MARKER = SITE.brandName.toLowerCase(); // "villa cottages" — our own feed's events
+
+const CHANNELS: Channel[] = [
+  {
+    source: "airbnb",
+    urlEnv: (h) => h.airbnbIcalUrlEnv,
+    horizonMonths: 4,
+    // "Not available" / "Airbnb (Not available)" are availability-window blocks, not bookings.
+    keep: (s) => s !== "" && !s.includes("not available"),
+  },
+  {
+    source: "stayeasy",
+    urlEnv: (h) => h.stayeasyIcalUrlEnv,
+    horizonMonths: 18,
+    keep: (s) => !s.includes(OWN_MARKER),
+  },
+];
+
+type HutReport = {
+  added: number; removed: number; skipped: number; error?: string;
+  addedEvents?: { start: string; end: string; summary: string; uid: string }[];
+  removedEvents?: { start: string; end: string; guestName?: string; uid: string }[];
+};
+
 export async function runPoll() {
-  type HutReport = {
-    added: number; removed: number; skipped: number; error?: string;
-    addedEvents?: { start: string; end: string; summary: string; uid: string }[];
-    removedEvents?: { start: string; end: string; guestName?: string; uid: string }[];
-  };
   const report: Record<string, HutReport> = {};
 
   for (const hut of HUTS) {
-    const url = process.env[hut.airbnbIcalUrlEnv];
-    if (!url) { report[hut.id] = { added: 0, removed: 0, skipped: 0, error: "no iCal url configured" }; continue; }
+    const r: HutReport = { added: 0, removed: 0, skipped: 0, addedEvents: [], removedEvents: [] };
+    const errors: string[] = [];
+    let configured = 0;
 
-    try {
-      const events = await nodeIcal.async.fromURL(url);
-      const incoming = Object.values(events)
-        .filter((e): e is nodeIcal.VEvent => (e as { type?: string }).type === "VEVENT")
-        .filter((e) => {
-          // Skip Airbnb availability-window blocks — summaries include
-          // "Not available" and "Airbnb (Not available)". These are not real
-          // bookings; importing them falsely blocks our calendar.
-          const s = String((e as { summary?: string }).summary ?? "").trim().toLowerCase();
-          return s !== "" && !s.includes("not available");
-        })
-        .map((e) => ({
-          uid: String(e.uid),
-          start: toIso(e.start as Date),
-          end: toIso(e.end as Date),
-          summary: String(e.summary ?? ""),
-        }));
-
-      const fromDate = new Date(); fromDate.setDate(fromDate.getDate() - 30);
-      const from = fromDate.toISOString().slice(0, 10);
-      // Only reconcile within the window Airbnb reliably exports (~4 months).
-      // Beyond that, Airbnb drops bookings from the feed but they're not cancelled —
-      // deleting them would falsely re-open real bookings.
-      const toDate = new Date(); toDate.setMonth(toDate.getMonth() + 4);
-      const to = toDate.toISOString().slice(0, 10);
-      const existing = (await listBlocks(hut.id, from, to)).filter((b) => b.source === "airbnb");
-
-      const existingByNote = new Map(existing.map((b) => [b.notes ?? "", b]));
-      const incomingByUid = new Map(incoming.map((i) => [i.uid, i]));
-
-      let added = 0, removed = 0;
-      const addedEvents: HutReport["addedEvents"] = [];
-      const removedEvents: HutReport["removedEvents"] = [];
-
-      // Add new
-      for (const inc of incoming) {
-        if (existingByNote.has(`uid:${inc.uid}`)) continue;
-        if (inc.start >= to) continue;
-        await createBlock(hut.id, {
-          start: inc.start,
-          end: inc.end,
-          source: "airbnb",
-          notes: `uid:${inc.uid}`,
-          guestName: inc.summary,
-        });
-        addedEvents!.push({ start: inc.start, end: inc.end, summary: inc.summary, uid: inc.uid });
-        added++;
+    for (const ch of CHANNELS) {
+      const url = process.env[ch.urlEnv(hut)];
+      if (!url) continue;
+      configured++;
+      try {
+        await syncChannel(hut, ch, url, r);
+      } catch (e: unknown) {
+        errors.push(`${ch.source}: ${e instanceof Error ? e.message : String(e)}`);
       }
-
-      // Remove cancelled
-      for (const ex of existing) {
-        const uid = (ex.notes ?? "").replace(/^uid:/, "");
-        if (!uid || !incomingByUid.has(uid)) {
-          if (ex.eventId) {
-            await deleteBlock(hut.id, ex.eventId);
-            removedEvents!.push({ start: ex.start, end: ex.end, guestName: ex.guestName, uid });
-            removed++;
-          }
-        }
-      }
-
-      report[hut.id] = { added, removed, skipped: incoming.length - added, addedEvents, removedEvents };
-    } catch (e: unknown) {
-      report[hut.id] = { added: 0, removed: 0, skipped: 0, error: e instanceof Error ? e.message : String(e) };
     }
+
+    if (configured === 0) r.error = "no iCal url configured";
+    else if (errors.length) r.error = errors.join("; ");
+    report[hut.id] = r;
   }
 
   return { ok: true, ranAt: new Date().toISOString(), report };
+}
+
+async function syncChannel(hut: Hut, ch: Channel, url: string, r: HutReport) {
+  const events = await nodeIcal.async.fromURL(url);
+  const incoming = Object.values(events)
+    .filter((e): e is nodeIcal.VEvent => (e as { type?: string }).type === "VEVENT")
+    .filter((e) => ch.keep(String((e as { summary?: string }).summary ?? "").trim().toLowerCase()))
+    .map((e) => ({
+      uid: String(e.uid),
+      start: toIso(e.start as Date),
+      end: toIso(e.end as Date),
+      summary: String(e.summary ?? ""),
+    }));
+
+  const fromDate = new Date(); fromDate.setDate(fromDate.getDate() - 30);
+  const from = fromDate.toISOString().slice(0, 10);
+  const toDate = new Date(); toDate.setMonth(toDate.getMonth() + ch.horizonMonths);
+  const to = toDate.toISOString().slice(0, 10);
+
+  const all = await listBlocks(hut.id, from, to);
+  const existing = all.filter((b) => b.source === ch.source);
+  // Ranges already held by any *other* source. A channel that echoes back a block we
+  // fed it (e.g. StayEasy re-exporting an Airbnb-imported date) must not create a
+  // duplicate that would then outlive the original after a cancellation.
+  const otherRanges = new Set(all.filter((b) => b.source !== ch.source).map((b) => `${b.start}|${b.end}`));
+
+  const existingByNote = new Map(existing.map((b) => [b.notes ?? "", b]));
+  const incomingByUid = new Map(incoming.map((i) => [i.uid, i]));
+
+  // Add new
+  for (const inc of incoming) {
+    if (existingByNote.has(`uid:${inc.uid}`)) continue;
+    if (inc.start >= to) continue;
+    if (otherRanges.has(`${inc.start}|${inc.end}`)) { r.skipped++; continue; }
+    await createBlock(hut.id, {
+      start: inc.start,
+      end: inc.end,
+      source: ch.source,
+      notes: `uid:${inc.uid}`,
+      guestName: inc.summary,
+    });
+    r.addedEvents!.push({ start: inc.start, end: inc.end, summary: `${inc.summary} (${ch.source})`, uid: inc.uid });
+    r.added++;
+  }
+
+  // Remove cancelled
+  for (const ex of existing) {
+    const uid = (ex.notes ?? "").replace(/^uid:/, "");
+    if (!uid || !incomingByUid.has(uid)) {
+      if (ex.eventId) {
+        await deleteBlock(hut.id, ex.eventId);
+        r.removedEvents!.push({ start: ex.start, end: ex.end, guestName: ex.guestName, uid });
+        r.removed++;
+      }
+    }
+  }
 }
 
 function toIso(d: Date): string {

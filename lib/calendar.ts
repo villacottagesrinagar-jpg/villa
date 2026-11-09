@@ -5,7 +5,10 @@ import { BOOKING_RULES, getHut, type Hut } from "./huts";
 import { getPrice } from "./price-store";
 import { calendarIdForHut, googleCalendar, hasGoogle } from "./google";
 
-export type BlockSource = "site" | "manual" | "airbnb" | "hold";
+export type BlockSource = "site" | "manual" | "airbnb" | "stayeasy" | "hold";
+
+// Sources that are mirrored in from an external channel (read-only here).
+export const CHANNEL_SOURCES: BlockSource[] = ["airbnb", "stayeasy"];
 
 export type Block = {
   start: string; // ISO date (YYYY-MM-DD), inclusive
@@ -123,6 +126,7 @@ function blockToGEvent(b: Block, hut: Hut): GEvent {
       case "hold":   return `${prefix} HOLD · ${b.guestName ?? "Pending checkout"}`;
       case "manual": return b.notes ? `${prefix} BLOCKED · ${b.notes}` : `${prefix} BLOCKED`;
       case "airbnb": return `${prefix} Airbnb`;
+      case "stayeasy": return `${prefix} StayEasy`;
     }
   })();
 
@@ -217,6 +221,7 @@ function gEventToBlock(e: GEvent): Block {
 function inferSource(summary: string): BlockSource {
   const s = summary.toLowerCase();
   if (s.includes("airbnb")) return "airbnb";
+  if (s.includes("stayeasy")) return "stayeasy";
   if (s.startsWith("hold")) return "hold";
   if (s.startsWith("booked")) return "site";
   return "manual";
