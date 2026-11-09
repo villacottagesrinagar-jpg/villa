@@ -20,6 +20,8 @@ export type Hut = {
   // Filled in via env vars at runtime. See .env.local.example.
   googleCalendarIdEnv: string;
   airbnbIcalUrlEnv: string;
+  // StayEasy's per-property export feed (…/calendar.ics). Optional — unset = channel skipped.
+  stayeasyIcalUrlEnv: string;
 };
 
 export const HUTS: Hut[] = [
@@ -44,6 +46,7 @@ export const HUTS: Hut[] = [
     ],
     googleCalendarIdEnv: "GCAL_ID_LUXURY_1",
     airbnbIcalUrlEnv: "AIRBNB_ICAL_LUXURY_1",
+    stayeasyIcalUrlEnv: "STAYEASY_ICAL_LUXURY_1",
   },
   {
     id: "luxury-2",
@@ -66,6 +69,7 @@ export const HUTS: Hut[] = [
     ],
     googleCalendarIdEnv: "GCAL_ID_LUXURY_2",
     airbnbIcalUrlEnv: "AIRBNB_ICAL_LUXURY_2",
+    stayeasyIcalUrlEnv: "STAYEASY_ICAL_LUXURY_2",
   },
   {
     id: "standard",
@@ -89,6 +93,7 @@ export const HUTS: Hut[] = [
     ],
     googleCalendarIdEnv: "GCAL_ID_STANDARD",
     airbnbIcalUrlEnv: "AIRBNB_ICAL_STANDARD",
+    stayeasyIcalUrlEnv: "STAYEASY_ICAL_STANDARD",
   },
 ];
 

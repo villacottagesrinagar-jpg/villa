@@ -5,7 +5,7 @@ import type { Block } from "@/lib/calendar";
 
 function todayISO() { return new Date().toISOString().slice(0, 10); }
 
-type CellState = "open" | "hold" | "booked" | "manual" | "airbnb";
+type CellState = "open" | "hold" | "booked" | "manual" | "airbnb" | "stayeasy";
 type Position = "single" | "first" | "middle" | "last";
 
 function classify(
@@ -32,6 +32,7 @@ const STATE_LABEL: Record<CellState, string> = {
   hold:   "Hold (pending checkout)",
   manual: "Manually blocked",
   airbnb: "Airbnb booking",
+  stayeasy: "StayEasy booking",
   booked: "Site booking",
 };
 
@@ -40,6 +41,7 @@ const BAR_COLOR: Record<CellState, string> = {
   hold:   "bg-amber-400/80",
   manual: "bg-red-500/80",
   airbnb: "bg-blue-500/75",
+  stayeasy: "bg-emerald-500/75",
   booked: "bg-red-500/80",
 };
 
@@ -241,6 +243,10 @@ export const AdminCalendar = forwardRef<
           <span className="inline-block w-5 h-[5px] bg-blue-500/75 rounded-sm" />
           Airbnb
         </span>
+        <span className="flex items-center gap-1.5">
+          <span className="inline-block w-5 h-[5px] bg-emerald-500/75 rounded-sm" />
+          StayEasy
+        </span>
       </div>
 
       {/* Block detail modal */}
@@ -435,7 +441,7 @@ export const AdminCalendar = forwardRef<
                       Unblock these dates
                     </button>
                   )
-                ) : selected.source !== "airbnb" && (
+                ) : selected.source !== "airbnb" && selected.source !== "stayeasy" && (
                   confirmDelete ? (
                     <div className="space-y-2">
                       <div className="text-[0.6rem] text-cream/50 text-center">Delete this booking?</div>
