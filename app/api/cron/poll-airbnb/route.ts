@@ -33,6 +33,14 @@ type Channel = {
   horizonMonths: number;
   // Drop feed events that are not real bookings, or that are our own blocks echoed back.
   keep: (summary: string) => boolean;
+  // StayEasy re-exports every date it has blocked — including the ones it imported from OUR
+  // feed — as generic "Blocked" events, merging adjacent dates into one range. Those are
+  // echoes, not new information: for such events import only the nights no other source
+  // already holds. Real bookings (any other summary) are always imported in full so a true
+  // double booking stays visible.
+  dedupeEchoSummary?: string;
+  // Key mirrored blocks by UID + date range (StayEasy reuses a UID while the range changes).
+  rangeKeyed?: boolean;
 };
 
 const OWN_MARKER = SITE.brandName.toLowerCase(); // "villa cottages" — our own feed's events
@@ -50,6 +58,8 @@ const CHANNELS: Channel[] = [
     urlEnv: (h) => h.stayeasyIcalUrlEnv,
     horizonMonths: 18,
     keep: (s) => !s.includes(OWN_MARKER),
+    dedupeEchoSummary: "blocked",
+    rangeKeyed: true,
   },
 ];
 
@@ -105,41 +115,72 @@ async function syncChannel(hut: Hut, ch: Channel, url: string, r: HutReport) {
 
   const all = await listBlocks(hut.id, from, to);
   const existing = all.filter((b) => b.source === ch.source);
-  // Ranges already held by any *other* source. A channel that echoes back a block we
-  // fed it (e.g. StayEasy re-exporting an Airbnb-imported date) must not create a
-  // duplicate that would then outlive the original after a cancellation.
-  const otherRanges = new Set(all.filter((b) => b.source !== ch.source).map((b) => `${b.start}|${b.end}`));
+
+  // Nights already held by any *other* source.
+  const covered = new Set<string>();
+  for (const b of all.filter((b) => b.source !== ch.source)) {
+    for (let d = b.start; d < b.end; d = addDays(d, 1)) covered.add(d);
+  }
+
+  // Turn feed events into the blocks we want to exist (key → block).
+  type Piece = { key: string; start: string; end: string; summary: string };
+  const wanted: Piece[] = [];
+  for (const inc of incoming) {
+    const isEcho = ch.dedupeEchoSummary && inc.summary.trim().toLowerCase() === ch.dedupeEchoSummary;
+    const ranges: { start: string; end: string }[] = [];
+    if (isEcho) {
+      let runStart: string | null = null;
+      for (let d = inc.start; d < inc.end; d = addDays(d, 1)) {
+        if (!covered.has(d)) { runStart ??= d; }
+        else if (runStart) { ranges.push({ start: runStart, end: d }); runStart = null; }
+      }
+      if (runStart) ranges.push({ start: runStart, end: inc.end });
+      if (ranges.length === 0) { r.skipped++; continue; }
+    } else {
+      ranges.push({ start: inc.start, end: inc.end });
+    }
+    for (const rg of ranges) {
+      wanted.push({
+        key: ch.rangeKeyed ? `${inc.uid}@${rg.start}_${rg.end}` : inc.uid,
+        start: rg.start, end: rg.end, summary: inc.summary,
+      });
+    }
+  }
 
   const existingByNote = new Map(existing.map((b) => [b.notes ?? "", b]));
-  const incomingByUid = new Map(incoming.map((i) => [i.uid, i]));
+  const wantedByKey = new Map(wanted.map((w) => [w.key, w]));
 
   // Add new
-  for (const inc of incoming) {
-    if (existingByNote.has(`uid:${inc.uid}`)) continue;
-    if (inc.start >= to) continue;
-    if (otherRanges.has(`${inc.start}|${inc.end}`)) { r.skipped++; continue; }
+  for (const w of wanted) {
+    if (existingByNote.has(`uid:${w.key}`)) continue;
+    if (w.start >= to) continue;
     await createBlock(hut.id, {
-      start: inc.start,
-      end: inc.end,
+      start: w.start,
+      end: w.end,
       source: ch.source,
-      notes: `uid:${inc.uid}`,
-      guestName: inc.summary,
+      notes: `uid:${w.key}`,
+      guestName: w.summary,
     });
-    r.addedEvents!.push({ start: inc.start, end: inc.end, summary: `${inc.summary} (${ch.source})`, uid: inc.uid });
+    r.addedEvents!.push({ start: w.start, end: w.end, summary: `${w.summary} (${ch.source})`, uid: w.key });
     r.added++;
   }
 
-  // Remove cancelled
+  // Remove cancelled / superseded
   for (const ex of existing) {
-    const uid = (ex.notes ?? "").replace(/^uid:/, "");
-    if (!uid || !incomingByUid.has(uid)) {
+    const key = (ex.notes ?? "").replace(/^uid:/, "");
+    if (!key || !wantedByKey.has(key)) {
       if (ex.eventId) {
         await deleteBlock(hut.id, ex.eventId);
-        r.removedEvents!.push({ start: ex.start, end: ex.end, guestName: ex.guestName, uid });
+        r.removedEvents!.push({ start: ex.start, end: ex.end, guestName: ex.guestName, uid: key });
         r.removed++;
       }
     }
   }
+}
+
+function addDays(iso: string, days: number): string {
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d + days)).toISOString().slice(0, 10);
 }
 
 function toIso(d: Date): string {
