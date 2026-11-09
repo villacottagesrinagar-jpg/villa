@@ -11,12 +11,18 @@ import { listBlocks } from "@/lib/calendar";
 import { getHut, BOOKING_RULES, SITE } from "@/lib/huts";
 
 export async function GET(req: NextRequest, ctx: { params: Promise<{ hutId: string }> }) {
-  const { hutId } = await ctx.params;
+  const { hutId: rawId } = await ctx.params;
+
+  // Path-style URLs for importers that dislike query strings or want a .ics suffix:
+  //   /api/ical/luxury-1            /api/ical/luxury-1.ics
+  //   /api/ical/luxury-1.goibibo.ics   (= ?for=goibibo)
+  const m = rawId.match(/^(.+?)(?:\.(airbnb|stayeasy|goibibo))?(?:\.ics)?$/);
+  const hutId = m?.[1] ?? rawId;
   const hut = getHut(hutId);
   if (!hut) return new NextResponse("Unknown hut", { status: 404 });
 
   // Which channel is consuming this feed. Default "airbnb" keeps the original URL working.
-  const forParam = req.nextUrl.searchParams.get("for") ?? "airbnb";
+  const forParam = req.nextUrl.searchParams.get("for") ?? m?.[2] ?? "airbnb";
   if (forParam !== "airbnb" && forParam !== "stayeasy" && forParam !== "goibibo") {
     return new NextResponse("Unknown channel", { status: 400 });
   }
@@ -43,7 +49,11 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ hutId: stri
     // Apply buffer day on either side of site bookings to soften iCal lag
     const buf = BOOKING_RULES.airbnbBufferDays;
     const start = addDays(b.start, -buf);
-    const end = addDays(b.end, buf);
+    let end = addDays(b.end, buf);
+    // A timed event inside a single day (e.g. a few hours blocked) collapses to start === end.
+    // An all-day event with DTEND <= DTSTART is invalid and crashes strict parsers (Goibibo's
+    // ics.py), so treat it as a one-night block.
+    if (end <= start) end = addDays(start, 1);
 
     cal.createEvent({
       id: `${b.eventId ?? `${b.start}_${b.end}`}@villacottages.in`,
